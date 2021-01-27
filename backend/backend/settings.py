@@ -52,6 +52,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'stocksearch.apps.StocksearchConfig',
+    'gappers.apps.GappersConfig',
+    'news.apps.NewsConfig',
 ]
 
 MIDDLEWARE = [
