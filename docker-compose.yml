@@ -22,5 +22,54 @@ services:
         volumes:
             - db_data:/var/lib/postgresql/
             - ./docker/backups/dumps/:/dumps/
+    redis:
+        restart: always
+        image: redis:latest
+        hostname: redis
+    rabbit:
+        image: rabbitmq:latest
+        hostname: rabbit
+        env_file: ./devops/docker/rabbit/.env
+        ports:
+        - "5672:5672"  # we forward this port because it's useful for debugging
+        - "15672:15672"  # here, we can access rabbitmq management plugin
+    
+    # Celery Worker
+    worker:
+        build:
+            context: ./backend/
+            dockerfile: Dockerfile
+        command: ./wait-for-it.sh rabbit:5672 --timeout=30 -- celery -A backend worker -l info
+        user: myuser
+        container_name: re_worker
+        hostname: re_worker
+        volumes:
+            - ./backend:/backend
+        links:
+            - db
+            - rabbit
+            - redis
+        env_file: ./backend/.env
+        depends_on:
+            - rabbit
+
+    # Celery beat
+    beat:
+        build:
+            context: ./backend/
+            dockerfile: Dockerfile
+        command: ["./wait-for-it.sh", "db:5432", "--timeout=30", "--", "celery", "-A", "backend", "beat", "-l", "info", "-S", "django"] #sh -c "sleep 40 && celery -A LEV beat -l info -S django"
+        container_name: re_beat
+        hostname: re_beat
+        volumes:
+            - ./backend:/backend
+        links:
+            - db
+            - rabbit
+            - redis
+        env_file: ./backend/.env
+        depends_on:
+            - db
+            - rabbit
 volumes:
     db_data:
