@@ -16,41 +16,59 @@ class Gapper(models.Model):
     update = models.DateTimeField(auto_now=True)
     date = models.DateField()
     ticker = models.CharField(max_length=10)
-    market = models.CharField(max_length=20) #NYSE #NASDAQ #pinksheets #ETC
+    market = models.CharField(max_length=20) # NYSE #NASDAQ #pinksheets #ETC
     company_name = models.CharField(max_length=100)
+    industry = models.CharField(max_length=100)
 
-    pm_volume = models.BigIntegerField()
-    pm_market_cap = models.BigIntegerField() #market capitalization premarket
-    pm_shares_outstanding = models.BigIntegerField()
-    pm_float = models.BigIntegerField()
-    pm_held_insiders = models.FloatField()
-    pm_held_institutions = models.FloatField()
-    pm_short_float = models.FloatField(null=True) #percentage
-    pm_atr = models.FloatField()
-    pm_red_gaps = models.FloatField(null=True) #percentage
-    pm_observations = models.IntegerField()
+    # PreMarket Data Source 1
+    pm_source1 = models.CharField(max_length=30) # Yahoo
+    pm_s1_volume = models.BigIntegerField(null=True)
+    pm_s1_market_cap = models.BigIntegerField(null=True) # market capitalization premarket
+    pm_s1_shares_outstanding = models.BigIntegerField(null=True)
+    pm_s1_float = models.BigIntegerField(null=True)
+    pm_s1_held_insiders = models.FloatField(null=True)
+    pm_s1_held_institutions = models.FloatField(null=True)
+    pm_s1_short_float = models.FloatField(null=True) # percentage
+    #  PreMarket Data Source 2
+    pm_source2 = models.CharField(max_length=30) # Barchar
+    pm_s2_volume = models.BigIntegerField(null=True)
+    pm_s2_market_cap = models.BigIntegerField(null=True) # market capitalization premarket
+    pm_s2_shares_outstanding = models.BigIntegerField(null=True)
+    pm_s2_float = models.BigIntegerField(null=True)
+    pm_s2_held_insiders = models.FloatField(null=True)
+    pm_s2_held_institutions = models.FloatField(null=True)
+    pm_s2_short_float = models.FloatField(null=True)
+    # Calculated Data PreMarket
+    pm_atr = models.FloatField(null=True)
+    pm_red_gaps = models.FloatField(null=True) # percentage
+    pm_observations = models.IntegerField(null=True)
 
-    pdah_volume = models.BigIntegerField() #previous_day_after_hours_volume
-    pd_close = models.FloatField() #previous day close
+    # Prev Day Data
+    pdah_volume = models.BigIntegerField(null=True) # previous_day_after_hours_volume
+    pd_close = models.FloatField(null=True) # previous day close
+    pd_rvol = models.FloatField(null=True)
 
-    #After Close Data:
-    ac_market_cap = models.BigIntegerField() #after close market capitalization
-    volume = models.BigIntegerField()
-    gap_percentage = models.FloatField()
-    open = models.FloatField()
-    high = models.FloatField()
-    low = models.FloatField()
-    close = models.FloatField()
-    tr = models.FloatField()#true range
-    move = models.FloatField()
-    ac_atr = models.FloatField()#after close ATR
-    prev_day_rvol = models.FloatField()
-    day_rvol = models.FloatField()
-    float_rotation = models.FloatField()
+    # At Close Data: 4PM
+    ac_float = models.BigIntegerField(null=True)
+    ac_market_cap = models.BigIntegerField(null=True) # after close market capitalization
+    volume = models.BigIntegerField(null=True)
+    gap_percentage = models.FloatField(null=True)
+    gap = models.FloatField(null=True)
+    open = models.FloatField(null=True)
+    high = models.FloatField(null=True)
+    low = models.FloatField(null=True)
+    close = models.FloatField(null=True)
+    last = models.FloatField(null=True)
+    tr = models.FloatField(null=True)  # true range
+    move = models.FloatField(null=True)
+    ac_atr = models.FloatField(null=True)  # after close ATR
+    day_rvol = models.FloatField(null=True)
+    float_rotation = models.FloatField(null=True)
 
 
 class UpGapper(Gapper):
     pass
+
 
 class DownGapper(Gapper):
     pass

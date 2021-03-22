@@ -1,10 +1,57 @@
-FROM python:3.9
+FROM ubuntu:18.04
+
+RUN apt-get update && apt-get install -y \
+    python3.8 \
+    python3-pip \
+    python3.8-dev \
+    git \
+    nano \
+    wget
+
 ENV PYTHONUNBUFFERED 1
 WORKDIR /backend
-COPY requirements.txt /backend
-RUN pip install -r requirements.txt
+
 RUN adduser --disabled-password --gecos '' tasksuser
 ADD wait-for-it.sh /backend/
 RUN chmod +x /backend/wait-for-it.sh
+
+#RUN apt-get install -yqq wget
+
+# install google chrome
+RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+RUN sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+RUN apt-get -y update
+RUN apt-get install -y google-chrome-stable
+
+# install chromedriver
+RUN apt-get install -yqq unzip
+RUN wget -O /tmp/chromedriver.zip https://chromedriver.storage.googleapis.com/88.0.4324.96/chromedriver_linux64.zip
+RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
+
+#RUN apt-get install -yqq python-setuptools python-dev build-essential
+#RUN apt-get install -yqq python-pip
+
+COPY requirements.txt /backend
+RUN pip3 install -r requirements.txt
+
+RUN apt-get update && apt-get install -y \
+    xvfb \
+    xserver-xephyr \
+    tigervnc-standalone-server \
+    xfonts-base \
+    sudo
+
+RUN export uid=1000 gid=1000 && \
+    mkdir -p /home/developer && \
+    echo "developer:x:${uid}:${gid}:Developer,,,:/home/developer:/bin/bash" >> /etc/passwd && \
+    echo "developer:x:${uid}:" >> /etc/group && \
+    echo "developer ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/developer && \
+    chmod 0440 /etc/sudoers.d/developer && \
+    chown ${uid}:${gid} -R /home/developer
+
+
+USER developer
+ENV HOME /home/developer
+
 
 COPY . /backend/

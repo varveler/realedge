@@ -38,7 +38,7 @@ SECRET_KEY = get_env_variable('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['0.0.0.0']
 
 
 # Application definition
@@ -54,9 +54,9 @@ INSTALLED_APPS = [
     'celery',
     'django_celery_beat',
     'django_celery_results',
-    'stocksearch.apps.StocksearchConfig',
-    'gappers.apps.GappersConfig',
-    'news.apps.NewsConfig',
+    #'stocksearch.apps.StocksearchConfig',
+    'gappers',
+    #'news.apps.NewsConfig',
 ]
 
 MIDDLEWARE = [
@@ -201,6 +201,8 @@ CELERYD_PREFETCH_MULTIPLIER = 1
 CELERYD_MAX_TASKS_PER_CHILD = 1000
 
 CELERY_IMPORTS = (
-    #'emails.tasks',
+    'gappers.tasks',
     #'api.tasks',
 )
+
+CHROMEDRIVER_PATH = '/backend/backend/drivers/chromedriver'
