@@ -16,7 +16,7 @@ services:
             dockerfile: Dockerfile
         container_name: re_backend
         hostname: re_backend
-        command: 'python3 manage.py runserver 0.0.0.0:8000'
+        command: /usr/local/bin/gunicorn backend.wsgi:application -w 3 -b :8000 --reload --log-level debug --timeout 90
         ports:
             - 8000:8000
         volumes:
@@ -28,6 +28,23 @@ services:
             - db
             - redis
             - rabbit
+        networks:
+            - djangonetwork
+    nginx:
+        build: ./devops/docker/nginx/
+        container_name: re_nginx
+        hostname: re_nginx
+        command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - /www/static #static volume
+            - ./devops/docker/nginx/sites-enabled/:/etc/nginx/sites-enabled/
+        volumes_from:
+            - backend
+        links:
+            - backend:backend
         networks:
             - djangonetwork
     redis:
@@ -75,7 +92,7 @@ services:
         build:
             context: ./backend/
             dockerfile: Dockerfile
-        command: ["./wait-for-it.sh", "db:5432", "--timeout=30", "--", "celery", "-A", "backend", "beat", "-l", "info", "-S", "django"] #sh -c "sleep 40 && celery -A LEV beat -l info -S django"
+        command: ["./wait-for-it.sh", "db:5432", "--timeout=30", "--", "celery", "-A", "backend", "beat", "-l", "info", "-S", "django"]
         container_name: re_beat
         hostname: re_beat
         volumes:
@@ -96,5 +113,5 @@ services:
 volumes:
     db_data:
 networks:
-      djangonetwork:
-          driver: bridge
+    djangonetwork:
+        driver: bridge
