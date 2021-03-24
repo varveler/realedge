@@ -1,10 +1,11 @@
 version: '3.8'
-  backend:
-    environment:
-      - DJANGO_SETTINGS_MODULE=backend.settings.production
-  worker:
-    environment:
-      - DJANGO_SETTINGS_MODULE=backend.settings.production
-  beat:
-    environment:
-      - DJANGO_SETTINGS_MODULE=backend.settings.production
+services:
+    backend:
+        environment:
+            - DJANGO_SETTINGS_MODULE=backend.settings.production
+    worker:
+        environment:
+            - DJANGO_SETTINGS_MODULE=backend.settings.production
+    beat:
+        environment:
+            - DJANGO_SETTINGS_MODULE=backend.settings.production
