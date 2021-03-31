@@ -107,3 +107,6 @@ client_secret.json
 celerybeat-schedule
 celerybeat-schedule.db
 celerybeat.pid
+
+
+devops/docker/nginx/sites/realedge.conf

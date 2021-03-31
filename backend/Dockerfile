@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
 ENV PYTHONUNBUFFERED 1
 WORKDIR /backend
 
-RUN adduser --disabled-password --gecos '' tasksuser
+#RUN adduser --disabled-password --gecos '' tasksuser
 ADD wait-for-it.sh /backend/
 RUN chmod +x /backend/wait-for-it.sh
 
@@ -50,11 +50,11 @@ RUN pip3 install -r requirements.txt
 #    chown ${uid}:${gid} -R /home/developer
 
 
-RUN mkdir -p /home/developer
-RUN adduser --disabled-password --gecos '' developer
+RUN mkdir -p /home/varveler
+RUN adduser --disabled-password --gecos '' varveler
 
-USER developer
-ENV HOME /home/developer
+USER varveler
+ENV HOME /home/varveler
 
 
 COPY . /backend/

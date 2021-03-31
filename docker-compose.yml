@@ -18,7 +18,7 @@ services:
         hostname: re_backend
         command: /usr/local/bin/gunicorn backend.wsgi:application -w 3 -b :8000 --reload --log-level debug --timeout 90
         ports:
-            - 8000:8000
+            - "8000:8000"
         volumes:
             - ./backend:/backend
         env_file: ./backend/.env
@@ -79,7 +79,7 @@ services:
             context: ./backend/
             dockerfile: Dockerfile
         command: ./wait-for-it.sh rabbit:5672 --timeout=30 -- celery -A backend worker -l info
-        user: tasksuser
+        user: varveler
         container_name: re_worker
         hostname: re_worker
         volumes:
