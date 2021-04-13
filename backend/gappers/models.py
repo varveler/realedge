@@ -29,6 +29,7 @@ class Gapper(models.Model):
     pm_s1_held_insiders = models.FloatField(null=True)
     pm_s1_held_institutions = models.FloatField(null=True)
     pm_s1_short_float = models.FloatField(null=True) # percentage
+    pm_s1_beta = models.FloatField(null=True) # percentage
     #  PreMarket Data Source 2
     pm_source2 = models.CharField(max_length=30) # Barchar
     pm_s2_volume = models.BigIntegerField(null=True)

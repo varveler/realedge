@@ -215,22 +215,22 @@ def parse_stock_statistics_yquery(stocks):
     # summary_details = data.summary_detail
     # key_stats = data.key_stats
     for stock in stocks:
-        print(stock.ticker, stock.name)
+        print(stock.ticker, stock.company_name)
         wait_random_seconds(min=1, max=3)
         data = Ticker(stock.ticker).get_modules(['quoteType', 'defaultKeyStatistics', 'summaryDetail'])
         try:
-            if not stock.name:
-                stock.name = data[stock.ticker]['quoteType'].get('longName', 'N/A')
-            stock.beta = data[stock.ticker]['defaultKeyStatistics'].get('beta', 'N/A')
-            stock.market_cap = data[stock.ticker]['summaryDetail'].get('marketCap', 'N/A')
-            stock.shares_outstanding = data[stock.ticker]['defaultKeyStatistics'].get('sharesOutstanding', 'N/A')
-            stock._float = data[stock.ticker]['defaultKeyStatistics'].get('floatShares', 'N/A')
-            stock.held_insiders = data[stock.ticker]['defaultKeyStatistics'].get('heldPercentInsiders', 'N/A')
-            stock.held_institutions = data[stock.ticker]['defaultKeyStatistics'].get('heldPercentInstitutions', 'N/A')
-            stock.short_float = data[stock.ticker]['defaultKeyStatistics'].get('shortPercentOfFloat', 'N/A')
+            if not stock.company_name:
+                stock.company_name = data[stock.ticker]['quoteType'].get('longName', 'N/A')
+            stock.pm_s1_beta = data[stock.ticker]['defaultKeyStatistics'].get('beta', 'N/A')
+            stock.pm_s1_market_cap = data[stock.ticker]['summaryDetail'].get('marketCap', 'N/A')
+            stock.pm_s1_shares_outstanding = data[stock.ticker]['defaultKeyStatistics'].get('sharesOutstanding', 'N/A')
+            stock.pm_s1_short_float = data[stock.ticker]['defaultKeyStatistics'].get('floatShares', 'N/A')
+            stock.pm_s1_held_insiders = data[stock.ticker]['defaultKeyStatistics'].get('heldPercentInsiders', 'N/A')
+            stock.pm_s1_held_institutions = data[stock.ticker]['defaultKeyStatistics'].get('heldPercentInstitutions', 'N/A')
+            stock.pm_s1_short_float = data[stock.ticker]['defaultKeyStatistics'].get('shortPercentOfFloat', 'N/A')
         except Exception as e:
             print('######Exception#######')
-            print(stock.ticker, stock.name)
+            print(stock.ticker, stock.company_name)
             print(e)
         wait_random_seconds(min=1, max=3)
         df = Ticker(stock.ticker).history(period='5y')
@@ -254,18 +254,21 @@ def parse_stock_statistics_yquery(stocks):
             index = df_today_data.index[0] - 1
         else:
             index = df.index.stop - 1
-        stock.atr = round(df.loc[index]['ATR'], 2)
+        stock.pm_atr = round(df.loc[index]['ATR'], 2)
         mask = (df['date'] < start_date) & (df['date'] >= end_date)
         df = df.loc[mask]
         gaps_df = df[(df['gapPercent'] >= 10) & (df['RVOL'] >= 1.6)].copy()
         if gaps_df.empty:
-            stock.red_gap_probability = "N/A"
-            stock.gaps_observations = "0"
+            stock.pm_red_gaps = "N/A"
+            stock.pm_observations = "0"
         else:
             observations = len(gaps_df.index)
-            stock.red_gap_probability = str(int((np.sum(gaps_df['move'] < 0) / observations) * 100))
-            stock.gaps_observations = str(observations)
+            stock.pm_red_gaps = str(int((np.sum(gaps_df['move'] < 0) / observations) * 100))
+            stock.pm_observations = str(observations)
+    stock.save()
     return stocks
 
-def get_gappers():
+@task(name='parse_gappers')
+def parse_gappers():
     stocks = parse_gappers_barchart_and_filter()
+    parse_stock_statistics_yquery(stocks)
