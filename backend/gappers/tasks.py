@@ -167,8 +167,8 @@ def parse_gappers_barchart_and_filter():
                 last                     = stock['raw'].get('lastPrice', 0.0),
                 gap                      = stock['raw'].get('gapUp', 0.0))
             stonck.save()
-            stoncks.append(stock)
-            stoncks_ids.append(stock.id)
+            stoncks.append(stonck)
+            stoncks_ids.append(stonck.id)
     return stoncks
 
 
