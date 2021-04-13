@@ -73,47 +73,47 @@ AVOID_STOCKS = ['Direxion Daily',
                 'fund']
 
 
-def parse_gappers():
-    """Search for stocks in market cameleon and return stocks given the criteria."""
-    url = 'https://marketchameleon.com/Reports/PremarketTrading'
-    #display = Display(visible=0, size=(1200, 800))
-    #display.start()
-    driver = ghost_driver()
-    driver.get(url)
-    time.sleep(10)
-    try:
-        wait = WebDriverWait(driver, timeout=15, poll_frequency=0.1)
-        wait.until(EC.presence_of_element_located((By.ID, "gainers_tbl")))
-    except Exception as e:
-        driver.save_screenshot('WebsiteScreenShot.png')
-        print('Waited and "gainers_tbl" id was not found on market chameleon')
-        print(e)
-        time.sleep(100)
-        return None
-    html_source = driver.page_source
-    soup = BeautifulSoup(html_source, "html.parser")
-    parent_div_ids = ['gainers_tbl', 'decliners_tbl']
-    stocks = []
-    for id in parent_div_ids:
-        table = soup.find(id=id).tbody
-        rows = table.find_all('tr')
-        for row in rows:
-            cells = row.find_all('td')
-            stock = Stock()
-            stock.ticker = cells[0].text
-            stock.price = cells[1].text
-            stock.percentage = cells[3].text.split('%')[0]
-            stock.volume = convert_amount(cells[4].text)
-            stock.market_cap = cells[5].text
-            if float(stock.percentage) >= MAX_GAP_PERCENTAGE or float(stock.percentage) <= MIN_GAP_PERCENTAGE:
-                if float(stock.price) < MAX_PRICE:
-                    if stock.volume > MIN_PREMARKET_VOLUME:
-                        stocks.append(stock)
-    wait_random_seconds()
-    driver.close()
-    driver.quit()
-    print(stocks)
-    return stocks
+# def parse_gappers():
+#     """Search for stocks in market cameleon and return stocks given the criteria."""
+#     url = 'https://marketchameleon.com/Reports/PremarketTrading'
+#     #display = Display(visible=0, size=(1200, 800))
+#     #display.start()
+#     driver = ghost_driver()
+#     driver.get(url)
+#     time.sleep(10)
+#     try:
+#         wait = WebDriverWait(driver, timeout=15, poll_frequency=0.1)
+#         wait.until(EC.presence_of_element_located((By.ID, "gainers_tbl")))
+#     except Exception as e:
+#         driver.save_screenshot('WebsiteScreenShot.png')
+#         print('Waited and "gainers_tbl" id was not found on market chameleon')
+#         print(e)
+#         time.sleep(100)
+#         return None
+#     html_source = driver.page_source
+#     soup = BeautifulSoup(html_source, "html.parser")
+#     parent_div_ids = ['gainers_tbl', 'decliners_tbl']
+#     stocks = []
+#     for id in parent_div_ids:
+#         table = soup.find(id=id).tbody
+#         rows = table.find_all('tr')
+#         for row in rows:
+#             cells = row.find_all('td')
+#             stock = Stock()
+#             stock.ticker = cells[0].text
+#             stock.price = cells[1].text
+#             stock.percentage = cells[3].text.split('%')[0]
+#             stock.volume = convert_amount(cells[4].text)
+#             stock.market_cap = cells[5].text
+#             if float(stock.percentage) >= MAX_GAP_PERCENTAGE or float(stock.percentage) <= MIN_GAP_PERCENTAGE:
+#                 if float(stock.price) < MAX_PRICE:
+#                     if stock.volume > MIN_PREMARKET_VOLUME:
+#                         stocks.append(stock)
+#     wait_random_seconds()
+#     driver.close()
+#     driver.quit()
+#     print(stocks)
+#     return stocks
 
 
 @task(name='parse_gappers_barchart_and_filter')
@@ -146,26 +146,24 @@ def parse_gappers_barchart_and_filter():
     stoncks = []
     stoncks_ids = []
     for stock in data:
-        #stonck = Stock()
-
         if (stock['raw']['gapUpPercent'] >= GAP_UP_MIN_GAP and
         stock['raw']['volume'] >= MIN_PREMARKET_VOLUME):
             stonck = UpGapper(
-                date                     = datetime.date.today(),
-                ticker                   = stock['raw'].get('symbol', ''),
-                market                   = stock['raw'].get('exchange', ''),
-                company_name             = stock['raw'].get('symbolName', ''),
-                industry                 = stock['raw'].get('industry', ''),
-                pm_source2               = 'barchart',
-                pm_s2_volume             = stock['raw'].get('volume', 0),
-                pm_s2_market_cap         = stock['raw'].get('marketCap', 0),
-                pm_s2_shares_outstanding = stock['raw'].get('sharesOutstanding', 0),
-                pm_s2_float              = stock['raw'].get('float', 0.0),
-                pm_s2_held_insiders      = stock['raw'].get('percentInsider', 0.0),
-                pm_s2_held_institutions  = stock['raw'].get('percentInstitutional', 0.0),
-                gap_percentage           = stock['raw'].get('gapUpPercent', 0.0),
-                last                     = stock['raw'].get('lastPrice', 0.0),
-                gap                      = stock['raw'].get('gapUp', 0.0))
+                date                             = datetime.date.today(),
+                ticker                           = stock['raw'].get('symbol', ''),
+                market                           = stock['raw'].get('exchange', ''),
+                company_name                     = stock['raw'].get('symbolName', ''),
+                industry                         = stock['raw'].get('industry', ''),
+                pm_source2                       = 'barchart',
+                pm_s2_volume                     = stock['raw'].get('volume', 0),
+                pm_s2_market_cap                 = stock['raw'].get('marketCap', 0),
+                pm_s2_shares_outstanding         = stock['raw'].get('sharesOutstanding', 0),
+                pm_s2_float                      = stock['raw'].get('float', 0.0),
+                pm_s2_held_percent_insiders      = stock['raw'].get('percentInsider', 0.0),
+                pm_s2_held_percent_institutions  = stock['raw'].get('percentInstitutional', 0.0),
+                gap_percentage                   = stock['raw'].get('gapUpPercent', 0.0),
+                last                             = stock['raw'].get('lastPrice', 0.0),
+                gap                              = stock['raw'].get('gapUp', 0.0))
             stonck.save()
             stoncks.append(stonck)
             #stoncks_ids.append(stonck.id)
@@ -212,7 +210,7 @@ def write_to_log_sheet(stocks, worksheet=None):
 
 
 def parse_stock_statistics_yquery(stocks):
-    #tickers = [stock.ticker for stock in stocks]
+    # tickers = [stock.ticker for stock in stocks]
     # data = Ticker(tickers, asynchronus=True, max_workers=7)
     # summary_details = data.summary_detail
     # key_stats = data.key_stats
@@ -222,14 +220,15 @@ def parse_stock_statistics_yquery(stocks):
         data = Ticker(stock.ticker).get_modules(['quoteType', 'defaultKeyStatistics', 'summaryDetail'])
         try:
             if not stock.company_name:
-                stock.company_name = data[stock.ticker]['quoteType'].get('longName', 'N/A')
-            stock.pm_s1_beta = data[stock.ticker]['defaultKeyStatistics'].get('beta', 'N/A')
-            stock.pm_s1_market_cap = data[stock.ticker]['summaryDetail'].get('marketCap', 'N/A')
-            stock.pm_s1_shares_outstanding = data[stock.ticker]['defaultKeyStatistics'].get('sharesOutstanding', 'N/A')
-            stock.pm_s1_short_float = data[stock.ticker]['defaultKeyStatistics'].get('floatShares', 'N/A')
-            stock.pm_s1_held_insiders = data[stock.ticker]['defaultKeyStatistics'].get('heldPercentInsiders', 'N/A')
-            stock.pm_s1_held_institutions = data[stock.ticker]['defaultKeyStatistics'].get('heldPercentInstitutions', 'N/A')
-            stock.pm_s1_short_float = data[stock.ticker]['defaultKeyStatistics'].get('shortPercentOfFloat', 'N/A')
+                stock.company_name = data[stock.ticker]['quoteType'].get('longName', None)
+            stock.pm_s1_beta = data[stock.ticker]['defaultKeyStatistics'].get('beta', None)
+            stock.pm_s1_market_cap = data[stock.ticker]['summaryDetail'].get('marketCap', None)
+            stock.pm_s1_shares_outstanding = data[stock.ticker]['defaultKeyStatistics'].get('sharesOutstanding', None)
+            stock.pm_s1_float = data[stock.ticker]['defaultKeyStatistics'].get('floatShares', None)
+            stock.pm_s1_held_percent_insiders = data[stock.ticker]['defaultKeyStatistics'].get('heldPercentInsiders', None)
+            stock.pm_s1_held_percent_institutions = data[stock.ticker]['defaultKeyStatistics'].get('heldPercentInstitutions', None)
+            stock.pm_s1_short_float = data[stock.ticker]['defaultKeyStatistics'].get('sharesPercentSharesOut', None)
+            stock.pm_s1_shares_short = data[stock.ticker]['defaultKeyStatistics'].get('sharesShort', None)
         except Exception as e:
             print('######Exception#######')
             print(stock.ticker, stock.company_name)
@@ -261,8 +260,8 @@ def parse_stock_statistics_yquery(stocks):
         df = df.loc[mask]
         gaps_df = df[(df['gapPercent'] >= 10) & (df['RVOL'] >= 1.6)].copy()
         if gaps_df.empty:
-            stock.pm_red_gaps = "N/A"
-            stock.pm_observations = "0"
+            stock.pm_red_gaps = None
+            stock.pm_observations = None
         else:
             observations = len(gaps_df.index)
             stock.pm_red_gaps = str(int((np.sum(gaps_df['move'] < 0) / observations) * 100))
