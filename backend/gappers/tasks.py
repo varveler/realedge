@@ -144,6 +144,7 @@ def parse_gappers_barchart_and_filter():
     json_gappers = response.json()
     data = json_gappers['data']
     stoncks = []
+    stoncks_ids = []
     for stock in data:
         #stonck = Stock()
 
@@ -166,7 +167,8 @@ def parse_gappers_barchart_and_filter():
                 last                     = stock['raw'].get('lastPrice', 0.0),
                 gap                      = stock['raw'].get('gapUp', 0.0))
             stonck.save()
-            stoncks.append(stonck.id)
+            stoncks.append(stock)
+            stoncks_ids.append(stock.id)
     return stoncks
 
 
