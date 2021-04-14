@@ -267,7 +267,7 @@ def parse_stock_statistics_yquery(stocks):
             observations = len(gaps_df.index)
             stock.pm_red_gaps = str(int((np.sum(gaps_df['move'] < 0) / observations) * 100))
             stock.pm_observations = str(observations)
-    stock.save()
+        stock.save()
     return stocks
 
 @task(name='parse_gappers')
