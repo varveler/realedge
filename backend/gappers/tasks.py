@@ -218,6 +218,7 @@ def parse_stock_statistics_yquery(stocks):
         print(stock.ticker, stock.company_name)
         wait_random_seconds(min=1, max=3)
         data = Ticker(stock.ticker).get_modules(['quoteType', 'defaultKeyStatistics', 'summaryDetail'])
+        print(data)
         try:
             if not stock.company_name:
                 stock.company_name = data[stock.ticker]['quoteType'].get('longName', None)
