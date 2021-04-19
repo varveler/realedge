@@ -222,6 +222,7 @@ def parse_stock_statistics_yquery(stocks):
         try:
             if not stock.company_name:
                 stock.company_name = data[stock.ticker]['quoteType'].get('longName', None)
+            stock.pm_source1 = 'YahooQuery'
             stock.pm_s1_beta = data[stock.ticker]['defaultKeyStatistics'].get('beta', None)
             stock.pm_s1_market_cap = data[stock.ticker]['summaryDetail'].get('marketCap', None)
             stock.pm_s1_shares_outstanding = data[stock.ticker]['defaultKeyStatistics'].get('sharesOutstanding', None)
@@ -270,6 +271,7 @@ def parse_stock_statistics_yquery(stocks):
             stock.pm_observations = str(observations)
         stock.save()
     return stocks
+
 
 @task(name='parse_gappers')
 def parse_gappers():

@@ -184,3 +184,19 @@ class Stock(object):
 
     red_gap_probability = ''
     gaps_observations = ''
+
+
+def human_readble_amount(amount):
+    a = str(amount)
+    length = len(a)
+    if length <= 3:
+        return a
+    if length <= 6:
+        crop = length - 3
+        return a[:crop] + 'K'
+    crop = length - 6
+    return a[:crop] + '.' + a[crop + 1] + 'M'
+
+# not mine https://stackoverflow.com/questions/11227620/drop-trailing-zeros-from-decimal
+def remove_zeros(num):
+    return num.to_integral() if num == num.to_integral() else num.normalize()

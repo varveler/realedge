@@ -11,6 +11,7 @@ class Gapper(models.Model):
     """
     class Meta:
         abstract = True
+        ordering = ['date', '-gap_percentage'] #Sort in asc order
 
     creation = models.DateTimeField(auto_now_add=True)
     update = models.DateTimeField(auto_now=True)
@@ -68,6 +69,14 @@ class Gapper(models.Model):
     ac_atr = models.DecimalField(null=True, max_digits=16, decimal_places=10) # after close ATR
     day_rvol = models.DecimalField(null=True, max_digits=16, decimal_places=10)
     float_rotation = models.DecimalField(null=True, max_digits=16, decimal_places=10)
+
+
+    def __str__(self):
+        return '{date} {ticker} {gap_percentage} {pm_s2_volume}'.format(
+                                        date = self.date,
+                                        ticker = self.ticker,
+                                        gap_percentage = self.gap_percentage,
+                                        pm_s2_volume = self.pm_s2_volume)
 
 
 class UpGapper(Gapper):
