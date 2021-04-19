@@ -7,6 +7,8 @@ from common.utils import human_readble_amount, remove_zeros
 
 @admin.display(description='Gap Percentage')
 def gap_percentage_display(obj):
+    if obj.gap_percentage == None:
+        return obj.gap_percentage
     return (str(obj.gap_percentage * 100))[:5] + '%'
 
 @admin.display(description='Volume')
@@ -15,25 +17,35 @@ def pm_s2_volume(obj):
 
 @admin.display(description='Market Cap s1')
 def pm_s1_market_cap(obj):
+    if obj.pm_s1_market_cap == None:
+        return obj.pm_s1_market_cap
     return human_readble_amount(obj.pm_s1_market_cap)
 
 
 @admin.display(description='Market Cap s2')
 def pm_s2_market_cap(obj):
+    if obj.pm_s2_market_cap == None:
+        return obj.pm_s2_market_cap
     return human_readble_amount(obj.pm_s2_market_cap)
 
 
 @admin.display(description='Float s1')
 def pm_s1_float(obj):
+    if obj.pm_s1_float == None:
+        return obj.pm_s1_float
     return human_readble_amount(obj.pm_s1_float)
 
 
 @admin.display(description='Float s2')
 def pm_s2_float(obj):
+    if obj.pm_s2_float == None:
+        return obj.pm_s2_float
     return human_readble_amount(obj.pm_s2_float)
 
 @admin.display(description='Held Insiders s1')
 def pm_s1_held_percent_insiders(obj):
+    if obj.pm_s1_held_percent_insiders == None:
+        return obj.pm_s1_held_percent_insiders
     return (str(obj.pm_s1_held_percent_insiders * 100))[:5] + '%'
 
 @admin.display(description='Held Insiders s2')
@@ -44,6 +56,8 @@ def pm_s2_held_percent_insiders(obj):
 
 @admin.display(description='Held Institutions s1')
 def pm_s1_held_percent_institutions(obj):
+    if obj.pm_s1_held_percent_institutions == None:
+        return obj.pm_s1_held_percent_institutions
     return (str(obj.pm_s1_held_percent_institutions * 100))[:5] + '%'
 
 @admin.display(description='Held Institutions s2')
@@ -61,11 +75,12 @@ def pm_s1_short_percent_float(obj):
 
 @admin.display(description='Price')
 def last(obj):
+    if obj.last == None:
+        return obj.last
     return remove_zeros(obj.last)
 
 @admin.display(description='Red Gap Prob%')
 def pm_red_gaps(obj):
-
     if obj.pm_red_gaps == None:
         return obj.pm_red_gaps
     return str(remove_zeros(obj.pm_red_gaps))+'%'
