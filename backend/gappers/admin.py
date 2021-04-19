@@ -5,7 +5,7 @@ from django.contrib.humanize.templatetags.humanize import intcomma
 from .models import UpGapper
 from common.utils import human_readble_amount, remove_zeros
 
-@admin.display(description='Gap Percentage')
+@admin.display(description='Gap %')
 def gap_percentage_display(obj):
     if obj.gap_percentage == None:
         return obj.gap_percentage
@@ -15,14 +15,14 @@ def gap_percentage_display(obj):
 def pm_s2_volume(obj):
     return intcomma(obj.pm_s2_volume)
 
-@admin.display(description='Market Cap s1')
+@admin.display(description='Mkt Cap s1')
 def pm_s1_market_cap(obj):
     if obj.pm_s1_market_cap == None:
         return obj.pm_s1_market_cap
     return human_readble_amount(obj.pm_s1_market_cap)
 
 
-@admin.display(description='Market Cap s2')
+@admin.display(description='Mkt Cap s2')
 def pm_s2_market_cap(obj):
     if obj.pm_s2_market_cap == None:
         return obj.pm_s2_market_cap
@@ -42,25 +42,25 @@ def pm_s2_float(obj):
         return obj.pm_s2_float
     return human_readble_amount(obj.pm_s2_float)
 
-@admin.display(description='Held Insiders s1')
+@admin.display(description='Held Insid s1')
 def pm_s1_held_percent_insiders(obj):
     if obj.pm_s1_held_percent_insiders == None:
         return obj.pm_s1_held_percent_insiders
     return (str(obj.pm_s1_held_percent_insiders * 100))[:5] + '%'
 
-@admin.display(description='Held Insiders s2')
+@admin.display(description='Held Insid s2')
 def pm_s2_held_percent_insiders(obj):
     if obj.pm_s2_held_percent_insiders == None:
         return obj.pm_s2_held_percent_insiders
     return str(remove_zeros(obj.pm_s2_held_percent_insiders)) + '%'
 
-@admin.display(description='Held Institutions s1')
+@admin.display(description='Held Inst s1')
 def pm_s1_held_percent_institutions(obj):
     if obj.pm_s1_held_percent_institutions == None:
         return obj.pm_s1_held_percent_institutions
     return (str(obj.pm_s1_held_percent_institutions * 100))[:5] + '%'
 
-@admin.display(description='Held Institutions s2')
+@admin.display(description='Held Inst s2')
 def pm_s2_held_percent_institutions(obj):
     if obj.pm_s2_held_percent_institutions == None:
         return obj.pm_s2_held_percent_institutions
@@ -87,10 +87,12 @@ def pm_red_gaps(obj):
 
 @admin.register(UpGapper)
 class UpGapperAdmin(admin.ModelAdmin):
+    ordering = ('date', '-gap_percentage')
     list_display = (
         'date',
         'ticker',
         last,
+        'gap_percentage',
         gap_percentage_display,
         pm_s2_volume,
         pm_s1_market_cap,
