@@ -1,6 +1,6 @@
 from selenium import webdriver
 from oauth2client.service_account import ServiceAccountCredentials
-
+import chromedriver_binary
 
 import os
 import gspread
@@ -37,7 +37,8 @@ def ghost_driver():
     options.add_experimental_option('useAutomationExtension', False)
     # specify the desired user agent
     options.add_argument(f'user-agent={user_agent}')
-    driver = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH, chrome_options=options)
+    #driver = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH, chrome_options=options)
+    driver = webdriver.Chrome(chrome_options=options)
     driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
     "source": """
         Object.defineProperty(navigator, "languages", {
@@ -117,10 +118,12 @@ def update_cell_and_wait(sheet, row, col, data, name=None):
     sheet.update_cell(row, col, data)
     wait_time()
 
+
 def convert_amount(amount_string):
     """
     Converts any string in the format of 20.0 M or 811K to 20,000,000 or 811,000"
     """
+    amount_string = amount_string.replace(',','')
     if "K" in amount_string or "M" in amount_string:
         asl = amount_string.split(" ")
         if asl[1] == "K":
@@ -128,6 +131,21 @@ def convert_amount(amount_string):
         elif asl[1] == "M":
             return int(float(asl[0]) * 1000000)
     return 0
+
+
+def convert_amount_benzinga(amount):
+    """
+    Converts any string in the format of 20.0 M or 811K to 20,000,000 or 811,000"
+    """
+    amount = amount.replace(',','')
+    if "K" in amount or "M" in amount:
+        if amount[-1] == "K":
+            return int(float(amount[:-1]) * 1000)
+        elif amount[-1] == "M":
+            return int(float(amount[:-1]) * 1000000)
+    return int(float(amount))
+
+
 
 def next_available_row_to_update(worksheet, column_header='_Stock_'):
     column = worksheet.find(column_header).col
@@ -197,6 +215,11 @@ def human_readble_amount(amount):
     crop = length - 6
     return a[:crop] + '.' + a[crop + 1] + 'M'
 
+
 # not mine https://stackoverflow.com/questions/11227620/drop-trailing-zeros-from-decimal
 def remove_zeros(num):
     return num.to_integral() if num == num.to_integral() else num.normalize()
+
+
+def convert_percentage_to_decimal(a_string):
+    return float(a_string.split('%')[0]) / 100

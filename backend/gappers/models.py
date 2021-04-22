@@ -12,6 +12,7 @@ class Gapper(models.Model):
     class Meta:
         abstract = True
         ordering = ['date', '-gap_percentage'] #Sort in asc order
+        unique_together = ['date', 'ticker']
 
     creation = models.DateTimeField(auto_now_add=True)
     update = models.DateTimeField(auto_now=True)

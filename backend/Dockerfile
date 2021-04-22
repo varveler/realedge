@@ -52,6 +52,15 @@ RUN pip3 install -r requirements.txt
 
 RUN mkdir -p /home/varveler
 RUN adduser --disabled-password --gecos '' varveler
+RUN chown varveler /usr/local/bin/chromedriver
+
+RUN apt-get clean && apt-get update && apt-get install -y locales
+RUN locale-gen en_CA.UTF-8
+COPY ./default_locale /etc/default/locale
+RUN chmod 0755 /etc/default/locale
+ENV LC_ALL=en_CA.UTF-8
+ENV LANG=en_CA.UTF-8
+ENV LANGUAGE=en_CA.UTF-8
 
 USER varveler
 ENV HOME /home/varveler

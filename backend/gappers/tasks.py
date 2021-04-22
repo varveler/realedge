@@ -7,26 +7,30 @@ from bs4 import BeautifulSoup
 # from common.utils import get_env_variable, get_sheet, str_date, update_cell_and_wait,
 from common.utils import (convert_amount, wait_random_seconds,
                           ghost_driver, Stock, next_available_row_to_update,
-                          str_date, get_sheet, update_cell_and_wait, atr)
+                          str_date, get_sheet, update_cell_and_wait, atr,
+                          convert_amount_benzinga, convert_percentage_to_decimal)
 from yahooquery import Ticker
 #from pyvirtualdisplay import Display
 
 # from gapdb import probabilty_red_gap_yq_all_in_one, atr
 from gappers.models import UpGapper
 from celery.decorators import task
+from django.utils import timezone
+
 
 import datetime
 import time
 import requests
 from urllib.parse import unquote
 # import random
-# import re
+import re
 # import json
 # import yfinance as yf
 # import pytz
 # import sys
 import pandas as pd
 import numpy as np
+from decimal import Decimal
 
 
 # frontier values
@@ -148,24 +152,25 @@ def parse_gappers_barchart_and_filter():
     for stock in data:
         if (stock['raw']['gapUpPercent'] >= GAP_UP_MIN_GAP and
         stock['raw']['volume'] >= MIN_PREMARKET_VOLUME):
-            stonck = UpGapper(
-                date                             = datetime.date.today(),
-                ticker                           = stock['raw'].get('symbol', ''),
-                market                           = stock['raw'].get('exchange', ''),
-                company_name                     = stock['raw'].get('symbolName', ''),
-                industry                         = stock['raw'].get('industry', ''),
-                pm_source2                       = 'barchart',
-                pm_s2_volume                     = stock['raw'].get('volume', 0),
-                pm_s2_market_cap                 = stock['raw'].get('marketCap', 0),
-                pm_s2_shares_outstanding         = stock['raw'].get('sharesOutstanding', 0),
-                pm_s2_float                      = stock['raw'].get('float', 0.0),
-                pm_s2_held_percent_insiders      = stock['raw'].get('percentInsider', 0.0),
-                pm_s2_held_percent_institutions  = stock['raw'].get('percentInstitutional', 0.0),
-                gap_percentage                   = stock['raw'].get('gapUpPercent', 0.0),
-                last                             = stock['raw'].get('lastPrice', 0.0),
-                gap                              = stock['raw'].get('gapUp', 0.0))
-            stonck.save()
-            stoncks.append(stonck)
+            stonck, created = UpGapper.objects.update_or_create(
+                date = datetime.date.today(), ticker = stock['raw'].get('symbol', ''),
+                defaults = {'date'                             : datetime.date.today(),
+                            'ticker'                           : stock['raw'].get('symbol', ''),
+                            'market'                           : stock['raw'].get('exchange', ''),
+                            'company_name'                     : stock['raw'].get('symbolName', ''),
+                            'industry'                         : stock['raw'].get('industry', ''),
+                            'pm_source2'                       : 'barchart',
+                            'pm_s2_volume'                     : stock['raw'].get('volume', 0),
+                            'pm_s2_market_cap'                 : stock['raw'].get('marketCap', 0),
+                            'pm_s2_shares_outstanding'         : stock['raw'].get('sharesOutstanding', 0),
+                            'pm_s2_float'                      : stock['raw'].get('float', 0.0),
+                            'pm_s2_held_percent_insiders'      : stock['raw'].get('percentInsider', 0.0),
+                            'pm_s2_held_percent_institutions'  : stock['raw'].get('percentInstitutional', 0.0),
+                            'gap_percentage'                   : stock['raw'].get('gapUpPercent', 0.0),
+                            'last'                             : stock['raw'].get('lastPrice', 0.0),
+                            'gap'                              : stock['raw'].get('gapUp', 0.0) })
+            if created:
+                stoncks.append(stonck)
             #stoncks_ids.append(stonck.id)
     return stoncks
 
@@ -273,10 +278,109 @@ def parse_stock_statistics_yquery(stocks):
     return stocks
 
 
+
+
+
+@task(name='get_benzinga_premerket_tickers')
+def get_benzinga_premerket_tickers():
+    driver = ghost_driver()
+    driver.get('https://www.benzinga.com/premarket/')
+    time.sleep(4)
+    try:
+        wait = WebDriverWait(driver, timeout=3 )
+        wait.until(EC.presence_of_element_located((By.ID, "movers-stocks-table-gainers")))
+    except Exception as e:
+        date = timezone.now()
+        driver.save_screenshot('WebsiteScreenShot%s.png' % date)
+        print('Waited and "gainers_tbl" id was not found on benzinga')
+        print(e)
+        return None
+    html_source = driver.page_source
+    soup = BeautifulSoup(html_source, "html.parser")
+    div = soup.find(id= 'movers-stocks-table-gainers')
+    table = div.find('table', class_='premarket-stock-table')
+    rows = table.find_all('tr')
+    stoncks = []
+    for row in rows[1:]:
+        cells = row.find_all('td')
+        print(cells[0].text.strip())
+        pm_volume = convert_amount_benzinga(cells[4].text.strip())
+        gap_percentage = convert_percentage_to_decimal(cells[3].text.strip())
+        if (pm_volume >= MIN_PREMARKET_VOLUME and gap_percentage >= GAP_UP_MIN_GAP):
+            stonck, created = UpGapper.objects.update_or_create(
+                date = datetime.date.today(), ticker = cells[0].text.strip(),
+                defaults = { 'date'          : datetime.date.today(),
+                             'ticker'        : cells[0].text.strip(),
+                             'company_name'  : cells[1].text.strip(),
+                             'pm_source2'    : 'barchart',
+                             'pm_s2_volume'  : pm_volume,
+                             'last'          : cells[2].text.strip().split('$')[1],
+                             'gap_percentage': gap_percentage })
+            if created:
+                stoncks.append(stonck)
+    return stoncks
+
+
+def scrape_stocks_statistics_barchart(stocks):
+    driver = ghost_driver()
+    url = 'https://www.barchart.com/stocks/quotes/%s/profile'
+    for stock in stocks:
+        stock_url = url % stock.ticker
+        print(stock.ticker)
+        driver.get(stock_url)
+        wait_random_seconds(min=5, max=7)
+        html_source = driver.page_source
+        soup = BeautifulSoup(html_source, "html.parser")
+        mc = soup.find(string=re.compile(r'^\s+Market\s+Capitalization,.+'))
+        if mc:
+            market_cap = mc.parent.find_next().find('span').text.strip().replace(',', '')
+            if mc[-1] == 'K':
+                market_cap = int(market_cap) * 1000
+            stock.pm_s2_market_cap = market_cap
+        sa = soup.find(string=re.compile(r'^\s+Shares\s+Outstanding,.+'))
+        if sa:
+            shares_outstanding = sa.parent.find_next().find('span').text.strip().replace(',', '')
+            if sa[-1] == 'K':
+                shares_outstanding = int(shares_outstanding) * 1000
+            stock.pm_s2_shares_outstanding = shares_outstanding
+        fl = soup.find(string=re.compile(r'^\s+Float.+'))
+        if fl:
+            float = fl.parent.find_next().find('span').text.strip().replace(',', '')
+            if fl[-1] == 'K':
+                float = int(float) * 1000
+            stock.pm_s2_float = float
+        pinsi = soup.find(string=re.compile(r'^\s+%\sof\sInsider\sShareholders.+'))
+        if pinsi:
+            held_percent_insiders = pinsi.parent.find_next().find('span').text.strip().replace(',', '')
+            if '%' in held_percent_insiders:
+                held_percent_insiders = Decimal(held_percent_insiders.split('%')[0]) / 100
+            stock.pm_s2_held_percent_insiders = held_percent_insiders
+        pinst = soup.find(string=re.compile(r'^\s+%\sof\sInstitutional\sShareholders.+'))
+        if pinst:
+            held_percent_institutions = pinst.parent.find_next().find('span').text.strip().replace(',', '')
+            if '%' in held_percent_institutions:
+                held_percent_institutions = Decimal(held_percent_institutions.split('%')[0]) / 100
+            stock.pm_s2_held_percent_institutions = held_percent_institutions
+        ind = soup.find('h4', string='Sectors:')
+        if ind:
+            industry = ind.parent.find_all('a')[1].text.strip()
+            stock.industry = industry
+        stock.pm_source2 = 'barchart scraping'
+        stock.save()
+    return stocks
+
+
+
 @task(name='parse_gappers')
 def parse_gappers():
-    stocks = parse_gappers_barchart_and_filter()
+    today = timezone.now()
+    get_benzinga_premerket_tickers()
+    stocks = UpGapper.objects.filter(date__day=today.day, date__month=today.month, date__year=today.year)
+    scrape_stocks_statistics_barchart(stocks)
+    parse_gappers_barchart_and_filter()
+    stocks = UpGapper.objects.filter(date__day=today.day, date__month=today.month, date__year=today.year)
     parse_stock_statistics_yquery(stocks)
+
 
 
 """
@@ -368,4 +472,6 @@ def parse_gappers():
     #                        'trailingAnnualDividendYield': 0.020618556,
     #                        'twoHundredDayAverage': 4.2442646,
     #                        'volume': 621254}}}
+from gappers.tasks import *
+s = UpGapper.objects.filter(date__day='22', date__year='2021',date__month='04')
 """
