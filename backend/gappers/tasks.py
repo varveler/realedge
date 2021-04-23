@@ -485,7 +485,7 @@ def parse_gappers():
     #                        'twoHundredDayAverage': 4.2442646,
     #                        'volume': 621254}}}
 from gappers.tasks import *
-gappers = UpGapper.objects.filter(date__day__lte='22', date__year__lte='2021',date__month__lte='04')
+gappers = UpGapper.objects.filter(date__day='23', date__year='2021',date__month='04').filter(pm_s2_held_percent_institutions__gt=1)
 for g in gappers:
     if g.pm_s2_held_percent_insiders:
         g.pm_s2_held_percent_insiders = g.pm_s2_held_percent_insiders / 100

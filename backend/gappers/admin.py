@@ -90,6 +90,7 @@ class UpGapperAdmin(admin.ModelAdmin):
     ordering = ('-date', '-gap_percentage')
     list_display = (
         'date',
+        'creation',
         'ticker',
         last,
         'gap_percentage',
