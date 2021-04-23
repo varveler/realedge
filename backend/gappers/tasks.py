@@ -8,7 +8,8 @@ from bs4 import BeautifulSoup
 from common.utils import (convert_amount, wait_random_seconds,
                           ghost_driver, Stock, next_available_row_to_update,
                           str_date, get_sheet, update_cell_and_wait, atr,
-                          convert_amount_benzinga, convert_percentage_to_decimal)
+                          convert_amount_benzinga, convert_percentage_to_decimal,
+                          fix_percentage_barchart_api)
 from yahooquery import Ticker
 #from pyvirtualdisplay import Display
 
@@ -164,8 +165,8 @@ def parse_gappers_barchart_and_filter():
                             'pm_s2_market_cap'                 : stock['raw'].get('marketCap', 0),
                             'pm_s2_shares_outstanding'         : stock['raw'].get('sharesOutstanding', 0),
                             'pm_s2_float'                      : stock['raw'].get('float', 0.0),
-                            'pm_s2_held_percent_insiders'      : stock['raw'].get('percentInsider', 0.0),
-                            'pm_s2_held_percent_institutions'  : stock['raw'].get('percentInstitutional', 0.0),
+                            'pm_s2_held_percent_insiders'      : fix_percentage_barchart_api(stock['raw'].get('percentInsider', 0.0)),
+                            'pm_s2_held_percent_institutions'  : fix_percentage_barchart_api(stock['raw'].get('percentInstitutional', 0.0)),
                             'gap_percentage'                   : stock['raw'].get('gapUpPercent', 0.0),
                             'last'                             : stock['raw'].get('lastPrice', 0.0),
                             'gap'                              : stock['raw'].get('gapUp', 0.0) })
@@ -220,10 +221,10 @@ def parse_stock_statistics_yquery(stocks):
     # summary_details = data.summary_detail
     # key_stats = data.key_stats
     for stock in stocks:
-        print(stock.ticker, stock.company_name)
+        print('yahooquery ', stock.ticker, stock.company_name)
         wait_random_seconds(min=1, max=3)
         data = Ticker(stock.ticker).get_modules(['quoteType', 'defaultKeyStatistics', 'summaryDetail'])
-        print(data)
+        # print(data)
         try:
             if not stock.company_name:
                 stock.company_name = data[stock.ticker]['quoteType'].get('longName', None)
@@ -325,48 +326,59 @@ def scrape_stocks_statistics_barchart(stocks):
     driver = ghost_driver()
     url = 'https://www.barchart.com/stocks/quotes/%s/profile'
     for stock in stocks:
-        stock_url = url % stock.ticker
-        print(stock.ticker)
-        driver.get(stock_url)
-        wait_random_seconds(min=5, max=7)
-        html_source = driver.page_source
-        soup = BeautifulSoup(html_source, "html.parser")
-        mc = soup.find(string=re.compile(r'^\s+Market\s+Capitalization,.+'))
-        if mc:
-            market_cap = mc.parent.find_next().find('span').text.strip().replace(',', '')
-            if mc[-1] == 'K':
-                market_cap = int(market_cap) * 1000
-            stock.pm_s2_market_cap = market_cap
-        sa = soup.find(string=re.compile(r'^\s+Shares\s+Outstanding,.+'))
-        if sa:
-            shares_outstanding = sa.parent.find_next().find('span').text.strip().replace(',', '')
-            if sa[-1] == 'K':
-                shares_outstanding = int(shares_outstanding) * 1000
-            stock.pm_s2_shares_outstanding = shares_outstanding
-        fl = soup.find(string=re.compile(r'^\s+Float.+'))
-        if fl:
-            float = fl.parent.find_next().find('span').text.strip().replace(',', '')
-            if fl[-1] == 'K':
-                float = int(float) * 1000
-            stock.pm_s2_float = float
-        pinsi = soup.find(string=re.compile(r'^\s+%\sof\sInsider\sShareholders.+'))
-        if pinsi:
-            held_percent_insiders = pinsi.parent.find_next().find('span').text.strip().replace(',', '')
-            if '%' in held_percent_insiders:
-                held_percent_insiders = Decimal(held_percent_insiders.split('%')[0]) / 100
-            stock.pm_s2_held_percent_insiders = held_percent_insiders
-        pinst = soup.find(string=re.compile(r'^\s+%\sof\sInstitutional\sShareholders.+'))
-        if pinst:
-            held_percent_institutions = pinst.parent.find_next().find('span').text.strip().replace(',', '')
-            if '%' in held_percent_institutions:
-                held_percent_institutions = Decimal(held_percent_institutions.split('%')[0]) / 100
-            stock.pm_s2_held_percent_institutions = held_percent_institutions
-        ind = soup.find('h4', string='Sectors:')
-        if ind:
-            industry = ind.parent.find_all('a')[1].text.strip()
-            stock.industry = industry
-        stock.pm_source2 = 'barchart scraping'
-        stock.save()
+        try:
+            stock_url = url % stock.ticker
+            print(stock.ticker)
+            driver.get(stock_url)
+            wait_random_seconds(min=3, max=5)
+            html_source = driver.page_source
+            soup = BeautifulSoup(html_source, "html.parser")
+            mc = soup.find(string=re.compile(r'^\s+Market\s+Capitalization,.+'))
+            if mc:
+                market_cap = mc.parent.find_next().find('span').text.strip().replace(',', '')
+                if mc[-1] == 'K':
+                    market_cap = int(market_cap) * 1000
+                stock.pm_s2_market_cap = market_cap
+            sa = soup.find(string=re.compile(r'^\s+Shares\s+Outstanding,.+'))
+            if sa:
+                shares_outstanding = sa.parent.find_next().find('span').text.strip().replace(',', '')
+                if sa[-1] == 'K':
+                    shares_outstanding = int(shares_outstanding) * 1000
+                stock.pm_s2_shares_outstanding = shares_outstanding
+            fl = soup.find(string=re.compile(r'^\s+Float.+'))
+            if fl:
+                float = fl.parent.find_next().find('span').text.strip().replace(',', '')
+                if fl[-1] == 'K':
+                    float = int(float) * 1000
+                stock.pm_s2_float = float
+            pinsi = soup.find(string=re.compile(r'^\s+%\sof\sInsider\sShareholders.+'))
+            if pinsi:
+                held_percent_insiders = pinsi.parent.find_next().find('span').text.strip().replace(',', '')
+                if '%' in held_percent_insiders:
+                    held_percent_insiders = Decimal(held_percent_insiders.split('%')[0]) / 100
+                stock.pm_s2_held_percent_insiders = held_percent_insiders
+            pinst = soup.find(string=re.compile(r'^\s+%\sof\sInstitutional\sShareholders.+'))
+            if pinst:
+                held_percent_institutions = pinst.parent.find_next().find('span').text.strip().replace(',', '')
+                if '%' in held_percent_institutions:
+                    held_percent_institutions = Decimal(held_percent_institutions.split('%')[0]) / 100
+                stock.pm_s2_held_percent_institutions = held_percent_institutions
+            ind = soup.find('h4', string='Sectors:')
+            if ind:
+                links = ind.parent.find_all('a')
+                if links:
+                    if len(links) >= 2:
+                        industry = links[1].text.strip()
+                    else:
+                        industry = links[0].text.strip()
+                    stock.industry = industry
+            stock.pm_source2 = 'barchart scraping'
+            stock.save()
+        except Exception as e:
+            date = timezone.now()
+            driver.save_screenshot('WebsiteScreenShot%s.png' % date)
+            print('Error parsing stocks')
+            print(e)
     return stocks
 
 
@@ -473,5 +485,13 @@ def parse_gappers():
     #                        'twoHundredDayAverage': 4.2442646,
     #                        'volume': 621254}}}
 from gappers.tasks import *
-s = UpGapper.objects.filter(date__day='22', date__year='2021',date__month='04')
+gappers = UpGapper.objects.filter(date__day__lte='22', date__year__lte='2021',date__month__lte='04')
+for g in gappers:
+    if g.pm_s2_held_percent_insiders:
+        g.pm_s2_held_percent_insiders = g.pm_s2_held_percent_insiders / 100
+        g.save()
+    if g.pm_s2_held_percent_institutions:
+        g.pm_s2_held_percent_institutions = g.pm_s2_held_percent_institutions / 100
+        g.save()
+
 """

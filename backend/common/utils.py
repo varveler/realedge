@@ -6,6 +6,7 @@ import os
 import gspread
 import random
 import time
+from decimal import Decimal
 
 def get_env_variable(var_name):
     """ Get the environment variable or return exception """
@@ -223,3 +224,11 @@ def remove_zeros(num):
 
 def convert_percentage_to_decimal(a_string):
     return float(a_string.split('%')[0]) / 100
+
+
+def fix_percentage_barchart_api(amount):
+    if isinstance(amount, str):
+        return Decimal(amount) / 100
+    if not amount:
+        return amount
+    return Decimal(str(amount)) / 100

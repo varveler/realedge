@@ -52,7 +52,7 @@ def pm_s1_held_percent_insiders(obj):
 def pm_s2_held_percent_insiders(obj):
     if obj.pm_s2_held_percent_insiders == None:
         return obj.pm_s2_held_percent_insiders
-    return str(remove_zeros(obj.pm_s2_held_percent_insiders)) + '%'
+    return (str(obj.pm_s2_held_percent_insiders * 100))[:5] + '%'
 
 @admin.display(description='Held Inst s1')
 def pm_s1_held_percent_institutions(obj):
@@ -64,7 +64,7 @@ def pm_s1_held_percent_institutions(obj):
 def pm_s2_held_percent_institutions(obj):
     if obj.pm_s2_held_percent_institutions == None:
         return obj.pm_s2_held_percent_institutions
-    return str(remove_zeros(obj.pm_s2_held_percent_institutions)) + '%'
+    return (str(obj.pm_s2_held_percent_institutions * 100))[:5] + '%'
 
 @admin.display(description='Short % of Float')
 def pm_s1_short_percent_float(obj):
@@ -87,7 +87,7 @@ def pm_red_gaps(obj):
 
 @admin.register(UpGapper)
 class UpGapperAdmin(admin.ModelAdmin):
-    ordering = ('date', '-gap_percentage')
+    ordering = ('-date', '-gap_percentage')
     list_display = (
         'date',
         'ticker',
