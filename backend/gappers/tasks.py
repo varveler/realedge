@@ -394,6 +394,14 @@ def parse_gappers():
     parse_stock_statistics_yquery(stocks)
 
 
+@task(name='test_print')
+def test_print():
+    today = timezone.now()
+    string = 'this task is runing %s' % today
+    print(string)
+    return string
+
+
 
 """
      {'BRY': {'defaultKeyStatistics': {'52WeekChange': 1.3755102,
