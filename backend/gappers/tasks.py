@@ -336,19 +336,19 @@ def scrape_stocks_statistics_barchart(stocks):
             mc = soup.find(string=re.compile(r'^\s+Market\s+Capitalization,.+'))
             if mc:
                 market_cap = mc.parent.find_next().find('span').text.strip().replace(',', '')
-                if mc[-1] == 'K':
+                if mc.strip()[-1] == 'K':
                     market_cap = int(market_cap) * 1000
                 stock.pm_s2_market_cap = market_cap
             sa = soup.find(string=re.compile(r'^\s+Shares\s+Outstanding,.+'))
             if sa:
                 shares_outstanding = sa.parent.find_next().find('span').text.strip().replace(',', '')
-                if sa[-1] == 'K':
+                if sa.strip()[-1] == 'K':
                     shares_outstanding = int(shares_outstanding) * 1000
                 stock.pm_s2_shares_outstanding = shares_outstanding
             fl = soup.find(string=re.compile(r'^\s+Float.+'))
             if fl:
                 float = fl.parent.find_next().find('span').text.strip().replace(',', '')
-                if fl[-1] == 'K':
+                if fl.strip()[-1] == 'K':
                     float = int(float) * 1000
                 stock.pm_s2_float = float
             pinsi = soup.find(string=re.compile(r'^\s+%\sof\sInsider\sShareholders.+'))
