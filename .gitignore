@@ -107,3 +107,5 @@ client_secret.json
 celerybeat-schedule
 celerybeat-schedule.db
 celerybeat.pid
+
+warningDeleteVolumes.sh

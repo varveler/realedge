@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'django_celery_results',
     #'stocksearch.apps.StocksearchConfig',
     'gappers',
+    'logs',
     #'news.apps.NewsConfig',
 ]
 
