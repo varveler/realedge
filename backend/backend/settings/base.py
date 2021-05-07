@@ -166,7 +166,9 @@ if not BROKER_URL:
         hostname=RABBIT_HOSTNAME,
         vhost=os.environ.get('RABBIT_ENV_VHOST', ''))
 # We don't want to have dead connections stored on rabbitmq, so we have to negotiate using heartbeats
-BROKER_HEARTBEAT = '?heartbeat=30'
+# BROKER_HEARTBEAT = '?heartbeat=30'
+# https://stackoverflow.com/questions/14817181/django-celery-connectionerror-too-many-heartbeats-missed
+BROKER_HEARTBEAT = 0
 if not BROKER_URL.endswith(BROKER_HEARTBEAT):
     BROKER_URL += BROKER_HEARTBEAT
 BROKER_POOL_LIMIT = 1
@@ -204,5 +206,7 @@ CELERY_IMPORTS = (
     'gappers.tasks',
     #'api.tasks',
 )
+
+
 
 CHROMEDRIVER_PATH = '/backend/backend/drivers/chromedriver'
