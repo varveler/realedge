@@ -14,7 +14,7 @@ class Row(object):
     date = ''
     headline = ''
 
-# finviz
+
 def scrape_finviz_news(driver, ticker, up_gapper_id=None):
     no_news_found = False
     url = 'https://finviz.com/quote.ashx?t=%s' % ticker
@@ -47,7 +47,7 @@ def scrape_finviz_news(driver, ticker, up_gapper_id=None):
                 print(str_date)
                 if '-' not in str_date:
                     print('searching prev day objs: ', news_itemsss)
-                    prev_news_day_obj = news_itemsss[i - 1]
+                    prev_news_day_obj = news_itemsss.pop()
                     prev_news_day = prev_news_day_obj.date.split(' ')[0]
                     print('prev_news_day', prev_news_day)
                     str_date = prev_news_day + ' ' + str_date
@@ -98,9 +98,9 @@ for s in stocks:
 
 
 
-
+driver = ghost_driver()
 no_news_found = False
-url = 'https://finviz.com/quote.ashx?t=FOE'
+url = 'https://finviz.com/quote.ashx?t=EYES'
 driver.get(url)
 try:
     wait = WebDriverWait(driver, timeout=20, poll_frequency=0.1)
@@ -114,6 +114,24 @@ soup = BeautifulSoup(html_source, "html.parser")
 news_itemsss = []
 table = soup.find(id='news-table')
 news_rows = table.find_all("tr")[:11]
+news_rows
+for i, row in enumerate(news_rows):
+    print(i, row)
+    # cells = row.find_all("td")
+    # news_item = Row()
+    # if cells:
+    #     print(cells[1].text)
+    #     str_date = cells[0].text.strip()
+    #     print(str_date)
+    #     if '-' not in str_date:
+    #         print('searching prev day objs: ', news_itemsss)
+    #         prev_news_day_obj = news_itemsss[i - 1]
+    #         prev_news_day = prev_news_day_obj.date.split(' ')[0]
+    #         print('prev_news_day', prev_news_day)
+    #         str_date = prev_news_day + ' ' + str_date
+
+
+
 
 row = news_rows[0]
 cells = row.find_all("td")
