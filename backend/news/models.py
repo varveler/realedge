@@ -1,28 +1,45 @@
 from django.db import models
 from gappers.models import UpGapper, DownGapper
 
+import uuid
+
 # Create your models here.
 class News(models.Model):
-    """
-        News article that relates to a certain stock (gapper)
-    """
+    """ News article that relates to a certain tickers. """
 
+    class Meta:
+        unique_together = ['internal_source', 'title']
+        ordering = ['-publish_date', 'title']
+
+    # internaly created
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
     creation = models.DateTimeField(auto_now_add=True)
-    source_id = models.CharField(max_length=400, null=True, blank=True)
     update = models.DateTimeField(auto_now=True)
+    internal_source = models.CharField(max_length=50) # newsApi #stockNews #scraping Finviz #scraping Benzinga #etc
 
-    provider_publish_time = models.DateTimeField()
-    provider_publish_time_epoc = models.IntegerField()
-    provider = models.CharField(max_length=100)
-    scrap_source = models.CharField(max_length=50)
-    url = models.URLField(max_length=600)
+    # provided externally
+    publish_date = models.DateTimeField()
+    publish_time_epoc = models.BigIntegerField(null=True)
+    source = models.CharField(max_length=100)
+    title = models.TextField()
+    body = models.TextField(blank=True)
+    summary = models.TextField(blank=True) #description
+    tickers = models.CharField(max_length=400)
+    author = models.CharField(max_length=200, blank=True)
 
-    title = models.CharField(max_length=800)
-    body = models.TextField(null=True, blank=True)
-    summary = models.TextField(null=True, blank=True)
-    tickers = models.CharField(max_length=100)
-    authors = models.CharField(max_length=200, null=True, blank=True)
+    url = models.URLField(max_length=900)
+    img_url = models.URLField(max_length=900)
+
     gmtOffSetMilliseconds = models.IntegerField(null=True, blank=True)
+    sentiment = models.CharField(max_length=20, blank=True)
 
-    up_gapper = models.ManyToManyField(UpGapper)
-    down_gapper = models.ManyToManyField(DownGapper)
+    # relationships
+    up_gapper = models.ManyToManyField(UpGapper, null=True, blank=True)
+    down_gapper = models.ManyToManyField(DownGapper, null=True, blank=True)
+
+    def __str__(self):
+        return '{internal_source} {publish_date} {title} {url}'.format(
+                                        internal_source = self.internal_source,
+                                        publish_date = self.publish_date,
+                                        title = self.title,
+                                        url = self.url)

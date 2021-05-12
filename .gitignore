@@ -109,3 +109,5 @@ celerybeat-schedule.db
 celerybeat.pid
 
 warningDeleteVolumes.sh
+Dockerfile-hydro
+local.requirements.txt

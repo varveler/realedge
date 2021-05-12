@@ -1,37 +1,29 @@
-# from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-# from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from bs4 import BeautifulSoup
-# from common.utils import get_env_variable, get_sheet, str_date, update_cell_and_wait,
-from common.utils import (convert_amount, wait_random_seconds,
-                          ghost_driver, Stock, next_available_row_to_update,
-                          str_date, get_sheet, update_cell_and_wait, atr,
-                          convert_amount_benzinga, convert_percentage_to_decimal,
-                          fix_percentage_barchart_api)
-from yahooquery import Ticker
-#from pyvirtualdisplay import Display
-
-# from gapdb import probabilty_red_gap_yq_all_in_one, atr
-from gappers.models import UpGapper
 from celery.decorators import task
 from django.utils import timezone
 
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from bs4 import BeautifulSoup
+from yahooquery import Ticker
 
 import datetime
 import time
 import requests
 from urllib.parse import unquote
-# import random
 import re
-# import json
-# import yfinance as yf
-# import pytz
-# import sys
 import pandas as pd
 import numpy as np
 from decimal import Decimal
+
+from gappers.models import UpGapper
+from news.tasks import stockNewsApi_get_resent_news, scrape_finviz_news
+from common.utils import ( wait_random_seconds,
+                          ghost_driver, next_available_row_to_update,
+                          str_date, get_sheet, update_cell_and_wait, atr,
+                          convert_amount_benzinga, convert_percentage_to_decimal,
+                          fix_percentage_barchart_api)
+
 
 
 # frontier values
@@ -283,8 +275,7 @@ def parse_stock_statistics_yquery(stocks):
 
 
 @task(name='get_benzinga_premerket_tickers')
-def get_benzinga_premerket_tickers():
-    driver = ghost_driver()
+def get_benzinga_premerket_tickers(driver):
     driver.get('https://www.benzinga.com/premarket/')
     time.sleep(4)
     try:
@@ -322,8 +313,7 @@ def get_benzinga_premerket_tickers():
     return stoncks
 
 
-def scrape_stocks_statistics_barchart(stocks):
-    driver = ghost_driver()
+def scrape_stocks_statistics_barchart(driver, stocks):
     url = 'https://www.barchart.com/stocks/quotes/%s/profile'
     for stock in stocks:
         try:
@@ -386,12 +376,20 @@ def scrape_stocks_statistics_barchart(stocks):
 @task(name='parse_gappers')
 def parse_gappers():
     today = timezone.now()
-    get_benzinga_premerket_tickers()
+    driver = ghost_driver()
+    get_benzinga_premerket_tickers(driver)
     stocks = UpGapper.objects.filter(date__day=today.day, date__month=today.month, date__year=today.year)
-    scrape_stocks_statistics_barchart(stocks)
+    scrape_stocks_statistics_barchart(driver, stocks)
     parse_gappers_barchart_and_filter()
     stocks = UpGapper.objects.filter(date__day=today.day, date__month=today.month, date__year=today.year)
     parse_stock_statistics_yquery(stocks)
+    for s in stocks:
+        stockNewsApi_get_resent_news(s.ticker, s.id)
+    for s in stocks:
+        scrape_finviz_news(driver, s.ticker, s.id)
+        wait_random_seconds()
+    driver.close()
+    driver.quit()
 
 
 @task(name='test_print')

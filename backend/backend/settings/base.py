@@ -54,7 +54,7 @@ INSTALLED_APPS = [
     #'stocksearch.apps.StocksearchConfig',
     'gappers',
     'logs',
-    #'news.apps.NewsConfig',
+    'news.apps.NewsConfig',
 ]
 
 MIDDLEWARE = [

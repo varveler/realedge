@@ -3,6 +3,7 @@ from django.contrib.humanize.templatetags.humanize import intcomma
 
 # Register your models here.
 from .models import UpGapper
+from news.models import News
 from common.utils import human_readble_amount, remove_zeros
 
 @admin.display(description='Gap %')
@@ -85,8 +86,24 @@ def pm_red_gaps(obj):
         return obj.pm_red_gaps
     return str(remove_zeros(obj.pm_red_gaps))+'%'
 
+class NewsInline(admin.TabularInline):
+    model = News.up_gapper.through
+    # ordering = ('-news.publish_date',)
+    # fields = [
+    #     'internal_source',
+    #     'publish_date',
+    #     'source',
+    #     'title',
+    #     'tickers',
+    #     'url',
+    # ]
+
+
 @admin.register(UpGapper)
 class UpGapperAdmin(admin.ModelAdmin):
+    inlines = [
+        NewsInline,
+    ]
     ordering = ('-date', '-gap_percentage')
     list_display = (
         'date',
@@ -108,3 +125,24 @@ class UpGapperAdmin(admin.ModelAdmin):
         pm_red_gaps,
         'pm_observations',
     )
+
+
+
+
+"""
+from django.contrib import admin
+
+class NewsInline(admin.TabularInline):
+    model = News.up_gapper.through
+
+class PersonAdmin(admin.ModelAdmin): #gappers
+    inlines = [
+        NewsInline,
+    ]
+
+class GroupAdmin(admin.ModelAdmin): #news
+    inlines = [
+        MembershipInline,
+    ]
+    exclude = ('members',)
+"""
