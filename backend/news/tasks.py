@@ -85,7 +85,7 @@ def scrape_finviz_news(driver, ticker, up_gapper_id=None):
                 print(str_date)
                 if '-' not in str_date:
                     print('searching prev day objs: ', news_itemsss)
-                    prev_news_day_obj = news_itemsss[i - 1]
+                    prev_news_day_obj = news_itemsss.pop()
                     prev_news_day = prev_news_day_obj.date.split(' ')[0]
                     print('prev_news_day', prev_news_day)
                     str_date = prev_news_day + ' ' + str_date
