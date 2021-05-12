@@ -95,7 +95,7 @@ def scrape_finviz_news(driver, ticker, up_gapper_id=None):
                 date = datetime.datetime.strptime(str_date + ' -0400', '%b-%d-%y %I:%M%p %z')
                 obj, created = News.objects.get_or_create(
                     internal_source = 'scraping Finviz',
-                    title = cells[1].text,
+                    title = cells[1].a.text,
                     publish_date = date,
                     defaults = {
                         'source' : cells[1].find_all('span')[0].text,
