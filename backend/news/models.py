@@ -8,7 +8,7 @@ class News(models.Model):
     """ News article that relates to a certain tickers. """
 
     class Meta:
-        unique_together = ['internal_source', 'title']
+        unique_together = ['internal_source', 'title', 'publish_date']
         ordering = ['-publish_date', 'title']
 
     # internaly created
