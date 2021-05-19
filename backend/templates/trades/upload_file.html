@@ -1,0 +1,20 @@
+<<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <form enctype="multipart/form-data" action="" method="post">
+    {% csrf_token %}
+    <br/>
+    <h4> Import Trades  </h4>
+    <h6> Upload your TradeZero Orders here</h6>
+    <p>Pick your xlsx file with your orders</p>
+    {{form.local_file}}
+    <br/>
+    <br/>
+    <input type="submit" value="Subir Registros" class="btn btn-success spb" style="margin-top: 10px;" />
+    </form>
+  </body>
+</html>

@@ -111,3 +111,9 @@ celerybeat.pid
 warningDeleteVolumes.sh
 Dockerfile-hydro
 local.requirements.txt
+
+backend/tempOrdersFiles/*.xls
+backend/tempOrdersFiles/*.xlsx
+
+restartworkers.sh
+dev/

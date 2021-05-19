@@ -7,6 +7,8 @@ import gspread
 import random
 import time
 from decimal import Decimal
+import datetime
+import pytz
 
 def get_env_variable(var_name):
     """ Get the environment variable or return exception """
@@ -232,3 +234,12 @@ def fix_percentage_barchart_api(amount):
     if not amount:
         return amount
     return Decimal(str(amount)) / 100
+
+def tradeZeroDateTimeObject(str):
+    return datetime.datetime.strptime(str, '%H:%M:%S %Y/%m/%d %z')
+
+def tradeZeroDateTimeString(str):
+    return tradeZeroDateTimeObject(str).strftime('%Y-%m-%d %H:%M:%S')
+
+def make_aware_dt(dt):
+    return

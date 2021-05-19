@@ -17,6 +17,9 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
+    #path('logs/', include('logs.urls')),
     path('registers/', admin.site.urls),
-    path('stocksearch/', include('stocksearch.urls'))
+    path('stocksearch/', include('stocksearch.urls')),
+    path('api-auth/', include('rest_framework.urls')),
+    path('trades/', include('trades.urls')),
 ]

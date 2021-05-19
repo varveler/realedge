@@ -141,7 +141,8 @@ str_date = cells[0].text.strip()
 str_date
 '-' not in str_date
 news_item.date = datetime.datetime.strptime(str_date, '%b-%d-%y %I:%M%p').strftime("%b-%d-%y %H:%M:%S")
-news_item.headline = cells[1].text
+news_item.headline = cells[1].a.text
+news_item.headline
 news_itemsss.append(news_item)
 date = datetime.datetime.strptime(str_date + ' -0400', '%b-%d-%y %I:%M%p %z')
 obj, created = News.objects.get_or_create(

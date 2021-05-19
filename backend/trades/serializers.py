@@ -1,0 +1,173 @@
+from rest_framework import serializers
+from .models import Order, Trade
+from django.contrib.auth.models import User
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+
+
+class TZChoiceField(serializers.ChoiceField):
+
+    def to_internal_value(self, data):
+        # To support inserts with the value
+        if data == '' and self.allow_blank:
+            return ''
+        if data == 'MKT':
+            return 'MA'
+        elif data == 'LMT':
+            return 'LI'
+        elif data == 'Stop_MKT':
+            return 'SM'
+        elif data == 'Stop_LMT':
+            return 'SL'
+        for key, val in self._choices.items():
+            if val == data:
+                return key
+            elif val == data.capitalize():
+                return key
+        self.fail('invalid_choice', input=data)
+
+
+class BlankableDecimalField(serializers.DecimalField):
+    """
+    We wanted to be able to receive an empty string ('') for a decimal field
+    and in that case turn it into a None number
+    """
+    def to_internal_value(self, data):
+        if data == '':
+            return None
+
+        return super(BlankableDecimalField, self).to_internal_value(data)
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', )
+
+class TZOrderSerializer(serializers.ModelSerializer):
+    start_time = serializers.DateTimeField(format='%H:%M:%S %Y/%m/%d')
+    last_time = serializers.DateTimeField(format='%H:%M:%S %Y/%m/%d')
+    action = TZChoiceField(Order.ACTION_CHOICES)
+    status = TZChoiceField(Order.STATUS_CHOICES)
+    type = TZChoiceField(Order.TYPE_CHOICES)
+    price = BlankableDecimalField(max_digits=16, decimal_places=10)
+    stop_price = BlankableDecimalField(max_digits=16, decimal_places=10)
+    limit_price = BlankableDecimalField(max_digits=16, decimal_places=10)
+    broker = serializers.CharField(required=False, allow_blank=True)
+    broker_info = serializers.CharField(required=False, allow_blank=True)
+    #user = serializers.HiddenField( default=serializers.CurrentUserDefault())
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    class Meta:
+        model = Order
+        fields = [
+            'start_time',
+            'last_time',
+            'ticker',
+            'action',
+            'action_raw',
+            'shares',
+            'shares_executed',
+            'status',
+            'status_raw',
+            'type',
+            'route',
+            'type_raw',
+            'price',
+            'stop_price',
+            'limit_price',
+            'expiration',
+            'broker',
+            'account',
+            'broker_ord_id',
+            'broker_info',
+            'user'
+        ]
+
+
+    def is_valid(self, raise_exception=False):
+        if hasattr(self, 'initial_data'):
+            # If we are instantiating with data={something}
+            try:
+                # Try to get the object in question
+                obj = Order.objects.get(user=self.initial_data['user'], start_time=self.initial_data['start_time'], broker_ord_id=self.initial_data['broker_ord_id'])
+            except (ObjectDoesNotExist, MultipleObjectsReturned):
+                # Except not finding the object or the data being ambiguous
+                # for defining it. Then validate the data as usual
+                return super().is_valid(raise_exception)
+            else:
+                # If the object is found add it to the serializer. Then
+                # validate the data as usual
+                self.instance = obj
+                return super().is_valid(raise_exception)
+        else:
+            # If the Serializer was instantiated with just an object, and no
+            # data={something} proceed as usual
+            return super().is_valid(raise_exception)
+
+
+class TradeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Trade
+        fields = [
+            'creation',
+            'update',
+            'date',
+            'start_time',
+            'end_time',
+            'ticker',
+            'market',
+            'company_name',
+            'industry',
+            'side',
+            'type',
+            'pnl',
+            'net',
+            'duration',
+            'size',
+            'entries',
+            'exits',
+            'entry_price',
+            'exit_price',
+            'comissions',
+            'borrow_comissions',
+            'upgapper',
+            'closed',
+        ]
+
+"""
+[
+{
+"start_time": "09:41:12 2021/04/26",
+"last_time": "09:41:12 2021/04/26",
+"ticker": "OCGN",
+"action": "SELL",
+"shares": "100",
+"status": "Filled",
+"type": "MKT",
+"price": "11.22",
+"stop_price": "",
+"limit_price": "",
+"in_out": "",
+"position": "",
+"expiration": "DAY",
+"broker": "",
+"broker_ord_id": "dEVA81525.0426084114.2",
+"broker_info": ""},
+{
+"start_time": "09:40:46 2021/04/26",
+"last_time": "09:40:46 2021/04/26",
+"ticker": "OCGN",
+"action": "BUY",
+"shares": "100",
+"status": "Filled",
+"type": "MKT",
+"price": "11.3",
+"stop_price": "",
+"limit_price": "",
+"in_out": "",
+"position": "",
+"expiration": "DAY",
+"broker": "",
+"broker_ord_id": "dEVA81525.0426084049.1",
+"broker_info": ""
+}
+]
+"""

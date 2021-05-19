@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  hydro:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile-hydro
+    entrypoint: ["/tini", "--"]
+    volumes:
+      - ./backend/:/backend/
+    command:  ["python3", "manage.py", "shell_plus", "--notebook"] #["jupyter-notebook", "--allow-root", "--no-browser",  "--ip=0.0.0.0", "--port=8888"]
+    ports:
+      - 8888:8888
+    links:
+      - db
+    env_file: ./backend/.env
+    environment:
+      - JUPYTER_TOKEN=eaEahuHUeaEahuHU
+    depends_on:
+      - db
+    networks:
+      - djangonetwork
+    #tty: true

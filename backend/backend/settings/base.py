@@ -53,7 +53,7 @@ INSTALLED_APPS = [
     'django_celery_results',
     #'stocksearch.apps.StocksearchConfig',
     'gappers',
-    'logs',
+    'trades',
     'news.apps.NewsConfig',
 ]
 
@@ -72,7 +72,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -207,6 +207,9 @@ CELERY_IMPORTS = (
     #'api.tasks',
 )
 
-
-
 CHROMEDRIVER_PATH = '/backend/backend/drivers/chromedriver'
+
+REST_FRAMEWORK = {
+    'DATETIME_INPUT_FORMATS': ["%H:%M:%S %Y/%m/%d", ]
+
+}
