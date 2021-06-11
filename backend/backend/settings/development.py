@@ -55,3 +55,13 @@ IPYTHON_KERNEL_DISPLAY_NAME = "Django Shell-Plus"
 # ]
 
 os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true" # only use in development
+
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost",
+    "http://127.0.0.1",
+    "http://localhost/",
+    "http://127.0.0.1/",
+]

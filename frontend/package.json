@@ -1,48 +1,57 @@
 {
-  "name": "real-edge",
-  "version": "0.1.0",
-  "author": "RETECH",
-  "description": "edge in the markets tech",
-  "main": "src/electron-starter.js",
-  "private": true,
-  "dependencies": {
-    "@material-ui/core": "^4.11.2",
-    "@testing-library/jest-dom": "^5.11.4",
-    "@testing-library/react": "^11.1.0",
-    "@testing-library/user-event": "^12.1.10",
-    "electron-screencapture": "^1.1.0",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
-    "react-scripts": "4.0.1",
-    "screenshot-desktop": "^1.12.3",
-    "web-vitals": "^0.2.4"
-  },
+  "name": "realedge",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "next-dev": "next dev",
+    "next-build": "next build && next export",
+    "next-start": "next start",
+    "start": "cross-env NODE_ENV=development webpack serve --config config/webpack.dev.js",
+    "build": "webpack --mode production --config config/webpack.prod.js",
+    "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "electron": "electron ."
+    "collect": "webpack --mode production --config config/webpack.prod.js && npm run build-rename && npm run copy-buildfiles && npm run collectstatic",
+    "build-rename": "npm run build-rename-js && npm run build-rename-css",
+    "build-rename-js": "renamer --regex --find 'bundle.js' --replace 're.ui.js' dist/*.js",
+    "build-rename-css": "renamer --regex --find 'main\\.[^\\.]+\\.css' --replace 're.ui.css' build/static/css/*.css",
+    "copy-buildfiles": "npm run copy-build-js && npm run copy-build-css",
+    "copy-build-js": "copyfiles -f 'dist/*.js' '../backend/static/js/'",
+    "copy-build-css": "copyfiles -f 'dist/*.css' '../backend/static/css/'",
+    "collectstatic": "python ../backend/manage.py collectstatic --no-input",
+    "copy-export-htmls": "copyfiles -f 'out/*.html' '../backend/templates/_next/out/'",
+    "copy-export-static": "cp -R './out/_next/' '../backend/static/'",
+    "copy-exports": "npm run copy-export-static && npm run copy-export-htmls",
+    "remove-prev-static-exports": "rm -rf ../backend/static/_next",
+    "remove-prev-htmls-exports": "rm -rf ../backend/templates/_next",
+    "remove-prev-exports": "npm run remove-prev-static-exports && npm run remove-prev-htmls-exports",
+    "go": "npm run remove-prev-exports && npm run next-build && npm run copy-exports && python3 add_django_tags.py -d ../backend/templates/_next/out/"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/runtime": "^7.14.0",
+    "@material-ui/core": "^4.11.4",
+    "@material-ui/icons": "^4.11.2",
+    "@reduxjs/toolkit": "^1.6.0",
+    "axios": "^0.21.1",
+    "html-webpack-plugin": "^5.3.1",
+    "next": "^10.2.3",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-redux": "^7.2.4"
   },
   "devDependencies": {
-    "electron": "^11.1.1"
+    "@babel/plugin-transform-runtime": "^7.14.3",
+    "clean-webpack-plugin": "^4.0.0-alpha.0",
+    "copyfiles": "^2.4.1",
+    "cross-env": "^7.0.3",
+    "dotenv": "^10.0.0",
+    "postcss": "^8.3.2",
+    "react-scripts": "^4.0.3",
+    "renamer": "^3.0.2",
+    "webpack": "^5.38.1",
+    "webpack-bundle-tracker": "^1.0.0",
+    "webpack-cli": "^4.7.0"
   }
 }

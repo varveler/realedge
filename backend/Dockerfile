@@ -25,7 +25,7 @@ RUN apt-get install -y google-chrome-stable
 
 # install chromedriver
 RUN apt-get install -yqq unzip
-RUN wget -O /tmp/chromedriver.zip https://chromedriver.storage.googleapis.com/88.0.4324.96/chromedriver_linux64.zip
+RUN wget -O /tmp/chromedriver.zip https://chromedriver.storage.googleapis.com/91.0.4472.19/chromedriver_linux64.zip
 RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
 
 #RUN apt-get install -yqq python-setuptools python-dev build-essential
