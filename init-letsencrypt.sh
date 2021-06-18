@@ -5,7 +5,7 @@ if ! [ -x "$(command -v docker-compose)" ]; then
   exit 1
 fi
 
-domains=(realedge.io)
+domains=(api.realedge.io)
 rsa_key_size=4096
 data_path="./devops/docker/certbot"
 email="evarval@gmail.com" # Adding a valid address is strongly recommended
