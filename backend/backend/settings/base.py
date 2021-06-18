@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 from django.core.exceptions import ImproperlyConfigured
 from kombu import Exchange, Queue
+from datetime import timedelta
 
 def get_env_variable(var_name):
     """ Get the environment variable or return exception """
@@ -35,7 +36,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = get_env_variable('SECRET_KEY')
 
-
+AUTH_USER_MODEL = "reusers.ReUser"
 
 # Application definition
 
@@ -57,6 +58,8 @@ INSTALLED_APPS = [
     'news.apps.NewsConfig',
     'webpack_loader',
     'corsheaders',
+    'reusers',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 MIDDLEWARE = [
@@ -214,10 +217,45 @@ CELERY_IMPORTS = (
 CHROMEDRIVER_PATH = '/backend/backend/drivers/chromedriver'
 
 REST_FRAMEWORK = {
-    'DATETIME_INPUT_FORMATS': ["%H:%M:%S %Y/%m/%d", ]
+    'DEFAULT_PERMISSION_CLASSES': [
+    'rest_framework.permissions.AllowAny',
+   ],
+    'DATETIME_INPUT_FORMATS': ["%H:%M:%S %Y/%m/%d", ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
 
 }
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'assets'),
 )
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': False,
+
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+    'AUDIENCE': None,
+    'ISSUER': None,
+
+    'AUTH_HEADER_TYPES': ('Bearer', 'JWT'),
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule',
+
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+
+    'JTI_CLAIM': 'jti',
+
+    'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
+    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
+}

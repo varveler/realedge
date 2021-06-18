@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from .models import Order, Trade
-from django.contrib.auth.models import User
+from reusers.models import ReUser
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-
+from .admin import pnl, first_entry_price, calculated_comissions, last_exit_price
 
 class TZChoiceField(serializers.ChoiceField):
 
@@ -37,9 +37,9 @@ class BlankableDecimalField(serializers.DecimalField):
 
         return super(BlankableDecimalField, self).to_internal_value(data)
 
-class UserSerializer(serializers.ModelSerializer):
+class ReUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = ReUser
         fields = ('username', )
 
 class TZOrderSerializer(serializers.ModelSerializer):
@@ -54,7 +54,7 @@ class TZOrderSerializer(serializers.ModelSerializer):
     broker = serializers.CharField(required=False, allow_blank=True)
     broker_info = serializers.CharField(required=False, allow_blank=True)
     #user = serializers.HiddenField( default=serializers.CurrentUserDefault())
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    user = serializers.PrimaryKeyRelatedField(queryset=ReUser.objects.all())
     class Meta:
         model = Order
         fields = [
@@ -130,7 +130,45 @@ class TradeSerializer(serializers.ModelSerializer):
             'borrow_comissions',
             'upgapper',
             'closed',
-        ]
+            ]
+
+class DisplayTradeSerializer(serializers.ModelSerializer):
+    pnl = serializers.SerializerMethodField()
+    calculated_comissions = serializers.SerializerMethodField()
+    first_entry_price = serializers.SerializerMethodField()
+    last_exit_price = serializers.SerializerMethodField()
+    class Meta:
+        model = Trade
+        fields = ['ticker',
+                  'start_time',
+                  'end_time',
+                  'duration',
+                  'max_size',
+                  'side',
+                  'pnl',
+                  'calculated_comissions',
+                  'net',
+                  'entries',
+                  'exits',
+                  'first_entry_price',
+                  'last_exit_price',
+                  'closed',
+                  'position']
+
+    def get_pnl(self, obj):
+        return pnl(obj)
+
+    def get_calculated_comissions(self, obj):
+        return calculated_comissions(obj)
+
+    def get_first_entry_price(self, obj):
+        return first_entry_price(obj)
+
+    def get_last_exit_price(self, obj):
+        return last_exit_price(obj)
+
+
+
 
 """
 [

@@ -9,10 +9,9 @@ import GappersList from './GappersList'
 class Gappers extends React.Component {
 
   render(){
-    return(<div>
-      <p>Gapppppppppppppppers</p>
-      <GappersList />
-      </div>
+    return(<React.Fragment>
+              <GappersList />
+            </React.Fragment>
     )
   }
 }

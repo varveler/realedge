@@ -19,13 +19,13 @@
     "copy-build-js": "copyfiles -f 'dist/*.js' '../backend/static/js/'",
     "copy-build-css": "copyfiles -f 'dist/*.css' '../backend/static/css/'",
     "collectstatic": "python ../backend/manage.py collectstatic --no-input",
-    "copy-export-htmls": "copyfiles -f 'out/*.html' '../backend/templates/_next/out/'",
+    "copy-export-htmls": "copyfiles 'out/**/*.html' '../backend/templates/_next/'",
     "copy-export-static": "cp -R './out/_next/' '../backend/static/'",
     "copy-exports": "npm run copy-export-static && npm run copy-export-htmls",
     "remove-prev-static-exports": "rm -rf ../backend/static/_next",
     "remove-prev-htmls-exports": "rm -rf ../backend/templates/_next",
     "remove-prev-exports": "npm run remove-prev-static-exports && npm run remove-prev-htmls-exports",
-    "go": "npm run remove-prev-exports && npm run next-build && npm run copy-exports && python3 add_django_tags.py -d ../backend/templates/_next/out/"
+    "go": "npm run remove-prev-exports && npm run next-build && npm run copy-exports && python3 add_django_tags.py -d '../backend/templates/_next/out/**/' "
   },
   "author": "",
   "license": "ISC",

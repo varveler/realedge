@@ -47,30 +47,40 @@ def pm_s2_float(obj):
 def pm_s1_held_percent_insiders(obj):
     if obj.pm_s1_held_percent_insiders == None:
         return obj.pm_s1_held_percent_insiders
+    elif obj.pm_s1_held_percent_insiders == 0:
+        return 0
     return (str(obj.pm_s1_held_percent_insiders * 100))[:5] + '%'
 
 @admin.display(description='Held Insid s2')
 def pm_s2_held_percent_insiders(obj):
     if obj.pm_s2_held_percent_insiders == None:
         return obj.pm_s2_held_percent_insiders
+    elif obj.pm_s2_held_percent_insiders == 0:
+        return 0
     return (str(obj.pm_s2_held_percent_insiders * 100))[:5] + '%'
 
 @admin.display(description='Held Inst s1')
 def pm_s1_held_percent_institutions(obj):
     if obj.pm_s1_held_percent_institutions == None:
         return obj.pm_s1_held_percent_institutions
+    elif obj.pm_s1_held_percent_institutions == 0:
+        return 0
     return (str(obj.pm_s1_held_percent_institutions * 100))[:5] + '%'
 
 @admin.display(description='Held Inst s2')
 def pm_s2_held_percent_institutions(obj):
     if obj.pm_s2_held_percent_institutions == None:
         return obj.pm_s2_held_percent_institutions
+    elif obj.pm_s2_held_percent_institutions == 0:
+        return 0
     return (str(obj.pm_s2_held_percent_institutions * 100))[:5] + '%'
 
 @admin.display(description='Short % of Float')
 def pm_s1_short_percent_float(obj):
     if obj.pm_s1_short_percent_float == None:
         return obj.pm_s1_short_percent_float
+    elif obj.pm_s1_short_percent_float == 0:
+        return 0
     return (str(obj.pm_s1_short_percent_float * 100))[:5] + '%'
 
 

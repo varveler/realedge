@@ -2,9 +2,9 @@
 from trades.models import OrdersFile
 import pandas as pd
 from trades.serializers import TZOrderSerializer
-from django.contrib.auth.models import User
 from celery.decorators import task
 from backend.settings.base import TIME_ZONE
+from reusers.models import ReUser as User
 
 @task(name='process_orders_from_file_TradeZero')
 def process_orders_from_file_TradeZero(pk, user_pk):

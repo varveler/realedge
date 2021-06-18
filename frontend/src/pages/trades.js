@@ -1,12 +1,12 @@
 import React, { Fragment } from 'react';
-import Gappers from './../features/gappers/Gappers'
+import TradesList from './../features/trades/TradesList'
 import NavBar from './../features/navbar/NavBar'
 
 const Home = () => {
     return (
         <Fragment>
           <NavBar />
-          <Gappers />
+          <TradesList />
         </Fragment>
     )
 }

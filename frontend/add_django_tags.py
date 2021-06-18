@@ -21,11 +21,12 @@ def search_and_parse(soup, tag):
 
 def main():
     args = parse_args()
-    for html_file in glob.glob(os.path.join(args.dir, '*html')):
+    for html_file in glob.glob(os.path.join(args.dir, '*html'), recursive = True):
+        print(html_file)
         soup = BeautifulSoup(open(html_file), 'html.parser')
         soup.insert(0, '{% load static %}')
         # add script to store user info into window on page load
-        # is a workaround so i don't need redux
+        # is a workarhtml_fileound so i don't need redux
         #django_script = BeautifulSoup("<script>window.django = {is_authenticated: \"{{ request.user.is_authenticated }}\" === \"True\" ? true : false, user_plan: \"{{user_plan}}\"};</script>", 'html.parser')
         #head = soup.find('head')
         #head.append(django_script)

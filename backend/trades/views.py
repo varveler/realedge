@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 
 from rest_framework import viewsets
 from rest_framework import permissions
@@ -8,10 +10,9 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from .models import Order, Trade, OrdersFile
-from .serializers import TZOrderSerializer, TradeSerializer
+from .serializers import TZOrderSerializer, DisplayTradeSerializer
 from .forms import OrdersFileForm
 from .tasks import process_orders_from_file_TradeZero
-
 
 class OrdersViewSet(viewsets.ModelViewSet):
     """
@@ -19,12 +20,6 @@ class OrdersViewSet(viewsets.ModelViewSet):
     """
     queryset = Order.objects.all().order_by('-last_time')
     serializer_class = TZOrderSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-
-class TradesViewSet(viewsets.ModelViewSet):
-    queryset = Trade.objects.all().order_by('-creation')
-    serializer_class = TradeSerializer
     permission_classes = [permissions.IsAuthenticated]
 
 
@@ -57,3 +52,12 @@ def file_update(request):
             l_file.save()
             process_orders_from_file_TradeZero.delay(l_file.pk, user.pk)
     return render(request, 'trades/upload_file.html', context)
+
+
+@csrf_exempt
+@api_view(['GET', ])
+def trades_list(request):
+    if request.method == 'GET':
+        trades = Trade.objects.all().order_by('-creation')
+        serializer = DisplayTradeSerializer(trades, many=True)
+        return Response(serializer.data)

@@ -1,14 +1,14 @@
 import React, { Fragment } from 'react';
-import Gappers from './../features/gappers/Gappers'
+import SignIn from './../features/access/SignIn'
 import NavBar from './../features/navbar/NavBar'
 
-const Home = () => {
+const SignUp = () => {
     return (
         <Fragment>
           <NavBar />
-          <Gappers />
+          <SignIn />
         </Fragment>
     )
 }
 
-export default Home
+export default SignUp

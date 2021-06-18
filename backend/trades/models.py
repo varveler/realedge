@@ -1,9 +1,10 @@
 from django.db import models
-from django.contrib.auth.models import User
+from reusers.models import ReUser as User
 from gappers.models import UpGapper
-import os
 from django.utils import timezone
 from decimal import Decimal
+import os
+import uuid
 
 class Trade(models.Model):
     SHORT = 'SH'
@@ -23,6 +24,8 @@ class Trade(models.Model):
     OPEN = 'OP'
     CLOSED = 'CL'
     PARTIALLY_CLOSED = 'PC'
+
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
 
     creation = models.DateTimeField(auto_now_add=True)
     update = models.DateTimeField(auto_now=True)
