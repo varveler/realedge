@@ -46,6 +46,7 @@ export default function GappersList () {
   useEffect(() => {
     dispatch(navbarSelected(0))
     if (fetchGappersStatus === 'idle') {
+      console.log('env', process.env.NEXT_PUBLIC_API_URL)
       dispatch(fetchGappers())
     }
   }, [fetchGappersStatus, dispatch])
