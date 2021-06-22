@@ -47,7 +47,7 @@ export default function GappersList () {
     dispatch(navbarSelected(0))
     if (fetchGappersStatus === 'idle') {
       console.log('env', process.env.NEXT_PUBLIC_API_URL)
-  console.log('added CORs')
+      console.log('added CORs')
       dispatch(fetchGappers())
     }
   }, [fetchGappersStatus, dispatch])
@@ -55,7 +55,7 @@ export default function GappersList () {
 
   if (fetchGappersStatus === 'loading') {
     content = <div className="loader">Loading...</div>
-  } else if (fetchGappersStatus === 'succeeded') {
+  } else if (fetchGappersStatus === 'succeeded' && gappers && gappers.length > 0 ) {
     var dates = [];
 
     gappers.map(gapper => {if(!dates.includes(gapper.date)){dates.push(gapper.date)}})
