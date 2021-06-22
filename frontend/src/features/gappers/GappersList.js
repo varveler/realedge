@@ -47,6 +47,7 @@ export default function GappersList () {
     dispatch(navbarSelected(0))
     if (fetchGappersStatus === 'idle') {
       console.log('env', process.env.NEXT_PUBLIC_API_URL)
+  console.log('added CORs')
       dispatch(fetchGappers())
     }
   }, [fetchGappersStatus, dispatch])
