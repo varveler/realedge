@@ -4,3 +4,7 @@ from .base import *
 DEBUG = False
 
 ALLOWED_HOSTS = ['api.realedge.io']
+
+CORS_ALLOWED_ORIGINS = [
+    "http://realedge.io",
+]
