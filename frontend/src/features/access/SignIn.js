@@ -42,6 +42,7 @@ export default function SignIn() {
 	const userIsLogedIn = useSelector(selectUserIsLogedIn)
 	const router = useRouter()
 	const classes = useStyles();
+	console.log(2)
 	const initialFormData = Object.freeze({
 		email: '',
 		password: '',
