@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import SignIn from './../features/access/SignIn'
 import NavBar from './../features/navbar/NavBar'
 
-const SignUp = () => {
+const LogIn = () => {
     return (
         <Fragment>
           <NavBar />
@@ -11,4 +11,4 @@ const SignUp = () => {
     )
 }
 
-export default SignUp
+export default LogIn
