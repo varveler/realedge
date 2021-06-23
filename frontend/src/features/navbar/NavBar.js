@@ -61,30 +61,30 @@ export default function NavBar() {
             </Typography>
           </Grid>
           <Grid item>
-          <Tabs
-            value={activeTab}
-            indicatorColor="primary"
-            onChange={handleChange}
-            aria-label="site tabs navigation"
-            classes={{
-              indicator: classes.indicator
-            }}>
-            <Link href="/" passHref>
-              <Tab component="a" label="Gappers" />
-            </Link>
-            {userIsLogedIn ?
-            <Link href="/trades" passHref>
-              <Tab component="a" label="Trades" />
-            </Link>
-            : null }
-          </Tabs>
+            <Tabs
+              value={activeTab}
+              indicatorColor="primary"
+              onChange={handleChange}
+              aria-label="site tabs navigation"
+              classes={{
+                indicator: classes.indicator
+              }}>
+
+              <Link href="/" passHref>
+                <Tab component="a" label="Gappers" />
+              </Link>
+              {userIsLogedIn ?
+              <Link href="/trades" passHref>
+                <Tab component="a" label="Trades" />
+              </Link>
+              : null }
+            </Tabs>
           </Grid>
           <Grid item>
             {userIsLogedIn ?
-                            <Button component={ButtonLink} href={'/logout'} color="inherit">Log Out</Button>
-                          : <Button component={ButtonLink} href={'/signin'} color="inherit">Sign In</Button>
+                            <Link href="/logout" passHref><Button color="inherit">Log Out</Button></Link>
+                          : <Link href="/signin" passHref><Button color="inherit">Sign In</Button></Link>
             }
-
           </Grid>
         </Grid>
         </Toolbar>

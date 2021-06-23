@@ -3,6 +3,7 @@ import axiosInstance from '../../components/axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { sendCredentials, selectUserIsLogedIn } from './accessSlicer';
 import { useRouter } from 'next/router'
+import { selectActiveTab, navbarSelected } from '../navbar/navBarSlicer'
 //MaterialUI
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
@@ -50,6 +51,7 @@ export default function SignIn() {
 	const [formData, updateFormData] = useState(initialFormData);
 
 	useEffect(()=>{
+		dispatch(navbarSelected(false))
 		if (userIsLogedIn) {
 	      router.push('/trades')
 	    }
