@@ -6,8 +6,9 @@ from django.http import JsonResponse
 from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework import status
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 from .models import Order, Trade, OrdersFile
 from .serializers import TZOrderSerializer, DisplayTradeSerializer
@@ -24,6 +25,7 @@ class OrdersViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['GET', 'POST'])
+@permission_classes((IsAuthenticated, ))
 def orders_list(request):
     if request.method == 'GET':
         orders = Order.objects.all()
@@ -54,8 +56,8 @@ def file_update(request):
     return render(request, 'trades/upload_file.html', context)
 
 
-@csrf_exempt
 @api_view(['GET', ])
+@permission_classes((IsAuthenticated, ))
 def trades_list(request):
     if request.method == 'GET':
         trades = Trade.objects.all().order_by('-creation')

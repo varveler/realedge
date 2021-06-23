@@ -12,7 +12,8 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import ButtonLink from '../../components/ButtonLink'
 import { useSelector, useDispatch } from 'react-redux'
-import {selectActiveTab, navbarSelected} from './navBarSlicer'
+import { selectActiveTab, navbarSelected } from './navBarSlicer'
+import { selectUserIsLogedIn } from '../access/accessSlicer'
 
 
 
@@ -32,6 +33,7 @@ function a11yProps(index) {
 
 export default function NavBar() {
   const classes = useStyles();
+  const userIsLogedIn = useSelector(selectUserIsLogedIn)
   // const [value, setValue] = React.useState(0);
   //
   const handleChange = (event, newValue) => {
@@ -71,18 +73,19 @@ export default function NavBar() {
             <Link href="/" passHref>
               <Tab component="a" label="Gappers" />
             </Link>
-            <Link href="/sentiment-analysis" passHref>
-              <Tab component="a" disabled label="Sentiment Analysis" />
-            </Link>
+            {userIsLogedIn ?
             <Link href="/trades" passHref>
               <Tab component="a" label="Trades" />
             </Link>
+            : null }
           </Tabs>
           </Grid>
           <Grid item>
-            <Button component={ButtonLink} href={'/signin'} color="inherit">Login</Button>
-            <Button component={ButtonLink} href={'/signup'} color="inherit">Sing me up!</Button>
-            <Button component={ButtonLink} href={'/logout'} color="inherit">Log Out</Button>
+            {userIsLogedIn ?
+                            <Button component={ButtonLink} href={'/logout'} color="inherit">Log Out</Button>
+                          : <Button component={ButtonLink} href={'/signin'} color="inherit">Sign In</Button>
+            }
+
           </Grid>
         </Grid>
         </Toolbar>

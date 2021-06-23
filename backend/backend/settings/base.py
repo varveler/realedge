@@ -218,7 +218,7 @@ CHROMEDRIVER_PATH = '/backend/backend/drivers/chromedriver'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-    'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.AllowAny',
    ],
     'DATETIME_INPUT_FORMATS': ["%H:%M:%S %Y/%m/%d", ],
     'DEFAULT_AUTHENTICATION_CLASSES': (

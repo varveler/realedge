@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axiosInstance from '../../components/axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { sendCredentials } from './accessSlicer';
+import { sendCredentials, selectUserIsLogedIn } from './accessSlicer';
+import { useRouter } from 'next/router'
 //MaterialUI
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
@@ -38,12 +39,20 @@ const useStyles = makeStyles((theme) => ({
 export default function SignIn() {
 	//const history = useHistory();
 	const dispatch = useDispatch()
+	const userIsLogedIn = useSelector(selectUserIsLogedIn)
+	const router = useRouter()
+	const classes = useStyles();
 	const initialFormData = Object.freeze({
 		email: '',
 		password: '',
 	});
-
 	const [formData, updateFormData] = useState(initialFormData);
+
+	useEffect(()=>{
+		if (userIsLogedIn) {
+	      router.push('/trades')
+	    }
+	})
 
 	const handleChange = (e) => {
 		updateFormData({
@@ -58,7 +67,7 @@ export default function SignIn() {
 		dispatch(sendCredentials(formData))
 	};
 
-	const classes = useStyles();
+
 
 	return (
 		<Container component="main" maxWidth="xs">
@@ -108,16 +117,24 @@ export default function SignIn() {
 						Sign In
 					</Button>
 					<Grid container>
+						<Grid item>
+							By Invitation Only
+						</Grid>
+						{/*
 						<Grid item xs>
 							<Link href="#" variant="body2">
 								Forgot password?
 							</Link>
 						</Grid>
+						/*}
 						<Grid item>
+							{/*
 							<Link href="#" variant="body2">
 								{"Don't have an account? Sign Up"}
 							</Link>
+
 						</Grid>
+						*/}
 					</Grid>
 				</form>
 			</div>

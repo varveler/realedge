@@ -29,7 +29,8 @@ const gapperSlice = createSlice({
     [fetchGappers.fulfilled]: (state, action) => {
       state.status = 'succeeded'
       // Add any fetched gappers to the array
-      console.log('action', action)
+      console.log('action fetch gappers action: ', action)
+      
       state.gappers = state.gappers.concat(action.payload)
     },
     [fetchGappers.rejected]: (state, action) => {

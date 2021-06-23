@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axiosInstance from '../../components/axios'
 
+
 const axios = require('axios');
 const initialState = {
   userIsLogedIn: false,
@@ -56,7 +57,7 @@ const accessSlice = createSlice({
     },
     [sendCredentials.fulfilled]: (state, action) => {
       state.status = 'succeeded'
-      console.log('action', action)
+      console.log('succeeded action', action)
       state.userIsLogedIn = true
     },
     [sendCredentials.rejected]: (state, action) => {

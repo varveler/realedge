@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchGappers, selectAllGappers } from './gappersSlicer';
+import { selectUserIsLogedIn } from '../access/accessSlicer'
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
 import { navbarSelected } from '../navbar/navBarSlicer'
@@ -42,6 +43,7 @@ export default function GappersList () {
   const gappers = useSelector(selectAllGappers);
   const dispatch = useDispatch();
   const classes = useStyles();
+  const userIsLogedIn = useSelector(selectUserIsLogedIn)
   let content
   useEffect(() => {
     dispatch(navbarSelected(0))
@@ -50,13 +52,74 @@ export default function GappersList () {
       dispatch(fetchGappers())
     }
   }, [fetchGappersStatus, dispatch])
+  const renderRowTableUserIsLogedIn = (gapper, id) => (
+    <TableRow key={id}>
+      <TableCell className={classes.cell}>
+        <Link href={`/gappers/${id}`}>{gapper.ticker}</Link>
+      </TableCell>
+      <TableCell className={classes.cell}> {gapper.last} </TableCell>
+      <TableCell className={classes.cell}> {gapper.gap_percentage_display} </TableCell>
+      <TableCell className={classes.cell}> {gapper.pm_s2_volume} </TableCell>
+      <TableCell className={classes.cell}> {gapper.pm_s1_market_cap} </TableCell>
+      <TableCell className={classes.cell}> {gapper.pm_s2_market_cap} </TableCell>
+      <TableCell className={classes.cell}> {gapper.pm_s1_float} </TableCell>
+      <TableCell className={classes.cell}> {gapper.pm_s2_float} </TableCell>
+      <TableCell className={classes.cell}> {gapper.pm_s1_held_percent_insiders} </TableCell>
+      <TableCell className={classes.cell}> {gapper.pm_s2_held_percent_insiders} </TableCell>
+      <TableCell className={classes.cell}> {gapper.pm_s1_held_percent_institutions} </TableCell>
+      <TableCell className={classes.cell}> {gapper.pm_s2_held_percent_institutions} </TableCell>
+      <TableCell className={classes.cell}> {gapper.pm_s1_short_percent_float} </TableCell>
+      <TableCell className={classes.cell}> {gapper.pm_red_gaps} </TableCell>
+      <TableCell className={classes.cell}> {gapper.pm_observations} </TableCell>
+    </TableRow>
+  )
+  const renderRowTableUserNotLogedIn = (gapper, id) => (
+    <TableRow key={id}>
+      <TableCell className={classes.cell}>
+        <Link href={`/gappers/${id}`}>{gapper.ticker}</Link>
+      </TableCell>
+      <TableCell className={classes.cell}> {gapper.last} </TableCell>
+      <TableCell className={classes.cell}> {gapper.gap_percentage_display} </TableCell>
+      <TableCell className={classes.cell}> {gapper.pm_s2_volume} </TableCell>
+      <TableCell className={classes.cell}> {gapper.pm_s1_market_cap} </TableCell>
+    </TableRow>
+  )
+  const renderHeadersUserIsLogedIn = () => (
+    <TableHead>
+      <TableRow>
+        <TableCell size={"small"} className={classes.cellheaderTitle}> Ticker </TableCell>
+        <TableCell size={"small"} className={classes.cellheaderTitle}> Price </TableCell>
+        <TableCell size={"small"} className={classes.cellheaderTitle}> Gap % </TableCell>
+        <TableCell size={"small"} className={classes.cellheaderTitle}> Volume </TableCell>
+        <TableCell size={"small"} className={classes.cellheaderTitle} colSpan={2}>Market Capitalization </TableCell>
+        <TableCell size={"small"} className={classes.cellheaderTitle} colSpan={2}>Float Shares</TableCell>
+        <TableCell size={"small"} className={classes.cellheaderTitle} colSpan={2}>Held by Insiders </TableCell>
+        <TableCell size={"small"} className={classes.cellheaderTitle} colSpan={2}>Held by Institutions </TableCell>
+        <TableCell size={"small"} className={classes.cellheaderTitle}> Short % Float </TableCell>
+        <TableCell size={"small"} className={classes.cellheaderTitle}> RGP% </TableCell>
+        <TableCell size={"small"} className={classes.cellheaderTitle}> # OBS </TableCell>
+      </TableRow>
+    </TableHead>
+  )
+  const renderHeadersUserNotLogedIn = () => (
+    <TableHead>
+      <TableRow>
+        <TableCell size={"small"} className={classes.cellheaderTitle}> Ticker </TableCell>
+        <TableCell size={"small"} className={classes.cellheaderTitle}> Price </TableCell>
+        <TableCell size={"small"} className={classes.cellheaderTitle}> Gap % </TableCell>
+        <TableCell size={"small"} className={classes.cellheaderTitle}> Volume </TableCell>
+        <TableCell size={"small"} className={classes.cellheaderTitle} colSpan={2}>Market Cap. </TableCell>
+      </TableRow>
+    </TableHead>
+  )
 
 
   if (fetchGappersStatus === 'loading') {
     content = <div className="loader">Loading...</div>
-  } else if (fetchGappersStatus === 'succeeded' && gappers && gappers.length > 0 ) {
+  } else if (gappers.length > 1 ) {
     var dates = [];
-
+    var row = userIsLogedIn ? renderRowTableUserIsLogedIn : renderRowTableUserNotLogedIn;
+    var headers = userIsLogedIn ? renderHeadersUserIsLogedIn : renderHeadersUserNotLogedIn;
     gappers.map(gapper => {if(!dates.includes(gapper.date)){dates.push(gapper.date)}})
     var ordererByDayGappers = {}
     dates.forEach((date, i) => {
@@ -68,45 +131,13 @@ export default function GappersList () {
       var renderedGappers = ordererByDayGappers[date].map(gapper => {
         var id = `${gapper.ticker}-${slDate}`;
         return(
-        <TableRow key={id}>
-          <TableCell className={classes.cell}>
-            <Link href={`/gappers/${id}`}>{gapper.ticker}</Link>
-          </TableCell>
-          <TableCell className={classes.cell}> {gapper.last} </TableCell>
-          <TableCell className={classes.cell}> {gapper.gap_percentage_display} </TableCell>
-          <TableCell className={classes.cell}> {gapper.pm_s2_volume} </TableCell>
-          <TableCell className={classes.cell}> {gapper.pm_s1_market_cap} </TableCell>
-          <TableCell className={classes.cell}> {gapper.pm_s2_market_cap} </TableCell>
-          <TableCell className={classes.cell}> {gapper.pm_s1_float} </TableCell>
-          <TableCell className={classes.cell}> {gapper.pm_s2_float} </TableCell>
-          <TableCell className={classes.cell}> {gapper.pm_s1_held_percent_insiders} </TableCell>
-          <TableCell className={classes.cell}> {gapper.pm_s2_held_percent_insiders} </TableCell>
-          <TableCell className={classes.cell}> {gapper.pm_s1_held_percent_institutions} </TableCell>
-          <TableCell className={classes.cell}> {gapper.pm_s2_held_percent_institutions} </TableCell>
-          <TableCell className={classes.cell}> {gapper.pm_s1_short_percent_float} </TableCell>
-          <TableCell className={classes.cell}> {gapper.pm_red_gaps} </TableCell>
-          <TableCell className={classes.cell}> {gapper.pm_observations} </TableCell>
-        </TableRow>
+          row(gapper, id)
       )});
       return(
         <TableContainer key={date} className={classes.tableContainer} component={Paper}>
         <Typography align={'center'} variant={'h5'}>{date} </Typography>
-          <Table className={classes.table} size="small" aria-label="meal table">
-            <TableHead>
-              <TableRow>
-                <TableCell size={"small"} className={classes.cellheaderTitle}> Ticker </TableCell>
-                <TableCell size={"small"} className={classes.cellheaderTitle}> Price </TableCell>
-                <TableCell size={"small"} className={classes.cellheaderTitle}> Gap % </TableCell>
-                <TableCell size={"small"} className={classes.cellheaderTitle}> Volume </TableCell>
-                <TableCell size={"small"} className={classes.cellheaderTitle} colSpan={2}>Market Capitalization </TableCell>
-                <TableCell size={"small"} className={classes.cellheaderTitle} colSpan={2}>Float Shares</TableCell>
-                <TableCell size={"small"} className={classes.cellheaderTitle} colSpan={2}>Held by Insiders </TableCell>
-                <TableCell size={"small"} className={classes.cellheaderTitle} colSpan={2}>Held by Institutions </TableCell>
-                <TableCell size={"small"} className={classes.cellheaderTitle}> Short % Float </TableCell>
-                <TableCell size={"small"} className={classes.cellheaderTitle}> RGP% </TableCell>
-                <TableCell size={"small"} className={classes.cellheaderTitle}> # OBS </TableCell>
-              </TableRow>
-            </TableHead>
+          <Table className={classes.table} size="small" aria-label="table">
+            {headers()}
             <TableBody>
               {renderedGappers}
             </TableBody>
@@ -114,18 +145,18 @@ export default function GappersList () {
         </TableContainer>
       )
     });
-  } else if (fetchGappersStatus === 'failed') {
-    content = <div>there was this error_{error}</div>
+  } else  {
+    content = <div>there was this error </div>
   }
 
 
   return (
     <Grid container>
-      <Grid item xs={1} />
-      <Grid item xs={10}>
+      <Grid item xs={userIsLogedIn ? 1 : 3} />
+      <Grid item xs={userIsLogedIn ? 10 : 6}>
       {content}
       </Grid>
-      <Grid item xs={1} />
+      <Grid item xs={userIsLogedIn ? 1 : 3} />
     </Grid>
   )
 }

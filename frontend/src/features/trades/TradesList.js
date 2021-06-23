@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchTrades, selectAllTrades } from './tradesSlicer';
 import { navbarSelected, selectActiveTab } from '../navbar/navBarSlicer'
+import { selectUserIsLogedIn} from '../access/accessSlicer'
+import { useRouter } from 'next/router'
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
@@ -13,7 +15,10 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import Link from 'next/link'
-import { selectUserIsLogedIn} from '../access/accessSlicer'
+
+
+
+
 
 
 
@@ -41,19 +46,23 @@ const useStyles = makeStyles((theme) => ({
 
 export default function TradesList () {
   const userIsLogedIn = useSelector(selectUserIsLogedIn)
-  console.log('userIsLogedIn', userIsLogedIn)
   const fetchTradesStatus = useSelector(state => state.trades.status);
   const trades = useSelector(selectAllTrades);
   const dispatch = useDispatch();
   const classes = useStyles();
+  const router = useRouter()
   let content
   useEffect(() => {
-    dispatch(navbarSelected(2))
-    if (fetchTradesStatus === 'idle') {
-      dispatch(fetchTrades())
-    }
+    if (!userIsLogedIn) {
+        router.push('/signin')
+      } else {
+        dispatch(navbarSelected(1))
+        if (fetchTradesStatus === 'idle') {
+          dispatch(fetchTrades())
+        }
+}
   }, [fetchTradesStatus, dispatch])
-  console.log('trades', trades)
+
 
   if (fetchTradesStatus === 'loading') {
     content = <div className="loader">Loading Trades...</div>
@@ -68,10 +77,7 @@ export default function TradesList () {
         var gs = trades.filter(trade => trade.start_time.split('T')[0] === date)
         ordererByDayTrades[date] = gs
     });
-    console.log('dates', dates)
-    console.log(' ordererByDayTrades', ordererByDayTrades)
     content = dates.map((date, i) => {
-      console.log(ordererByDayTrades[date])
       var slDate = date.replace(/-/g, '');
       var renderedTrades = ordererByDayTrades[date].map(trade => {
         return(
@@ -95,7 +101,6 @@ export default function TradesList () {
           <TableCell className={classes.cell}> {trade.position} </TableCell>
         </TableRow>
       )});
-      console.log(renderedTrades)
       return(
         <TableContainer key={date} className={classes.tableContainer} component={Paper}>
         <Typography align={'center'} variant={'h5'}>{date} </Typography>
@@ -127,7 +132,7 @@ export default function TradesList () {
       )
     });
   } else if (fetchTradesStatus === 'failed') {
-    content = <div>there was this error_{error}</div>
+    content = <div>there was an error Loading Trades {error}</div>
   }
 
 
