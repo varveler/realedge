@@ -46,12 +46,11 @@ export default function GappersList () {
   useEffect(() => {
     dispatch(navbarSelected(0))
     if (fetchGappersStatus === 'idle') {
-      console.log('env', process.env.NEXT_PUBLIC_API_URL)
-      console.log('added CORs')
+      console.log('removed console logs')
       dispatch(fetchGappers())
     }
   }, [fetchGappersStatus, dispatch])
-  console.log(gappers)
+
 
   if (fetchGappersStatus === 'loading') {
     content = <div className="loader">Loading...</div>
@@ -64,10 +63,7 @@ export default function GappersList () {
       var gs = gappers.filter(gapper => gapper.date === date)
       ordererByDayGappers[date] = gs
     });
-    console.log(dates)
-    console.log(ordererByDayGappers)
     content = dates.map((date, i) => {
-      console.log(ordererByDayGappers[date])
       var slDate = date.replace(/-/g, '');
       var renderedGappers = ordererByDayGappers[date].map(gapper => {
         var id = `${gapper.ticker}-${slDate}`;
@@ -92,7 +88,6 @@ export default function GappersList () {
           <TableCell className={classes.cell}> {gapper.pm_observations} </TableCell>
         </TableRow>
       )});
-      console.log(renderedGappers)
       return(
         <TableContainer key={date} className={classes.tableContainer} component={Paper}>
         <Typography align={'center'} variant={'h5'}>{date} </Typography>
