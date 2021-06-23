@@ -82,8 +82,8 @@ export default function NavBar() {
           </Grid>
           <Grid item>
             {userIsLogedIn ?
-                            <Button component={ButtonLink} href={'/logout'} color="inherit">Log Out</Button>
-                          : <Button component={ButtonLink} href={'/signin'} color="inherit">Sign In</Button>
+                            <Button component={ButtonLink} lhref={'/logout'} color="inherit">Log Out</Button>
+                          : <Button component={ButtonLink} lhref={'/signin'} color="inherit">Sign In</Button>
             }
 
           </Grid>
