@@ -51,6 +51,6 @@ COPY . /backend/
 
 RUN chmod -R 777 /backend/tempOrdersFiles
 
-USER varveler
 RUN chown varveler /home/varveler
+USER varveler
 ENV HOME /home/varveler
