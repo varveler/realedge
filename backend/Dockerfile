@@ -34,22 +34,6 @@ RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
 COPY requirements.txt /backend
 RUN pip3 install -r requirements.txt
 
-#RUN apt-get update && apt-get install -y \
-#    xvfb \
-#    xserver-xephyr \
-#    tigervnc-standalone-server \
-#    xfonts-base \
-#    sudo
-
-#RUN export uid=1000 gid=1000 && \
-#    mkdir -p /home/developer && \
-#    echo "developer:x:${uid}:${gid}:Developer,,,:/home/developer:/bin/bash" >> /etc/passwd && \
-#    echo "developer:x:${uid}:" >> /etc/group && \
-#    echo "developer ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/developer && \
-#    chmod 0440 /etc/sudoers.d/developer && \
-#    chown ${uid}:${gid} -R /home/developer
-
-
 RUN mkdir -p /home/varveler
 RUN adduser --disabled-password --gecos '' varveler
 RUN chown varveler /usr/local/bin/chromedriver
@@ -68,4 +52,5 @@ COPY . /backend/
 RUN chmod -R 777 /backend/tempOrdersFiles
 
 USER varveler
+RUN chown varveler /home/varveler
 ENV HOME /home/varveler
