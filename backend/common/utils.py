@@ -41,7 +41,7 @@ def ghost_driver():
     options.add_experimental_option('useAutomationExtension', False)
     # specify the desired user agent
     options.add_argument(f'user-agent={user_agent}')
-    driver = webdriver.Chrome(ChromeDriverManager(version="91.0.4472.101").install())
+    driver = webdriver.Chrome(ChromeDriverManager().install())
     #driver = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH, chrome_options=options)
     #driver = webdriver.Chrome(chrome_options=options)
     driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
