@@ -70,6 +70,7 @@ typing-extensions==3.7.4.3
 urllib3==1.26.3
 vine==5.0.0
 wcwidth==0.2.5
+webdriver-manager==3.4.2
 wrapt==1.11.2
 xlrd==2.0.1
 yahooquery==2.2.15
