@@ -6,7 +6,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import store from './../store'
 import theme from './../theme';
 import styles from './../styles/material-kit-pro-react.css'
-import './../styles/empty.css'
+import './../styles/empty.css' // do not remove, bug: https://github.com/vercel/next-plugins/issues/282
 
 export default function MyApp(props) {
   const { Component, pageProps } = props;
