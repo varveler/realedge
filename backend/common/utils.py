@@ -9,6 +9,7 @@ import time
 from decimal import Decimal
 import datetime
 import pytz
+from webdriver_manager.chrome import ChromeDriverManager
 
 def get_env_variable(var_name):
     """ Get the environment variable or return exception """
@@ -40,7 +41,8 @@ def ghost_driver():
     options.add_experimental_option('useAutomationExtension', False)
     # specify the desired user agent
     options.add_argument(f'user-agent={user_agent}')
-    driver = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH, chrome_options=options)
+    driver = webdriver.Chrome(ChromeDriverManager(version="91.0.4472.101").install())
+    #driver = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH, chrome_options=options)
     #driver = webdriver.Chrome(chrome_options=options)
     driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
     "source": """
