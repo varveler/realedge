@@ -66,7 +66,7 @@ export default function TradesList () {
 
   if (fetchTradesStatus === 'loading') {
     content = <div className="loader">Loading Trades...</div>
-  } else if (fetchTradesStatus === 'succeeded') {
+  } else if (fetchTradesStatus === 'succeeded' && trades.length > 1) {
     var dates = [];
 
     trades.map(trade => {
@@ -133,6 +133,8 @@ export default function TradesList () {
     });
   } else if (fetchTradesStatus === 'failed') {
     content = <div>there was an error Loading Trades {error}</div>
+  } else {
+    content = <p>There are no saved trades </p>
   }
 
 
