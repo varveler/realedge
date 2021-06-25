@@ -1,6 +1,8 @@
 from selenium import webdriver
 from oauth2client.service_account import ServiceAccountCredentials
-import chromedriver_binary
+#import chromedriver_binary
+from selenium import webdriver
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 import os
 import gspread
@@ -9,7 +11,7 @@ import time
 from decimal import Decimal
 import datetime
 import pytz
-from webdriver_manager.chrome import ChromeDriverManager
+#from webdriver_manager.chrome import ChromeDriverManager
 
 def get_env_variable(var_name):
     """ Get the environment variable or return exception """
@@ -36,14 +38,17 @@ def ghost_driver():
     options.add_argument("disable-infobars")
     options.add_argument("--disable-extensions")
     options.add_argument("--disable-dev-shm-usage")
-    options.add_argument('headless')
+    #options.add_argument('headless')
     options.add_experimental_option('excludeSwitches', ['enable-automation'])
     options.add_experimental_option('useAutomationExtension', False)
     # specify the desired user agent
     options.add_argument(f'user-agent={user_agent}')
-    driver = webdriver.Chrome(ChromeDriverManager().install())
+    #driver = webdriver.Chrome(ChromeDriverManager().install())
     #driver = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH, chrome_options=options)
+    driver = webdriver.Remote("http://hub:4444/wd/hub", desired_capabilities=options.to_capabilities())
+
     #driver = webdriver.Chrome(chrome_options=options)
+    '''
     driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
     "source": """
         Object.defineProperty(navigator, "languages", {
@@ -91,10 +96,11 @@ def ghost_driver():
           }
           return getParameter(parameter);
         };
-    """
+
     })
     driver.execute_cdp_cmd("Network.enable", {})
     driver.execute_cdp_cmd("Network.setExtraHTTPHeaders", {"headers": {"User-Agent": user_agent}})
+    '''
     return driver
 
 

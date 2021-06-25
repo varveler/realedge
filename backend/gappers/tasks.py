@@ -15,6 +15,8 @@ import re
 import pandas as pd
 import numpy as np
 from decimal import Decimal
+import logging
+
 
 from gappers.models import UpGapper
 from news.tasks import stockNewsApi_get_resent_news, scrape_finviz_news
@@ -36,6 +38,8 @@ GAP_DOWN_MIN_GAP = -0.05
 
 # home_folder_name = get_env_variable('HOME_FOLDER_NAME')
 # FIREFOX_PROFILE = '/home/%s/.mozilla/firefox/r8abwwfd.default' % home_folder_name
+
+logger = logging.getLogger(__name__)
 
 AVOID_STOCKS = ['Direxion Daily',
                 'Direxiondaily',
@@ -375,21 +379,35 @@ def scrape_stocks_statistics_barchart(driver, stocks):
 
 @task(name='parse_gappers')
 def parse_gappers():
-    today = timezone.now()
-    driver = ghost_driver()
-    get_benzinga_premerket_tickers(driver)
-    stocks = UpGapper.objects.filter(date__day=today.day, date__month=today.month, date__year=today.year)
-    scrape_stocks_statistics_barchart(driver, stocks)
-    parse_gappers_barchart_and_filter()
-    stocks = UpGapper.objects.filter(date__day=today.day, date__month=today.month, date__year=today.year)
-    parse_stock_statistics_yquery(stocks)
-    for s in stocks:
-        stockNewsApi_get_resent_news(s.ticker, s.id)
-    for s in stocks:
-        scrape_finviz_news(driver, s.ticker, s.id)
-        wait_random_seconds()
-    driver.close()
-    driver.quit()
+    driver = False
+    try:
+        today = timezone.now()
+        print('init')
+        print('initializing driver')
+        driver = ghost_driver()
+        print('geting benzinga tickers')
+        get_benzinga_premerket_tickers(driver)
+        stocks = UpGapper.objects.filter(date__day=today.day, date__month=today.month, date__year=today.year)
+        print('scraping barchart statistics')
+        scrape_stocks_statistics_barchart(driver, stocks)
+        print('parsing barcharts gappers')
+        parse_gappers_barchart_and_filter()
+        stocks = UpGapper.objects.filter(date__day=today.day, date__month=today.month, date__year=today.year)
+        print('parsing yquery statstics')
+        parse_stock_statistics_yquery(stocks)
+        print('hiting news api')
+        for s in stocks:
+            stockNewsApi_get_resent_news(s.ticker, s.id)
+        print('scraping news finviz')
+        for s in stocks:
+            scrape_finviz_news(driver, s.ticker, s.id)
+            wait_random_seconds()
+    finally:
+        if driver:
+            print('closing driver')
+            driver.close()
+            driver.quit()
+            print('closing driver DONE')
 
 
 @task(name='test_print')

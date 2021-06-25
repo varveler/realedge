@@ -79,7 +79,7 @@ services:
             context: ./backend/
             dockerfile: Dockerfile
         command: ./wait-for-it.sh rabbit:5672 --timeout=30 -- celery -A backend worker -l info
-        user: varveler
+        #user: varveler
         container_name: re_worker
         hostname: re_worker
         volumes:
@@ -120,6 +120,28 @@ services:
             - rabbit
         networks:
             - djangonetwork
+    hub:
+        image: selenium/hub:latest
+        expose:
+          - 4444
+        networks:
+          - djangonetwork
+
+    chrome:
+        image: selenium/node-chrome-debug:latest
+        hostname: chrome
+        volumes:
+          - /dev/shm:/dev/shm
+        environment:
+          - HUB_PORT_4444_TCP_ADDR=hub
+          - HUB_PORT_4444_TCP_PORT=4444
+          - DBUS_SESSION_BUS_ADDRESS=/dev/null
+        ports:
+          - 5900:5900
+        depends_on:
+          - hub
+        networks:
+          - djangonetwork
 volumes:
     db_data:
 networks:

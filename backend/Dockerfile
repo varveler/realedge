@@ -25,7 +25,7 @@ RUN apt-get install -y google-chrome-stable
 
 # install chromedriver
 RUN apt-get install -yqq unzip
-RUN wget -O /tmp/chromedriver.zip https://chromedriver.storage.googleapis.com/90.0.4430.24/chromedriver_linux64.zip
+RUN wget -O /tmp/chromedriver.zip https://chromedriver.storage.googleapis.com/91.0.4472.101/chromedriver_linux64.zip
 RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
 
 #RUN apt-get install -yqq python-setuptools python-dev build-essential
@@ -34,9 +34,9 @@ RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
 COPY requirements.txt /backend
 RUN pip3 install -r requirements.txt
 
-RUN mkdir -p /home/varveler
-RUN adduser --disabled-password --gecos '' varveler
-RUN chown varveler /usr/local/bin/chromedriver
+#RUN mkdir -p /home/varveler
+#RUN adduser --disabled-password --gecos '' varveler
+#RUN chown varveler /usr/local/bin/
 
 RUN apt-get clean && apt-get update && apt-get install -y locales
 RUN locale-gen en_CA.UTF-8
@@ -51,6 +51,6 @@ COPY . /backend/
 
 RUN chmod -R 777 /backend/tempOrdersFiles
 
-RUN chown varveler /home/varveler
-USER varveler
-ENV HOME /home/varveler
+#RUN chown varveler /home/varveler
+#USER varveler
+#ENV HOME /home/varveler
