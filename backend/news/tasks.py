@@ -76,18 +76,13 @@ def scrape_finviz_news(driver, ticker, up_gapper_id=None):
         table = soup.find(id='news-table')
         news_rows = table.find_all("tr")[:11]
         for i, row in enumerate(news_rows):
-            print(i)
             cells = row.find_all("td")
             news_item = Row()
             if cells:
-                print(cells[1].text)
                 str_date = cells[0].text.strip()
-                print(str_date)
                 if '-' not in str_date:
-                    print('searching prev day objs: ', news_itemsss)
                     prev_news_day_obj = news_itemsss.pop()
                     prev_news_day = prev_news_day_obj.date.split(' ')[0]
-                    print('prev_news_day', prev_news_day)
                     str_date = prev_news_day + ' ' + str_date
                 news_item.date = datetime.datetime.strptime(str_date, '%b-%d-%y %I:%M%p').strftime("%b-%d-%y %H:%M:%S")
                 news_item.headline = cells[1].text
