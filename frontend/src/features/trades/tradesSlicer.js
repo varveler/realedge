@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import axiosInstance from '../../components/axios'
 
-const axios = require('axios');
+//const axios = require('axios');
 const initialState = {
   trades: [],
   status: 'idle',
@@ -10,7 +11,7 @@ const initialState = {
 
 
 export const fetchTrades = createAsyncThunk('trades/fetchTrades', async () => (
-  axios
+  axiosInstance
   .get(`${process.env.NEXT_PUBLIC_API_URL}/trades/trades/`)
     .then(response => {console.log('response data trades: ', response.data); return response.data})
     .catch(error => {console.log('error fetching trades', error)})

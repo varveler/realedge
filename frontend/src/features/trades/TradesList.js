@@ -17,11 +17,6 @@ import Typography from '@material-ui/core/Typography';
 import Link from 'next/link'
 
 
-
-
-
-
-
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -132,7 +127,7 @@ export default function TradesList () {
       )
     });
   } else if (fetchTradesStatus === 'failed') {
-    content = <div>there was an error Loading Trades {error}</div>
+    content = <div>there was an error Loading Trades</div>
   } else {
     content = <p>There are no saved trades </p>
   }

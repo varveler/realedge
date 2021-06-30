@@ -7,8 +7,9 @@ from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
 
 from .models import Order, Trade, OrdersFile
 from .serializers import TZOrderSerializer, DisplayTradeSerializer
@@ -56,8 +57,9 @@ def file_update(request):
     return render(request, 'trades/upload_file.html', context)
 
 
+
 @api_view(['GET', ])
-@permission_classes((IsAuthenticated, ))
+@authentication_classes((TokenAuthentication,))
 def trades_list(request):
     if request.method == 'GET':
         trades = Trade.objects.all().order_by('-creation')

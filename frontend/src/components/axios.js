@@ -17,6 +17,7 @@ if(!ISSERVER){
 		  'Access-Control-Allow-Origin': '*'
 		},
 	});
+console.log('axiosInstance', axiosInstance)
 
 	axiosInstance.interceptors.response.use(
 		(response) => {

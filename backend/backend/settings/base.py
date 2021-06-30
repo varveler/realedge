@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'reusers',
     'rest_framework_simplejwt.token_blacklist',
+    'rest_framework.authtoken'
 ]
 
 MIDDLEWARE = [
@@ -217,15 +218,14 @@ CELERY_IMPORTS = (
 CHROMEDRIVER_PATH = '/backend/backend/drivers/chromedriver'
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
-   ],
     'DATETIME_INPUT_FORMATS': ["%H:%M:%S %Y/%m/%d", ],
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        #'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     )
 
 }
+
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'assets'),
