@@ -64,7 +64,7 @@ def fix_data(data):
     return data
 
 
-def give_triangle_distance(data, index, n=14, factor=1.5):
+def give_triangle_distance(data, index, n=14, factor=1):
     """
         trims and converts a list of dictionaries to pandas dataframe then
         caluclate the last atr used for the chart feature to give extra space
