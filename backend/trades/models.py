@@ -5,6 +5,7 @@ from django.utils import timezone
 from decimal import Decimal
 import os
 import uuid
+import datetime
 
 class Trade(models.Model):
     SHORT = 'SH'
@@ -26,6 +27,8 @@ class Trade(models.Model):
     PARTIALLY_CLOSED = 'PC'
 
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
+    slug = models.CharField(max_length=200, null=True) #AAPL-open-live-trade-by-varvevler-dasdsassad-sad-asd-asdasdsda-adsads
+    closed_slug = models.CharField(max_length=200, null=True) #realedge.io/AAPL-1500-profit-by-varveler-on-may-05-2021-63b40372
 
     creation = models.DateTimeField(auto_now_add=True)
     update = models.DateTimeField(auto_now=True)
@@ -73,6 +76,29 @@ class Trade(models.Model):
                     acumulator += order.shares_executed * Decimal(0.005)
         return acumulator
 
+    def set_trade_final_slug(self):
+        if self.closed:
+            small_uuid = str(self.uuid).split('-')[0]
+            p_or_l = 'profit' if self.pnl >= 0 else 'loss'
+            close_date = datetime.datetime.strftime(self.end_time, '%b-%d-%Y').lower()
+            self.closed_slug = '{ticker}-{pnl}-{p_or_l}-by-{username}-on-{close_date}-{small_uuid}'.format(
+                                                    ticker = self.ticker,
+                                                    pnl = abs(int(self.pnl)),
+                                                    p_or_l = p_or_l,
+                                                    username = self.user.user_name,
+                                                    close_date = close_date,
+                                                    small_uuid = small_uuid)
+            self.save()
+
+
+    def set_self_slug(self):
+        if not self.slug:
+            small_uuid = '-'.join(str(self.uuid).split('-')[0:2])
+            self.slug = '{ticker}-open-live-trade-by-{username}-{uuid}'.format(
+                                                        ticker = self.ticker,
+                                                        username = self.user.user_name,
+                                                        uuid = small_uuid)
+            self.save()
 
 
 
@@ -150,8 +176,6 @@ class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
-
-
     def save(self, *args, **kwargs):
         """
         Save override to create Trades and fill fields related to other orders that allow to keep process order and fill Trades
@@ -173,16 +197,17 @@ class Order(models.Model):
                         entries = 1,
                         pnl_accumulator = self.price * self.shares_executed,
                         max_size = self.shares_executed)
+                    new_trade.set_self_slug()
                     self.trade = new_trade
                     self.starter_order = True
                     self.in_out = self.InOut.IN
                     self.position = pos
-                else: # open trade
+                else: # there is parent trade so there must be an open trade
                     parent_trade = parent_trades.get() # update a Trade relate order
                     if parent_trade.side == Trade.SHORT: # parent is a short
                         if self.action in [Order.SHORT, Order.SELL]: #adding
                             self.in_out = self.InOut.IN # adding
-                            pos = parent_trade.position + int(self.shares_executed) * (-1)  # -100 + 100 *-1 = -200
+                            pos = parent_trade.position + int(self.shares_executed) * (-1)  #ex. -100 + 100 *-1 = -200
                             self.position = pos
                             parent_trade.position = pos
                             parent_trade.entries = parent_trade.entries + 1
@@ -190,7 +215,7 @@ class Order(models.Model):
                             parent_trade.max_size = pos * (-1)
                         else: # buying to cover
                             self.in_out = self.InOut.OUT
-                            pos = parent_trade.position + int(self.shares_executed)  # -300 + 100 = -200
+                            pos = parent_trade.position + int(self.shares_executed)  #ex.  -300 + 100 = -200
                             self.position = pos
                             parent_trade.position = pos
                             parent_trade.exits = (parent_trade.exits if parent_trade.exits else 0) + 1
@@ -229,6 +254,7 @@ class Order(models.Model):
                             parent_trade.max_size = pos
                     self.trade = parent_trade
                     parent_trade.save()
+                    parent_trade.set_trade_final_slug()
         super(Order, self).save(*args, **kwargs)
 
 

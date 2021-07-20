@@ -13,8 +13,6 @@ services:
     links:
       - db
     env_file: ./backend/.env
-    environment:
-      - JUPYTER_TOKEN=eaEahuHUeaEahuHU
     depends_on:
       - db
     networks:

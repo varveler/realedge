@@ -10,7 +10,6 @@ const navBarSlice = createSlice({
   initialState,
   reducers:{
     navbarSelected(state, action) {
-      console.log(action)
       state.activeTab = action.payload
     },
 

@@ -127,5 +127,6 @@ class TradeAdmin(admin.ModelAdmin):
         last_exit_price,
         'closed',
         'position',
+        'uuid'
         )
     pnl.admin_order_field = 'pnl'

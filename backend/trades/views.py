@@ -65,3 +65,13 @@ def trades_list(request):
         trades = Trade.objects.all().order_by('-creation')
         serializer = DisplayTradeSerializer(trades, many=True)
         return Response(serializer.data)
+
+
+@api_view(['GET', ])
+@authentication_classes((TokenAuthentication,))
+def trade_detail(request, slug):
+    print(slug)
+    if request.method == 'GET':
+        trade = Trade.objects.get(closed_slug=slug)
+        serializer = DisplayTradeSerializer(trade)
+        return Response(serializer.data)

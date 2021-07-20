@@ -137,6 +137,7 @@ class DisplayTradeSerializer(serializers.ModelSerializer):
     calculated_comissions = serializers.SerializerMethodField()
     first_entry_price = serializers.SerializerMethodField()
     last_exit_price = serializers.SerializerMethodField()
+    orders = TZOrderSerializer(source='order_set', many=True)
     class Meta:
         model = Trade
         fields = ['ticker',
@@ -153,7 +154,11 @@ class DisplayTradeSerializer(serializers.ModelSerializer):
                   'first_entry_price',
                   'last_exit_price',
                   'closed',
-                  'position']
+                  'position',
+                  'slug',
+                  'closed_slug',
+                  'uuid',
+                  'orders']
 
     def get_pnl(self, obj):
         return pnl(obj)
@@ -166,6 +171,7 @@ class DisplayTradeSerializer(serializers.ModelSerializer):
 
     def get_last_exit_price(self, obj):
         return last_exit_price(obj)
+
 
 
 

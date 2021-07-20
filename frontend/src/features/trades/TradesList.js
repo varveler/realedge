@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchTrades, selectAllTrades } from './tradesSlicer';
+import { selectTrade, fetchTrades, selectAllTrades } from './tradesSlicer';
 import { navbarSelected, selectActiveTab } from '../navbar/navBarSlicer'
 import { selectUserIsLogedIn} from '../access/accessSlicer'
 import { useRouter } from 'next/router'
@@ -32,6 +32,11 @@ const useStyles = makeStyles((theme) => ({
   cell: {
     textAlign: 'center'
   },
+  cellLink: {
+    textAlign: 'center',
+    cursor: 'pointer',
+    color: 'blue'
+  },
   cellheaderTitle: {
     textAlign: 'center',
     whiteSpace: 'nowrap'
@@ -56,12 +61,19 @@ export default function TradesList () {
           dispatch(fetchTrades())
         }
 }
-  }, [fetchTradesStatus, dispatch])
+  }, [fetchTradesStatus, dispatch]);
+
+  const handleRoute = (e, path, uuid) => {
+    e.preventDefault()
+    dispatch(selectTrade(uuid))
+    router.push(path)
+
+  };
 
 
   if (fetchTradesStatus === 'loading') {
     content = <div className="loader">Loading Trades...</div>
-  } else if (fetchTradesStatus === 'succeeded' && trades.length > 1) {
+  } else if (fetchTradesStatus === 'succeeded' && trades.length >= 1) {
     var dates = [];
 
     trades.map(trade => {
@@ -75,10 +87,11 @@ export default function TradesList () {
     content = dates.map((date, i) => {
       var slDate = date.replace(/-/g, '');
       var renderedTrades = ordererByDayTrades[date].map(trade => {
+        var path = trade.closed ? `/trades/${trade.closed_slug}`: `/trades/${trade.slug}`
         return(
         <TableRow key={trade.uuid}>
-          <TableCell className={classes.cell}>
-            <Link href={`/trades/${trade.uuid}`}>{trade.ticker}</Link>
+          <TableCell onClick={ (e) => handleRoute(e, path, trade.uuid)} className={classes.cellLink}>
+            {trade.ticker}
           </TableCell>
           <TableCell className={classes.cell}> {trade.start_time} </TableCell>
           <TableCell className={classes.cell}> {trade.end_time} </TableCell>
@@ -92,7 +105,7 @@ export default function TradesList () {
           <TableCell className={classes.cell}> {trade.exits} </TableCell>
           <TableCell className={classes.cell}> {trade.first_entry_price} </TableCell>
           <TableCell className={classes.cell}> {trade.last_exit_price} </TableCell>
-          <TableCell className={classes.cell}> {trade.closed} </TableCell>
+          <TableCell className={classes.cell}> {trade.closed ? 'Closed' : 'Open'} </TableCell>
           <TableCell className={classes.cell}> {trade.position} </TableCell>
         </TableRow>
       )});

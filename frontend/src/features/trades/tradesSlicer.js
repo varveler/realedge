@@ -5,10 +5,11 @@ import axiosInstance from '../../components/axios'
 const initialState = {
   trades: [],
   status: 'idle',
-  error: null
+  error: null,
+  tradeSelected: null,
+  tradeSelectedStatus: 'idle'
 }
-
-
+ 
 
 export const fetchTrades = createAsyncThunk('trades/fetchTrades', async () => (
   axiosInstance
@@ -17,10 +18,25 @@ export const fetchTrades = createAsyncThunk('trades/fetchTrades', async () => (
     .catch(error => {console.log('error fetching trades', error)})
 ));
 
+export const fetchTrade = createAsyncThunk('trades/fetchTrade', async (slug) => {
+  if(slug != undefined){
+    return(
+      axiosInstance
+      .get(`${process.env.NEXT_PUBLIC_API_URL}/trades/detail/${slug}/`)
+        .then(response => {console.log('trade data: ', response.data); return response.data})
+        .catch(error => {console.log('error fetching 1 trade', error)})
+    )
+  }
+});
+
+
 const tradesSlice = createSlice({
   name:'trades',
   initialState,
   reducers:{
+    selectTrade(state, action){
+      state.tradeSelected = state.trades.filter((trade) => trade.uuid === action.payload )[0]
+    }
   },
   extraReducers: {
     [fetchTrades.pending]: (state, action) => {
@@ -28,17 +44,29 @@ const tradesSlice = createSlice({
     },
     [fetchTrades.fulfilled]: (state, action) => {
       state.status = 'succeeded'
-      // Add any fetched gappers to the array
-      console.log('action', action)
       state.trades = state.trades.concat(action.payload)
     },
     [fetchTrades.rejected]: (state, action) => {
       state.status = 'failed'
       state.error = action.error.message
     },
+    [fetchTrade.pending]: (state, action) => {
+      state.tradeSelectedStatus = 'loading'
+    },
+    [fetchTrade.fulfilled]: (state, action) => {
+      state.tradeSelectedStatus = 'succeeded'
+      state.tradeSelected = action.payload
+    },
+    [fetchTrade.rejected]: (state, action) => {
+      state.tradeSelectedStatus = 'failed'
+      state.tradeSelected = {}
+      state.error = action.error.message
+    },
   }
 })
 
 export default tradesSlice.reducer
+
+export const { selectTrade } = tradesSlice.actions;
 
 export const selectAllTrades = state => state.trades.trades

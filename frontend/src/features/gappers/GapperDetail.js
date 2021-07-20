@@ -16,7 +16,8 @@ import { useRouter } from 'next/router'
 //const useStyles = makeStyles((theme) => ({})
 
 
-export default function GapperDetail(){
+export default function TradeDetail(){
+
   const router = useRouter();
   console.log(router)
   const { id } = router.query;

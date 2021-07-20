@@ -249,5 +249,32 @@ def tradeZeroDateTimeObject(str):
 def tradeZeroDateTimeString(str):
     return tradeZeroDateTimeObject(str).strftime('%Y-%m-%d %H:%M:%S')
 
-def make_aware_dt(dt):
-    return
+def iex_convert_epoch_to_dt(timestamp):
+    timestamp = int(str(timestamp)[:10])
+    convertion = datetime.datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+    #print(convertion)
+    return convertion
+
+"""
+US_EASTERN_TZ = pytz.timezone('US/Eastern')
+def convert_strUTC_to_aware_dt(string):
+    "transform incoming data from alpaca like 2021-04-07T13:34:00Z to dt object"
+    time = string.replace('Z', '-UTC')
+    format = '%Y-%m-%dT%H:%M:%S-%Z'
+    utc_dt = datetime.datetime.strptime(time, format)
+    est_dt = utc_dt.astimezone(US_EASTERN_TZ)
+    print(est_dt.strftime(format))
+    return est_dt
+"""
+
+
+format = '%Y-%m-%dT%H:%M:%S-%Z'
+US_EASTERN_TZ = pytz.timezone('US/Eastern')
+utc = pytz.utc
+def convert_str_to_est_dt(s,v):
+    s = s.replace('T', '-').replace('Z','').replace(':', '-')
+    l = [int(n) for n in s.split('-')]
+    dt_utc = datetime.datetime(l[0], l[1], l[2], l[3], l[4], l[5], tzinfo=utc)
+    dt_east = dt_utc.astimezone(US_EASTERN_TZ)
+    #print(dt_east.strftime(format), v)
+    return dt_east
