@@ -5,7 +5,7 @@ from django.db import migrations
 def set_slug(apps, schema_editor):
     Trade = apps.get_model('trades', 'Trade')
     for trade in Trade.objects.all():
-        small_uuid = str(self.uuid).split('-')[0]
+        small_uuid = str(trade.uuid).split('-')[0]
         p_or_l = 'profit' if trade.pnl >= 0 else 'loss'
         close_date = datetime.datetime.strftime(trade.end_time, '%b-%d-%Y').lower()
         trade.slug = '{ticker}-{pnl}-{p_or_l}-by-{username}-on-{close_date}-{small_uuid}'.format(
