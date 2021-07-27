@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchGappers, selectAllGappers } from './gappersSlicer';
+import { fetchGappers, selectAllGappers, fetchGapper } from './gappersSlicer';
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
@@ -12,20 +12,54 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { useRouter } from 'next/router'
+import { selectUserIsLogedIn} from '../access/accessSlicer'
+import GapperChartWrapper from '../charts/GapperChartWrapper'
 
 //const useStyles = makeStyles((theme) => ({})
 
+const useStyles = makeStyles((theme) => {
+  root:{
+
+  }
+
+})
 
 export default function TradeDetail(){
 
   const router = useRouter();
-  console.log(router)
   const { id } = router.query;
-  console.log(router.query)
+  const classes = useStyles();
+  const dispatch = useDispatch()
+  const userIsLogedIn = useSelector(selectUserIsLogedIn)
+  const gapperSelected = useSelector(state => state.gappers.gapperSelected)
+  const gapperSelectedStatus = useSelector(state => state.gappers.gapperSelectedStatus)
+  console.log('id', id)
+
+  useEffect(() => {
+    if(gapperSelected == null) {
+      console.log('runnng fetch gapper', id)
+      dispatch(fetchGapper(id))
+    }
+  })
   return(
-    <div>
-    Details
-      {id}
-    </div>
+      <div>
+        { userIsLogedIn ?
+          <Grid container spacing={1}>
+            <Grid item xs={2}>
+            </Grid>
+            <Grid item xs={8}>
+              {gapperSelected
+                ?
+                  <GapperChartWrapper slug={id} />
+                :
+                  'No trade selected'}
+            </Grid>
+            <Grid item xs={2}>
+            </Grid>
+          </Grid>
+        :
+          <p>Please Login to see this page</p>
+        }
+      </div>
   )
 }

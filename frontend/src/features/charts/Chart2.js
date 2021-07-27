@@ -42,8 +42,8 @@ class CandleStickStockScaleChartWithVolumeBarV3 extends React.Component {
 
 
 		const start = xAccessor(last(data));
-		//const end = xAccessor(data[Math.max(0, data.length - 700)]);
-		const end = xAccessor(data.filter(el => el.entryShort != null || el.entryLong != null)[0])
+		const end = xAccessor(data[Math.max(0, data.length - 700)]);
+		//const end = xAccessor(data.filter(el => el.entryShort != null || el.entryLong != null)[0])
 		const xExtents = [start, end];
 
 		return (
@@ -87,6 +87,9 @@ class CandleStickStockScaleChartWithVolumeBarV3 extends React.Component {
 						yAccessor={d => d.executionPrice}
 						marker={CircleMarker}
 						markerProps={{ r: 3 }} />
+						<LineSeries
+							yAccessor={d => d.vwap_pandas}
+							stroke="#FF9535" />
 					</DataWrapper>
 				</Chart>
 				<Chart id={2} origin={(w, h) => [0, h - 150]} height={150} yExtents={d => d.volume}>

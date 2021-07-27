@@ -177,6 +177,7 @@ def wwma(values, n):
 
 
 def atr(df, n=14):
+    """return a dataframe object with Average True Range"""
     data = df.copy()
     high = data['high']
     low = data['low']

@@ -1,3 +1,39 @@
+from charts.mutils import get_all_data, give_chart_start_and_end_dates, fix_data, combine_data_filled_orders
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, authentication_classes
+from rest_framework.authentication import TokenAuthentication
+from trades.models import Trade
+import pandas as pd
+# Create your views here.
+@api_view(['GET', ])
+@authentication_classes((TokenAuthentication,))
+def chart_data(request, uuid):
+    if request.method == 'GET':
+        trade = Trade.objects.get(uuid=uuid)
+        start, end = give_chart_start_and_end_dates(trade)
+        data = get_all_data('1Min', trade.ticker, start, end)
+        fixed_data = fix_data(data)
+        combined_data = combine_data_filled_orders(data, trade)
+        return Response(fixed_data)
+
+
+
+
+def apply_vwap_pandas(data):
+    df = pd.DataFrame(data)
+    df['vwap_pandas'] = (df.v*(df.h+df.l)/2).cumsum() / df.v.cumsum()
+    return df.to_dict('records')
+
+
+
+trade = Trade.objects.get(uuid='f0766c31-e97d-4c43-abb9-c358b5bc8e39')
+start, end = give_chart_start_and_end_dates(trade)
+data = get_all_data('1Min', trade.ticker, start, end)
+df = pd.DataFrame(data)
+df['vwap_pandas'] = (df.v*(df.h+df.l)/2).cumsum() / df.v.cumsum()
+data
+
+
 """
 
 Get trade inital date
@@ -14,8 +50,6 @@ To render day charts:
     is data available?
     yes return it else query it save it and return it
 
-
-"""
 data = [{'t': "2021-05-12T12:29:00Z", 'o': 5.01, 'h': 5.01, 'l': 5.01, 'c': 5.01, 'v': 50},
         {'t': "2021-05-12T13:30:00Z", 'o': 5.15, 'h': 5.15, 'l': 5.15, 'c': 5.15, 'v': 50},
         {'t': "2021-05-12T13:32:00Z", 'o': 5.1395, 'h': 5.1395, 'l': 5.1395, 'c': 5.1395, 'v': 50},
@@ -202,3 +236,5 @@ len(data3)
 
 for i, d in enumerate(data3):
     print(i, d['t'], d['v'])
+
+"""

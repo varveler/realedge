@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchGappers, selectAllGappers } from './gappersSlicer';
+import { fetchGappers, selectAllGappers, selectGapper } from './gappersSlicer';
 import { selectUserIsLogedIn } from '../access/accessSlicer'
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
@@ -14,6 +14,7 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 
 
 const useStyles = makeStyles((theme) => ({
@@ -40,10 +41,18 @@ const useStyles = makeStyles((theme) => ({
 
 export default function GappersList () {
   const fetchGappersStatus = useSelector(state => state.gappers.status);
+  const router = useRouter();
   const gappers = useSelector(selectAllGappers);
   const dispatch = useDispatch();
   const classes = useStyles();
   const userIsLogedIn = useSelector(selectUserIsLogedIn)
+
+  const handleRoute = (e, path, trade) => {
+    e.preventDefault()
+    dispatch(selectGapper(trade))
+    router.push(path)
+  }
+
   let content
   useEffect(() => {
     dispatch(navbarSelected(0))
@@ -54,9 +63,15 @@ export default function GappersList () {
   }, [fetchGappersStatus, dispatch])
   const renderRowTableUserIsLogedIn = (gapper, id) => (
     <TableRow key={id}>
-      <TableCell className={classes.cell}>
-        <Link href={`/gappers/${id}`}>{gapper.ticker}</Link>
-      </TableCell>
+        {userIsLogedIn ?
+          <TableCell onClick={ (e) => handleRoute(e, `/gappers/${id}`, {date: gapper.date, ticker: gapper.ticker})} className={classes.cell}>
+            <a>{gapper.ticker}</a>
+          </TableCell>
+        :
+          <TableCell className={classes.cell}>
+            {gapper.ticker}
+          </TableCell>
+        }
       <TableCell className={classes.cell}> {gapper.last} </TableCell>
       <TableCell className={classes.cell}> {gapper.gap_percentage_display} </TableCell>
       <TableCell className={classes.cell}> {gapper.pm_s2_volume} </TableCell>
@@ -76,7 +91,9 @@ export default function GappersList () {
   const renderRowTableUserNotLogedIn = (gapper, id) => (
     <TableRow key={id}>
       <TableCell className={classes.cell}>
-        <Link href={`/gappers/${id}`}>{gapper.ticker}</Link>
+      {userIsLogedIn ?
+        <Link href={`/gappers/${id}`}><a>{gapper.ticker}</a></Link>
+      : gapper.ticker }
       </TableCell>
       <TableCell className={classes.cell}> {gapper.last} </TableCell>
       <TableCell className={classes.cell}> {gapper.gap_percentage_display} </TableCell>

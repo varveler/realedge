@@ -12,23 +12,28 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { useRouter } from 'next/router'
-import ChartWrapper from '../charts/ChartWrapper';
+import TradeChartWrapper from '../charts/TradeChartWrapper';
 import { timeParse } from "d3-time-format";
-
+import { navbarSelected, selectActiveTab } from '../navbar/navBarSlicer'
+import { selectUserIsLogedIn} from '../access/accessSlicer'
 
 
 export default function GapperDetail(){
   const router = useRouter();
-  const tradeSelected = useSelector(state => state.trades.tradeSelected)
+  const tradeSelected = useSelector(state => state.trades.tradeSelected);
   const dispatch = useDispatch();
   const {slug}  = router.query;
   const parseDate = timeParse("%H:%M:%S %Y/%m/%d");
+  const tabSelected = useSelector(selectActiveTab);
+  const userIsLogedIn = useSelector(selectUserIsLogedIn);
+
+
   useEffect(() => {
     if(tradeSelected == null){
-      console.log('slug is', slug)
-      console.log('ts', tradeSelected)
       dispatch(fetchTrade(slug))
-  }
+    }
+    if(tabSelected != 1 && userIsLogedIn == true)
+      dispatch(navbarSelected(1))
   })
   const filledOrders = tradeSelected ? tradeSelected.orders.filter(
     order => order.status === "FI").map(
@@ -41,11 +46,19 @@ export default function GapperDetail(){
  : []
   return(
     <div>
-      {tradeSelected
-        ?
-          <ChartWrapper uuid={tradeSelected.uuid} filledOrders={filledOrders} />
-        :
-          'No trade selected'}
+      <Grid container spacing={1}>
+        <Grid item xs={1}>
+        </Grid>
+        <Grid item xs={10}>
+          {tradeSelected
+            ?
+              <TradeChartWrapper uuid={tradeSelected.uuid} filledOrders={filledOrders} />
+            :
+              'No trade selected'}
+        </Grid>
+        <Grid item xs={1}>
+        </Grid>
+      </Grid>
     </div>
   )
 }

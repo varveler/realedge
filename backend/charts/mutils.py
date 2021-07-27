@@ -2,10 +2,10 @@ import requests
 import datetime
 import pytz
 import pandas as pd
+import numpy as np
 from backend.settings.base import get_env_variable
 from trades.models import Order, Trade
 from common.utils import atr
-from pprint import pprint
 
 
 APCA_API_SECRET_KEY = get_env_variable('APCA_API_SECRET_KEY')
@@ -21,8 +21,12 @@ def get_all_data(timeframe, ticker, start, end, page_token=None, bars=[]):
         end = datetime.datetime.strftime( end, '%Y-%m-%dT%H:%M:%SZ')
     url = 'https://data.alpaca.markets/v2/stocks/{ticker}/bars'.format(ticker=ticker)
     query_params = {'timeframe': timeframe, 'start': start, 'end': end, 'page_token': page_token}
+    print(query_params)
     headers = {'APCA-API-KEY-ID': APCA_API_KEY_ID, 'APCA-API-SECRET-KEY': APCA_API_SECRET_KEY}
+    print(headers)
     response = requests.get(url, headers=headers, params=query_params)
+    print(response)
+    print(response.status_code)
     data = response.json()
     bars = bars + data['bars']
     token = data['next_page_token']
@@ -31,7 +35,7 @@ def get_all_data(timeframe, ticker, start, end, page_token=None, bars=[]):
     return get_all_data(timeframe, ticker, start, end, page_token=token, bars=bars)
 
 
-def give_chart_start_and_end_dates(trade):
+def give_trade_chart_start_and_end_dates(trade):
     tstart = trade.start_time
     start_time_est = tstart.astimezone(US_EASTERN_TZ)
     trading_hours_trade_end_time = datetime.datetime(start_time_est.year, start_time_est.month, start_time_est.day, 3, 31, 0, tzinfo=US_EASTERN_TZ)
@@ -47,6 +51,19 @@ def give_chart_start_and_end_dates(trade):
     end_of_day_utc = end_of_day_est.astimezone(utc)
     return end_of_prev_day_utc, end_of_day_utc
 
+
+def give_gapper_chart_start_and_end_dates(gapper):
+    gdate = gapper.date
+    trading_hours_trade_end_time = datetime.datetime(gdate.year, gdate.month, gdate.day, 3, 31, 0, tzinfo=US_EASTERN_TZ)
+    if gdate.weekday() == 0: #is monday
+        days = 3
+    else:
+        days = 1
+    end_of_prev_day_est = trading_hours_trade_end_time - datetime.timedelta(days=days)
+    end_of_prev_day_utc = end_of_prev_day_est.astimezone(utc)
+    end_of_day_est = datetime.datetime(gdate.year, gdate.month, gdate.day, 23, 59, 59, tzinfo=US_EASTERN_TZ)
+    end_of_day_utc = end_of_day_est.astimezone(utc)
+    return end_of_prev_day_utc, end_of_day_utc
 
 def fix_data(data):
     for candle in data:
@@ -99,3 +116,9 @@ def combine_data_filled_orders(data, parent_trade):
                     elif order.in_out == Order.InOut.OUT: #exit long
                         candle['exitLong'] = candle['high'] + extra_distance
                 candle['executionPrice'] = order.price
+
+
+def apply_vwap_pandas(data):
+    df = pd.DataFrame(data)
+    df['vwap_pandas'] = (df.v*(df.h+df.l)/2).cumsum() / df.v.cumsum()
+    return df.to_dict('records')

@@ -14,8 +14,14 @@ import ButtonLink from '../../components/ButtonLink'
 import { useSelector, useDispatch } from 'react-redux'
 import { selectActiveTab, navbarSelected } from './navBarSlicer'
 import { selectUserIsLogedIn } from '../access/accessSlicer'
+import MuiLink from "@material-ui/core/Link"
 
-
+const CustomNextLink = ({href, alt}) => ({children, ...rest}) => (
+<Link href={href} alt={alt}>
+  <MuiLink {...rest}>
+    {children}
+  </MuiLink>
+</Link>)
 
 const useStyles = makeStyles((theme) => ({
   indicator: {
@@ -70,20 +76,16 @@ export default function NavBar() {
                 indicator: classes.indicator
               }}>
 
-              <Link href="/" passHref>
-                <Tab component="a" label="Gappers" />
-              </Link>
+                <Tab to="/"  component={CustomNextLink({href: "/"})} label="Gappers" />
               {userIsLogedIn ?
-              <Link href="/trades" passHref>
-                <Tab component="a" label="Trades" />
-              </Link>
+                <Tab to="/trades"  component={CustomNextLink({href: "/trades"})} label="Trades" />
               : null }
             </Tabs>
           </Grid>
           <Grid item>
             {userIsLogedIn ?
-                            <Link href="/logout" passHref><Button color="inherit">Log Out</Button></Link>
-                          : <Link href="/signin" passHref><Button color="inherit">Sign In</Button></Link>
+                            <Link href="/logout" passHref><a>Log Out</a></Link>
+                          : <Link href="/signin" passHref><a>Sign In</a></Link>
             }
           </Grid>
         </Grid>

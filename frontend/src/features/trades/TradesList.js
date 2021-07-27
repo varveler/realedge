@@ -91,7 +91,7 @@ export default function TradesList () {
         return(
         <TableRow key={trade.uuid}>
           <TableCell onClick={ (e) => handleRoute(e, path, trade.uuid)} className={classes.cellLink}>
-            {trade.ticker}
+            <a>{trade.ticker}</a>
           </TableCell>
           <TableCell className={classes.cell}> {trade.start_time} </TableCell>
           <TableCell className={classes.cell}> {trade.end_time} </TableCell>
