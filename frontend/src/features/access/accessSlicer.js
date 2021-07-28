@@ -26,7 +26,7 @@ export const sendCredentials = createAsyncThunk('access/sendCredentials', async 
 			localStorage.setItem('refresh_token', response.data.refresh);
 			axiosInstance.defaults.headers['Authorization'] =
 				'JWT ' + localStorage.getItem('access_token');
-      return response.data
+      return response.status
     })
     .catch(error => {console.log('error accessing ', error)})
 )});
@@ -57,8 +57,11 @@ const accessSlice = createSlice({
     },
     [sendCredentials.fulfilled]: (state, action) => {
       state.status = 'succeeded'
-      console.log('succeeded action', action)
-      state.userIsLogedIn = true
+      if (action.payload === 200) {
+        state.userIsLogedIn = true
+      }else{
+        console.log('err no user')
+      }
     },
     [sendCredentials.rejected]: (state, action) => {
       state.status = 'failed'

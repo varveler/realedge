@@ -17,9 +17,7 @@ from gappers.models import UpGapper
 def chart_data(request, uuid):
     print(uuid)
     if request.method == 'GET':
-        print(request)
         trade = Trade.objects.get(uuid=uuid)
-        print(trade)
         start, end = give_trade_chart_start_and_end_dates(trade)
         data = get_all_data('1Min', trade.ticker, start, end)
         data = apply_vwap_pandas(data)
