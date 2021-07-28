@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import withStyles from "@material-ui/core/styles/withStyles";
 import { format } from "d3-format";
+import { curveMonotoneX } from "d3-shape";
 
 import { ChartCanvas, Chart } from "react-stockcharts";
 import {
@@ -10,13 +11,15 @@ import {
   ScatterSeries,
 	TriangleMarker,
 	LineSeries,
-	CircleMarker
+	CircleMarker,
+	AreaSeries
 } from "react-stockcharts/lib/series";
 import { XAxis, YAxis } from "react-stockcharts/lib/axes";
 
 import { discontinuousTimeScaleProvider } from "react-stockcharts/lib/scale";
 import { fitWidth } from "react-stockcharts/lib/helper";
 import { last } from "react-stockcharts/lib/utils";
+import { createVerticalLinearGradient, hexToRGBA } from "react-stockcharts/lib/utils";
 
 import {DataWrapper} from "./DataWrapper";
 
@@ -26,6 +29,12 @@ const style = {
 		color: 'pink'
   }
 }
+
+const canvasGradient = createVerticalLinearGradient([
+	{ stop: 1, color: hexToRGBA("#b5d0ff", 0.1) },
+	{ stop: 0.7, color: hexToRGBA("#6fa4fc", 0.2) },
+	{ stop: 0, color: hexToRGBA("#4286f4", 0.6) },
+]);
 
 class CandleStickStockScaleChartWithVolumeBarV3 extends React.Component {
 	render() {
@@ -45,6 +54,9 @@ class CandleStickStockScaleChartWithVolumeBarV3 extends React.Component {
 		const end = xAccessor(data[Math.max(0, data.length - 700)]);
 		//const end = xAccessor(data.filter(el => el.entryShort != null || el.entryLong != null)[0])
 		const xExtents = [start, end];
+		console.log(initialData)
+
+
 
 		return (
 			<ChartCanvas height={600}
@@ -60,6 +72,13 @@ class CandleStickStockScaleChartWithVolumeBarV3 extends React.Component {
 				xExtents={xExtents}
 			>
 				<Chart id={1} height={400} yExtents={d => [d.high, d.low]} >
+					<defs>
+						<linearGradient id="MyGradient" x1="0" y1="100%" x2="0" y2="0%">
+							<stop offset="100%" stopColor="#b5d0ff" stopOpacity={0.8} />
+							<stop offset="70%" stopColor="#6fa4fc" stopOpacity={0.4} />
+							<stop offset="0%"  stopColor="#4286f4" stopOpacity={0.2} />
+						</linearGradient>
+					</defs>
 					<YAxis axisAt="right" orient="right" ticks={5} />
 					<XAxis axisAt="bottom" orient="bottom" showTicks={false}/>
 					<CandlestickSeries />
@@ -90,6 +109,12 @@ class CandleStickStockScaleChartWithVolumeBarV3 extends React.Component {
 						<LineSeries
 							yAccessor={d => d.vwap_pandas}
 							stroke="#FF9535" />
+						<AreaSeries
+							yAccessor={d => d.shadowPremarket}
+							fill="rgba(0, 0, 0, 0.03)"
+							strokeWidth={0.01}
+
+						/>
 					</DataWrapper>
 				</Chart>
 				<Chart id={2} origin={(w, h) => [0, h - 150]} height={150} yExtents={d => d.volume}>

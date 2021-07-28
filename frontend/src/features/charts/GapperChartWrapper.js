@@ -19,11 +19,19 @@ class GapperChartWrapper extends React.Component {
 		if ( this.props.data.length === 0) {
 			return <div>Loading...</div>
 		}
+    var maxHigh = Math.max.apply(Math, this.props.data.map(function(x) { return x.high; })) * 1.5
     const bars = this.props.data.map(
       function(el){
         const parsed = new Date(el.date)
-        let newob = {...el, date: parsed};
-        return newob
+        var minute = parsed.getHours() * 60 + parsed.getMinutes()
+        var marketOpenMinute = 510 // (9*60) + 30
+        var marketCloseMinute = 899 // (15*60) -1
+        if (minute >= marketOpenMinute &&
+            minute <= marketCloseMinute) {
+            return {...el, date: parsed, shadowPremarket:null}
+        }else{
+          return {...el, date: parsed, shadowPremarket:maxHigh}
+        }
       }
     )
 		return (
