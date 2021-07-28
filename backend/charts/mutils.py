@@ -113,8 +113,20 @@ def combine_data_filled_orders(data, parent_trade):
                         candle['exitLong'] = candle['high'] + extra_distance
                 candle['executionPrice'] = order.price
 
+"""
+def apply_vwap_pandas(data):
+    df = pd.DataFrame(data)
+    df['vwap_pandas'] = (df.v * (df.h + df.l) / 2).cumsum() / df.v.cumsum()
+    return df.to_dict('records')
+"""
 
 def apply_vwap_pandas(data):
     df = pd.DataFrame(data)
-    df['vwap_pandas'] = (df.v*(df.h+df.l)/2).cumsum() / df.v.cumsum()
+    df['dt'] = pd.to_datetime(df['t'])
+    df['EST'] = df['dt'].dt.tz_convert('US/Central')
+    dfg = df.groupby([df['EST'].dt.date])
+    vwap = dfg.apply(lambda df: (df.v*(df.h + df.l)/2).cumsum() / df.v.cumsum()) #df['vwap_pandas'] = (df.v*(df.h + df.l)/2).cumsum() / df.v.cumsum()
+    vwap.reset_index()
+    df = dfg.obj
+    df['vwap_pandas'] = vwap.reset_index()[0]
     return df.to_dict('records')

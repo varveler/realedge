@@ -1,4 +1,4 @@
-from charts.mutils import get_all_data, give_chart_start_and_end_dates, fix_data, combine_data_filled_orders
+from charts.mutils import get_all_data, give_trade_chart_start_and_end_dates, give_gapper_chart_start_and_end_dates, fix_data, combine_data_filled_orders
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes
 from rest_framework.authentication import TokenAuthentication
@@ -27,10 +27,13 @@ def apply_vwap_pandas(data):
 
 
 trade = Trade.objects.get(uuid='f0766c31-e97d-4c43-abb9-c358b5bc8e39')
-start, end = give_chart_start_and_end_dates(trade)
+start, end = give_trade_chart_start_and_end_dates(trade)
 data = get_all_data('1Min', trade.ticker, start, end)
 df = pd.DataFrame(data)
-df['vwap_pandas'] = (df.v*(df.h+df.l)/2).cumsum() / df.v.cumsum()
+df['dt'] = pd.to_datetime(df['t'])
+df['EST'] = df['dt'].dt.tz_convert('US/Central')
+dfg = df.groupby([df['EST'].dt.date])
+dfg.apply(lambda df: (df.v*(df.h + df.l)/2).cumsum() / df.v.cumsum()) #df['vwap_pandas'] = (df.v*(df.h + df.l)/2).cumsum() / df.v.cumsum()
 data
 
 

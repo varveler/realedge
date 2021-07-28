@@ -14,14 +14,13 @@ const initialState = {
 
 export const sendCredentials = createAsyncThunk('access/sendCredentials', async (formData) => {
   let credentials = { email: formData.email, password: formData.password };
-  console.log('credentials', credentials)
   return (
   axiosInstance
     .post(`${process.env.NEXT_PUBLIC_API_URL}/token/`,{
           email: formData.email, password: formData.password
     })
     .then(response => {
-      console.log('response data access: ', response.data);
+      //console.log('response data access: ', response.data);
       localStorage.setItem('access_token', response.data.access);
 			localStorage.setItem('refresh_token', response.data.refresh);
 			axiosInstance.defaults.headers['Authorization'] =
@@ -36,7 +35,7 @@ export const logOut = createAsyncThunk('access/logOut', async (token) => (
   axiosInstance
     .post(`${process.env.NEXT_PUBLIC_API_URL}/user/logout/blacklist/`, token)
     .then(response => {
-      console.log('logout response: ', response.data);
+      //console.log('logout response: ', response.data);
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
       axiosInstance.defaults.headers['Authorization'] = null;
