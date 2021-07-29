@@ -53,7 +53,7 @@ export default function SignIn() {
 	useEffect(()=>{
 		dispatch(navbarSelected(false))
 		if (userIsLogedIn) {
-	      router.push('/trades')
+	      router.push('/trades', '')
 	    }
 	})
 

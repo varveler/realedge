@@ -50,7 +50,7 @@ export default function GappersList () {
   const handleRoute = (e, path, trade) => {
     e.preventDefault()
     dispatch(selectGapper(trade))
-    router.push(path)
+    router.push(path, '')
   }
 
   let content
@@ -64,7 +64,8 @@ export default function GappersList () {
   const renderRowTableUserIsLogedIn = (gapper, id) => (
     <TableRow key={id}>
         {userIsLogedIn ?
-          <TableCell onClick={ (e) => handleRoute(e, `/gappers/${id}`, {date: gapper.date, ticker: gapper.ticker})} className={classes.cell}>
+          <TableCell onClick={ (e) => handleRoute(e, {pathname: '/gappers/[id]', query: { id: id }}, {date: gapper.date, ticker: gapper.ticker})} //todo refactor
+                    className={classes.cell}>
             <a>{gapper.ticker}</a>
           </TableCell>
         :

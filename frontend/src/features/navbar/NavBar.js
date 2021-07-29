@@ -16,8 +16,8 @@ import { selectActiveTab, navbarSelected } from './navBarSlicer'
 import { selectUserIsLogedIn } from '../access/accessSlicer'
 import MuiLink from "@material-ui/core/Link"
 
-const CustomNextLink = ({href, alt}) => ({children, ...rest}) => (
-<Link href={href} alt={alt}>
+const CustomNextLink = ({href, as}) => ({children, ...rest}) => (
+<Link href={href} as={as}>
   <MuiLink {...rest}>
     {children}
   </MuiLink>
@@ -76,16 +76,16 @@ export default function NavBar() {
                 indicator: classes.indicator
               }}>
 
-                <Tab to="/"  component={CustomNextLink({href: "/"})} label="Gappers" />
+                <Tab to="/"  component={CustomNextLink({href: "/", as:""})} label="Gappers" />
               {userIsLogedIn ?
-                <Tab to="/trades"  component={CustomNextLink({href: "/trades"})} label="Trades" />
+                <Tab to="/trades"  component={CustomNextLink({href: "/trades", as:""})} label="Trades" />
               : null }
             </Tabs>
           </Grid>
           <Grid item>
             {userIsLogedIn ?
-                            <Link href="/logout" passHref><a>Log Out</a></Link>
-                          : <Link href="/signin" passHref><a>Sign In</a></Link>
+                            <Link href="/logout" as="" passHref><a>Log Out</a></Link>
+                          : <Link href="/signin" as="" passHref><a>Sign In</a></Link>
             }
           </Grid>
         </Grid>
