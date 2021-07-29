@@ -83,9 +83,13 @@ export default function NavBar() {
             </Tabs>
           </Grid>
           <Grid item>
-            {userIsLogedIn ?
+            {/*userIsLogedIn ?
                             <Link href="/logout" as="" passHref><a>Log Out</a></Link>
                           : <Link href="/signin" as="" passHref><a>Sign In</a></Link>
+            */}
+            {userIsLogedIn ?
+                            <Tab to="/logout"  component={CustomNextLink({href: "/logout", as:""})} label="Logout" />
+                          : <Tab to="/signin"  component={CustomNextLink({href: "/signin", as:""})} label="Sign In" />
             }
           </Grid>
         </Grid>

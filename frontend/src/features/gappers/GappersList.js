@@ -32,6 +32,10 @@ const useStyles = makeStyles((theme) => ({
   cell: {
     textAlign: 'center'
   },
+  cellTicker: {
+    textAlign: 'center',
+    cursor: 'pointer'
+  },
   cellheaderTitle: {
     textAlign: 'center',
     whiteSpace: 'nowrap'
@@ -57,22 +61,16 @@ export default function GappersList () {
   useEffect(() => {
     dispatch(navbarSelected(0))
     if (fetchGappersStatus === 'idle') {
-      console.log('removed console logs')
+      console.log('fetching gappers')
       dispatch(fetchGappers())
     }
   }, [fetchGappersStatus, dispatch])
   const renderRowTableUserIsLogedIn = (gapper, id) => (
     <TableRow key={id}>
-        {userIsLogedIn ?
           <TableCell onClick={ (e) => handleRoute(e, {pathname: '/gappers/[id]', query: { id: id }}, {date: gapper.date, ticker: gapper.ticker})} //todo refactor
-                    className={classes.cell}>
+                    className={classes.cellTicker}>
             <a>{gapper.ticker}</a>
           </TableCell>
-        :
-          <TableCell className={classes.cell}>
-            {gapper.ticker}
-          </TableCell>
-        }
       <TableCell className={classes.cell}> {gapper.last} </TableCell>
       <TableCell className={classes.cell}> {gapper.gap_percentage_display} </TableCell>
       <TableCell className={classes.cell}> {gapper.pm_s2_volume} </TableCell>
@@ -92,9 +90,7 @@ export default function GappersList () {
   const renderRowTableUserNotLogedIn = (gapper, id) => (
     <TableRow key={id}>
       <TableCell className={classes.cell}>
-      {userIsLogedIn ?
-        <Link href={`/gappers/${id}`}><a>{gapper.ticker}</a></Link>
-      : gapper.ticker }
+        {gapper.ticker }
       </TableCell>
       <TableCell className={classes.cell}> {gapper.last} </TableCell>
       <TableCell className={classes.cell}> {gapper.gap_percentage_display} </TableCell>
