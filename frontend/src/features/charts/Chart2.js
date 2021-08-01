@@ -30,11 +30,7 @@ const style = {
   }
 }
 
-const canvasGradient = createVerticalLinearGradient([
-	{ stop: 1, color: hexToRGBA("#b5d0ff", 0.1) },
-	{ stop: 0.7, color: hexToRGBA("#6fa4fc", 0.2) },
-	{ stop: 0, color: hexToRGBA("#4286f4", 0.6) },
-]);
+
 
 class CandleStickStockScaleChartWithVolumeBarV3 extends React.Component {
 	render() {
@@ -109,6 +105,9 @@ class CandleStickStockScaleChartWithVolumeBarV3 extends React.Component {
 						<LineSeries
 							yAccessor={d => d.vwap_pandas}
 							stroke="#FF9535" />
+						<LineSeries
+							yAccessor={d => d.intradayVwap}
+							stroke="#bababa" />
 						<AreaSeries
 							yAccessor={d => d.shadowPremarket}
 							fill="rgba(0, 0, 0, 0.03)"

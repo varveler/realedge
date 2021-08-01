@@ -2,6 +2,8 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 
+from rest_framework.decorators import api_view, authentication_classes
+from rest_framework.authentication import TokenAuthentication
 
 from .models import UpGapper
 from .serializers import GapperSerializer
@@ -23,14 +25,12 @@ def gapper_detail_view(request, _id):
    return render(request, '_next/out/gappers/[id].html', {'id': _id})
 
 
-@csrf_exempt
+@api_view(['GET', ])
+@authentication_classes((TokenAuthentication,))
 def gapper_detail(request, _id):
-    if request.method == 'GET':
-        ticker = _id.split('-')[0]
-        date = _id.split('-')[1]
-        gapper = UpGapper.objects.filter(ticker=ticker, date__year=date[0:4], date__month=date[4:6], date__day=date[6:8])
-        if not gapper:
-            return
-        gapper = gapper[0]
-        serializer = GapperSerializer(gapper)
-        return JsonResponse(serializer.data)
+    ticker = _id.split('-')[0]
+    date = _id.split('-')[1]
+    gapper = UpGapper.objects.filter(ticker=ticker, date__year=date[0:4], date__month=date[4:6], date__day=date[6:8])
+    gapper = gapper[0]
+    serializer = GapperSerializer(gapper)
+    return JsonResponse(serializer.data)

@@ -4,12 +4,15 @@ from .mutils import (get_all_data,
                     give_gapper_chart_start_and_end_dates,
                     fix_data,
                     combine_data_filled_orders,
-                    apply_vwap_pandas)
+                    apply_vwap_pandas,
+                    apply_intraday_vwap_pandas)
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes
 from rest_framework.authentication import TokenAuthentication
 from trades.models import Trade
 from gappers.models import UpGapper
+from django.http import JsonResponse
+from pprint import pprint
 
 # Create your views here.
 @api_view(['GET', ])
@@ -21,6 +24,7 @@ def chart_data(request, uuid):
         start, end = give_trade_chart_start_and_end_dates(trade)
         data = get_all_data('1Min', trade.ticker, start, end)
         data = apply_vwap_pandas(data)
+        data = apply_intraday_vwap_pandas(data)
         fix_data(data)
         combine_data_filled_orders(data, trade)
         return Response(data)
@@ -39,8 +43,8 @@ def gapper_data(request, slug):
             return
         gapper = gapper[0]
         start, end = give_gapper_chart_start_and_end_dates(gapper)
-        print(start, end, gapper.ticker)
         data = get_all_data('1Min', gapper.ticker, start, end)
         data = apply_vwap_pandas(data)
+        data = apply_intraday_vwap_pandas(data)
         fix_data(data)
         return Response(data)

@@ -1,34 +1,138 @@
-from charts.mutils import get_all_data, give_trade_chart_start_and_end_dates, give_gapper_chart_start_and_end_dates, fix_data, combine_data_filled_orders
+from charts.mutils import get_all_data, give_trade_chart_start_and_end_dates, give_gapper_chart_start_and_end_dates, fix_data, combine_data_filled_orders, give_gapper_chart_start_and_end_dates
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes
 from rest_framework.authentication import TokenAuthentication
 from trades.models import Trade
 import pandas as pd
-# Create your views here.
-@api_view(['GET', ])
-@authentication_classes((TokenAuthentication,))
-def chart_data(request, uuid):
-    if request.method == 'GET':
-        trade = Trade.objects.get(uuid=uuid)
-        start, end = give_chart_start_and_end_dates(trade)
-        data = get_all_data('1Min', trade.ticker, start, end)
-        fixed_data = fix_data(data)
-        combined_data = combine_data_filled_orders(data, trade)
-        return Response(fixed_data)
+import numpy as np
 
 
 
-
-def apply_vwap_pandas(data):
-    df = pd.DataFrame(data)
-    df['vwap_pandas'] = (df.v*(df.h+df.l)/2).cumsum() / df.v.cumsum()
-    return df.to_dict('records')
-
-
-
-trade = Trade.objects.get(uuid='f0766c31-e97d-4c43-abb9-c358b5bc8e39')
+uuid= 'f0766c31-e97d-4c43-abb9-c358b5bc8e39'
+slug = 'ERYP-20210731'
+ticker = slug.split('-')[0]
+date = slug.split('-')[1]
+gapper = UpGapper.objects.filter(ticker=ticker, date__year=date[0:4], date__month=date[4:6], date__day=date[6:8])
+gapper = gapper[0]
+trade = Trade.objects.get(uuid=uuid)
 start, end = give_trade_chart_start_and_end_dates(trade)
 data = get_all_data('1Min', trade.ticker, start, end)
+
+odf = pd.DataFrame(data)
+odf
+odf['dt'] = pd.to_datetime(odf['t'])
+odf['EST'] = odf['dt'].dt.tz_convert('US/Eastern')
+odf['EST_index'] = odf['EST']
+cdf = odf.set_index('EST_index')
+gdf = cdf.between_time('9:30', '16:00')
+ggdf = gdf.groupby([gdf['EST'].dt.date])
+len(ggdf)
+#if len(ggdf) > 1:
+ggdf
+vwap = ggdf.apply(lambda df: (df.v * (df.h + df.l) / 2).cumsum() / df.v.cumsum())
+vwap.name ='intradayVwap'
+type(vwap) #df['vwap_pandas'] = (df.v*(df.h + df.l)/2).cumsum() / df.v.cumsum()
+vwap = pd.DataFrame(vwap)
+vwap = vwap.reset_index(level=0, drop=True)
+type(vwap)
+vwap
+#return:
+cdf.join(vwap)
+#else:
+odf['dt'] = pd.to_datetime(odf['t']).copy()
+odf['EST'] = odf['dt'].dt.tz_convert('US/Eastern').copy()
+odf['EST_index'] = odf['EST'].copy()
+odf = odf.set_index('EST_index')
+cdf = odf.between_time('9:30', '16:00').copy()
+cdf['intradayVwap'] = (cdf.v*(cdf.h+cdf.l)/2).cumsum() / cdf.v.cumsum()
+vwap = pd.DataFrame(cdf['intradayVwap'])
+odf = odf.join(vwap)
+odf.intradayVwap = odf.intradayVwap.fillna('')
+return
+odf.reset_index()
+
+
+
+
+
+
+
+
+gdf['vwap_pandas'] = (gdf.v*(gdf.h+gdf.l)/2).cumsum() / gdf.v.cumsum()
+vwap = pd.DataFrame(gdf['intradayVwap'])
+vwap
+cdf = cdf.join(vwap)
+cdf.intradayVwap = cdf.intradayVwap.fillna('')
+#return
+cdf.reset_index()
+
+
+
+pd.set_option('display.max_rows', None)
+
+cdf
+
+
+
+
+######################
+gapper = UpGapper.objects.filter(ticker=ticker, date__year=date[0:4], date__month=date[4:6], date__day=date[6:8])
+gapper = gapper[0]
+#trade = Trade.objects.get(uuid=uuid)
+start, end = give_gapper_chart_start_and_end_dates(gapper)
+data = get_all_data('1Min', gapper.ticker, start, end)
+df = pd.DataFrame(data)
+df['dt'] = pd.to_datetime(df['t']).copy()
+df['EST'] = df['dt'].dt.tz_convert('US/Eastern').copy()
+df['EST_index'] = df['EST'].copy()
+df.set_index('EST_index', inplace=True)
+cdf = df.between_time('9:30', '16:00')
+
+
+################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+odfg = df.groupby([df['EST'].dt.date])
+
+
+
+
+len(odfg)
+
+
+#if len(odfg) > 1:
+vwap = dfg.apply(lambda df: (df.v * (df.h + df.l) / 2).cumsum() / df.v.cumsum()) #df['vwap_pandas'] = (df.v*(df.h + df.l)/2).cumsum() / df.v.cumsum()
+vwap
+
+
+df = df.set_index('EST')
+
+len(dfg)
+
+
+vwap
+vwap.reset_index()
+df = dfg.obj
+df['vwap_pandas'] = vwap.reset_index()[0]
+
+
+
 df = pd.DataFrame(data)
 df['dt'] = pd.to_datetime(df['t'])
 df['EST'] = df['dt'].dt.tz_convert('US/Central')

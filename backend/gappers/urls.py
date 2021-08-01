@@ -1,8 +1,8 @@
 from django.urls import path
-from .views import homepage, gappers, gapper_detail_view
+from .views import homepage, gappers, gapper_detail
 
 urlpatterns = [
     path('', homepage),
     path('data/', gappers ),
-    path('gappers/<str:_id>/', gapper_detail_view, name='gapper_detail_view'),
+    path('gappers/<str:_id>/', gapper_detail, name='gapper_detail'),
 ]

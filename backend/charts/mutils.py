@@ -122,11 +122,36 @@ def apply_vwap_pandas(data):
 
 def apply_vwap_pandas(data):
     df = pd.DataFrame(data)
-    df['dt'] = pd.to_datetime(df['t'])
-    df['EST'] = df['dt'].dt.tz_convert('US/Central')
+    df['dt'] = pd.to_datetime(df['t']).copy()
+    df['EST'] = df['dt'].dt.tz_convert('US/Eastern').copy()
     dfg = df.groupby([df['EST'].dt.date])
-    vwap = dfg.apply(lambda df: (df.v*(df.h + df.l)/2).cumsum() / df.v.cumsum()) #df['vwap_pandas'] = (df.v*(df.h + df.l)/2).cumsum() / df.v.cumsum()
-    vwap.reset_index()
-    df = dfg.obj
-    df['vwap_pandas'] = vwap.reset_index()[0]
-    return df.to_dict('records')
+    if len(dfg) > 1:
+        vwap = dfg.apply(lambda df: (df.v*(df.h + df.l)/2).cumsum() / df.v.cumsum()) #df['vwap_pandas'] = (df.v*(df.h + df.l)/2).cumsum() / df.v.cumsum()p
+        vwap.reset_index()
+        df = dfg.obj
+        df['vwap_pandas'] = vwap.reset_index()[0]
+        return df.to_dict('records')
+    else:
+        df['vwap_pandas'] = (df.v*(df.h+df.l)/2).cumsum() / df.v.cumsum()
+        return df.to_dict('records')
+
+
+def apply_intraday_vwap_pandas(data):
+    df = pd.DataFrame(data)
+    df['dt'] = pd.to_datetime(df['t']).copy()
+    df['EST'] = df['dt'].dt.tz_convert('US/Eastern').copy()
+    df['EST_index'] = df['EST'].copy()
+    df = df.set_index('EST_index')
+    gdf = df.between_time('9:30', '16:00').copy()
+    ggdf = gdf.groupby([gdf['EST'].dt.date])
+    if len(ggdf) > 1:
+        vwap = ggdf.apply(lambda df: (df.v * (df.h + df.l) / 2).cumsum() / df.v.cumsum())
+        vwap.name = 'intradayVwap'
+        vwap = pd.DataFrame(vwap)
+        vwap = vwap.reset_index(level=0, drop=True)
+    else:
+        gdf['intradayVwap'] = (gdf.v * (gdf.h + gdf.l) / 2).cumsum() / gdf.v.cumsum()
+        vwap = pd.DataFrame(gdf['intradayVwap'])
+    df = df.join(vwap)
+    df.intradayVwap = df.intradayVwap.fillna('')
+    return df.reset_index().to_dict('records')

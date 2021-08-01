@@ -26,7 +26,7 @@ class ChartWrapper extends React.Component {
         const parsed = new Date(el.date)
         var minute = parsed.getHours() * 60 + parsed.getMinutes()
         var marketOpenMinute = 510 // (9*60) + 30
-        var marketCloseMinute = 900 // (15*60)
+        var marketCloseMinute = 899 // (15*60) -1
         if (minute >= marketOpenMinute &&
             minute <= marketCloseMinute) {
             return {...el, date: parsed, shadowPremarket:null}

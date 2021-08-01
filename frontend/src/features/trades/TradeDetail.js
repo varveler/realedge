@@ -18,7 +18,7 @@ import { navbarSelected, selectActiveTab } from '../navbar/navBarSlicer'
 import { selectUserIsLogedIn} from '../access/accessSlicer'
 
 
-export default function GapperDetail(){
+export default function TradeDetail(){
   const router = useRouter();
   const tradeSelected = useSelector(state => state.trades.tradeSelected);
   const dispatch = useDispatch();

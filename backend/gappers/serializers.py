@@ -51,6 +51,8 @@ class GapperSerializer(serializers.ModelSerializer):
                   'pm_s2_held_percent_institutions',
                   'pm_s1_short_percent_float',
                   'pm_red_gaps',
+                  'company_name',
+                  'industry'
                   )
 
     def get_last(self, obj):
