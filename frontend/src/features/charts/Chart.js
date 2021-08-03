@@ -37,7 +37,6 @@ class CandleStickChartForDiscontinuousIntraDay extends React.Component {
 				price:4.5
 			}
 		]
-		console.log(initialData)
 		const xScaleProvider = discontinuousTimeScaleProvider
 			.inputDateAccessor(d => d.date);
 		const {
@@ -50,7 +49,6 @@ class CandleStickChartForDiscontinuousIntraDay extends React.Component {
 		const start = xAccessor(last(data));
 		const end = xAccessor(data[Math.max(0, data.length - 150)]);
 		const xExtents = [start, end];
-		console.log(xExtents)
 
 		return (
 			<ChartCanvas height={400}

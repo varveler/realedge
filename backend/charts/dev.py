@@ -8,6 +8,38 @@ import numpy as np
 
 
 
+
+
+uuid= 'f0766c31-e97d-4c43-abb9-c358b5bc8e39'
+slug = 'ERYP-20210731'
+ticker = slug.split('-')[0]
+date = slug.split('-')[1]
+gapper = UpGapper.objects.filter(ticker=ticker, date__year=date[0:4], date__month=date[4:6], date__day=date[6:8])
+gapper = gapper[0]
+trade = Trade.objects.get(uuid=uuid)
+start, end = give_gapper_chart_start_and_end_dates(gapper)
+data = get_all_data('1Min', gapper.ticker, start, end)
+df = pd.DataFrame(data)
+df['dt'] = pd.to_datetime(df['t']).copy()
+df['EST'] = df['dt'].dt.tz_convert('US/Eastern').copy()
+dfg = df.groupby([df['EST'].dt.date])
+len(dfg) > 1
+vwap = dfg.apply(lambda df: (df.v*(df.h + df.l)/2).cumsum() / df.v.cumsum()) #df['vwap_pandas'] = (df.v*(df.h + df.l)/2).cumsum() / df.v.cumsum()p
+vwap.reset_index()
+df = dfg.obj
+df['vwap_pandas'] = vwap.reset_index()[0]
+return df.to_dict('records')
+#else
+df['vwap_pandas'] = (df.v*(df.h+df.l)/2).cumsum() / df.v.cumsum()
+d
+
+
+
+
+
+
+
+
 uuid= 'f0766c31-e97d-4c43-abb9-c358b5bc8e39'
 slug = 'ERYP-20210731'
 ticker = slug.split('-')[0]

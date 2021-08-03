@@ -80,7 +80,7 @@ export default function GapperDetail(){
                     <Grid item xs={3}>
                       <Typography className={classes.ticker} component='h1'>{gapperSelected.ticker}</Typography>
                       <Typography className={classes.info} component='p'>{gapperSelected.company_name}</Typography>
-                      <Typography className={classes.info} component='p'><span className={classes.infoTitle}>Industry:</span> {gapperSelected.industry}</Typography>
+                      { gapperSelected.industry ? <Typography className={classes.info} component='p'><span className={classes.infoTitle}>Industry:</span> {gapperSelected.industry}</Typography>:null}
                       <Typography className={ classes.percentage} component='p'> {gapperSelected.gap_percentage_display}<span className={classes.infoTitle}>{' '}gap</span></Typography>
                     </Grid>
                     <Grid item xs={9}>

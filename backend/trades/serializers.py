@@ -3,6 +3,7 @@ from .models import Order, Trade
 from reusers.models import ReUser
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from .admin import pnl, first_entry_price, calculated_comissions, last_exit_price
+from django.contrib.humanize.templatetags.humanize import naturaltime
 
 class TZChoiceField(serializers.ChoiceField):
 
@@ -138,6 +139,7 @@ class DisplayTradeSerializer(serializers.ModelSerializer):
     first_entry_price = serializers.SerializerMethodField()
     last_exit_price = serializers.SerializerMethodField()
     orders = TZOrderSerializer(source='order_set', many=True)
+    natural_time = serializers.SerializerMethodField()
     class Meta:
         model = Trade
         fields = ['ticker',
@@ -158,7 +160,10 @@ class DisplayTradeSerializer(serializers.ModelSerializer):
                   'slug',
                   'closed_slug',
                   'uuid',
-                  'orders']
+                  'orders',
+                  'natural_time',
+                  'comments',
+                  'uuid']
 
     def get_pnl(self, obj):
         return pnl(obj)
@@ -172,6 +177,8 @@ class DisplayTradeSerializer(serializers.ModelSerializer):
     def get_last_exit_price(self, obj):
         return last_exit_price(obj)
 
+    def get_natural_time(self, obj):
+        return naturaltime(obj.start_time)
 
 
 

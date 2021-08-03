@@ -67,7 +67,7 @@ def trades_list(request):
         return Response(serializer.data)
 
 
-@api_view(['GET', ])
+@api_view(['GET',])
 @authentication_classes((TokenAuthentication,))
 def trade_detail(request, slug):
     print(slug)
@@ -75,3 +75,21 @@ def trade_detail(request, slug):
         trade = Trade.objects.get(closed_slug=slug)
         serializer = DisplayTradeSerializer(trade)
         return Response(serializer.data)
+
+
+
+@api_view(['POST', ])
+@authentication_classes((TokenAuthentication,))
+def trade_comment(request, uuid):
+    if request.method == 'POST':
+        print('post on trade ', uuid)
+        comment = request.data.get('comment', None)
+        print('comment ', comment)
+        trade = Trade.objects.get(uuid=uuid)
+        trade_serialized = DisplayTradeSerializer(trade,
+                                                data={'comments': comment},
+                                                partial=True)
+        if trade_serialized.is_valid():
+            trade_serialized.save()
+            return Response(trade_serialized.data, status=status.HTTP_202_ACCEPTED)
+    return Response("Method not allowed", status=status.HTTP_400_BAD_REQUEST)

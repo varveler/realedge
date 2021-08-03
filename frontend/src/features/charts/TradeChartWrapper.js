@@ -12,16 +12,16 @@ class ChartWrapper extends React.Component {
     super(props);
   }
 
-	componentDidMount() {
-		this.props.dispatch(fetchBarsTrade({uuid: this.props.uuid }))
-	}
+	// componentDidMount() {
+	// 	this.props.dispatch(fetchBarsTrade({uuid: this.props.uuid }))
+	// }
 	render() {
-    const { filledOrders } = this.props;
-		if ( this.props.data.length === 0) {
+    const { filledOrders, data } = this.props;
+		if ( data.length === 0) {
 			return <div>Loading...</div>
 		}
     var maxHigh = Math.max.apply(Math, this.props.data.map(function(x) { return x.high; })) * 1.5
-    const bars = this.props.data.map(
+    const bars = data.map(
       function(el){
         const parsed = new Date(el.date)
         var minute = parsed.getHours() * 60 + parsed.getMinutes()

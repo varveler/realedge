@@ -16,7 +16,7 @@ class GapperChartWrapper extends React.Component {
 		this.props.dispatch(fetchBarsGapper({slug: this.props.slug }))
 	}
 	render() {
-		if ( this.props.data.length == 0) {
+		if ( this.state.data.length == 0) {
 			return <div>Loading...</div>
 		}
     var maxHigh = Math.max.apply(Math, this.props.data.map(function(x) { return x.high; })) * 1.5

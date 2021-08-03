@@ -40,7 +40,7 @@ export const fetchBarsGapper = createAsyncThunk('chart/fetchBarsGapper', async (
 )});
 
 const chartsSlice = createSlice({
-  name:'bars',
+  name:'charts',
   initialState,
   reducers:{
   },

@@ -35,7 +35,6 @@ const style = {
 class CandleStickStockScaleChartWithVolumeBarV3 extends React.Component {
 	render() {
 		const { type, data: initialData, width, ratio, classes, filledOrders } = this.props;
-		console.log('initialData', initialData)
 		const xScaleProvider = discontinuousTimeScaleProvider
 			.inputDateAccessor(d => d.date);
 		const {
@@ -50,7 +49,6 @@ class CandleStickStockScaleChartWithVolumeBarV3 extends React.Component {
 		const end = xAccessor(data[Math.max(0, data.length - 700)]);
 		//const end = xAccessor(data.filter(el => el.entryShort != null || el.entryLong != null)[0])
 		const xExtents = [start, end];
-		console.log(initialData)
 
 
 

@@ -9,14 +9,22 @@ const initialState = {
   tradeSelected: null,
   tradeSelectedStatus: 'idle'
 }
- 
-
 export const fetchTrades = createAsyncThunk('trades/fetchTrades', async () => (
   axiosInstance
   .get(`${process.env.NEXT_PUBLIC_API_URL}/trades/trades/`)
     .then(response => {console.log('response data trades: ', response.data); return response.data})
     .catch(error => {console.log('error fetching trades', error)})
 ));
+export const submitComment = createAsyncThunk('trades/submitComment', async (data) => {
+  return(
+  axiosInstance
+    .post(`/trades/comment/${data.uuid}/`, {
+      comment: data.comment
+    })
+    .then(response => {console.log('response post comment: ', response.data); return response.data})
+    .catch(error => {console.log('error post comment', error)})
+)});
+
 
 export const fetchTrade = createAsyncThunk('trades/fetchTrade', async (slug) => {
   if(slug != undefined){
@@ -36,7 +44,10 @@ const tradesSlice = createSlice({
   reducers:{
     selectTrade(state, action){
       state.tradeSelected = state.trades.filter((trade) => trade.uuid === action.payload )[0]
-    }
+    },
+    changeComment(state, action) {
+      state.tradeSelected.comments = action.payload
+    },
   },
   extraReducers: {
     [fetchTrades.pending]: (state, action) => {
@@ -67,6 +78,6 @@ const tradesSlice = createSlice({
 
 export default tradesSlice.reducer
 
-export const { selectTrade } = tradesSlice.actions;
+export const { selectTrade, changeComment } = tradesSlice.actions;
 
 export const selectAllTrades = state => state.trades.trades
