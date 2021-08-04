@@ -64,7 +64,7 @@ class Trade(models.Model):
     upgapper = models.ForeignKey(UpGapper, on_delete=models.PROTECT, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    comments = models.TextField(default='')
+    comments = models.TextField(default='', null=True)
 
     @property
     def calculate_comissions(self):
