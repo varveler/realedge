@@ -14,7 +14,7 @@ import Typography from '@material-ui/core/Typography';
 import { useRouter } from 'next/router'
 import { selectUserIsLogedIn} from '../access/accessSlicer'
 import GapperChartWrapper from '../charts/GapperChartWrapper'
-
+import {fetchBarsGapper, setFetchChartStatus} from '../charts/chartsSlicer'
 
 //const useStyles = makeStyles((theme) => ({})
 
@@ -62,11 +62,20 @@ export default function GapperDetail(){
   const userIsLogedIn = useSelector(selectUserIsLogedIn)
   const gapperSelected = useSelector(state => state.gappers.gapperSelected)
   const gapperSelectedStatus = useSelector(state => state.gappers.gapperSelectedStatus)
+  const chartData = useSelector(state => state.charts.data)
+  const fetchChartStatus = useSelector(state => state.charts.status)
+
   useEffect(() => {
     if(gapperSelected == null) {
       dispatch(fetchGapper(id))
     }
-  })
+    return function cleanup() {
+      dispatch(setFetchChartStatus('idle'))
+    };
+  },[])
+  if(gapperSelected && fetchChartStatus == 'idle' ){
+    dispatch(fetchBarsGapper({slug: id}))
+  }
   if(gapperSelected === null) return <p> Loading gapper .... </p>
   return(
 <div>
@@ -120,7 +129,7 @@ export default function GapperDetail(){
             <Grid item xs={2}>
             </Grid>
             <Grid item xs={8}>
-                {gapperSelected ? <GapperChartWrapper slug={id} /> : <p>no gapper slected</p> }
+                {gapperSelected ? <GapperChartWrapper slug={id} data={chartData} /> : <p>no gapper slected</p> }
             </Grid>
             <Grid item xs={2}>
             </Grid>

@@ -16,12 +16,6 @@ export const fetchBarsTrade = createAsyncThunk('chart/fetchBarsTrade', async (da
   axiosInstance
   .get(`${process.env.NEXT_PUBLIC_API_URL}/charts/trade/${uuid}/`)
   .then(response => {
-    // const bars = response.data.map(
-    //   function(el){
-    //   const newob = {...el, date: new Date(el.date)}; return newob
-    //   }
-    // )
-    // console.log('response data bars bars: ', bars);
     return response.data
   })
   .catch(error => {console.log('error fetching bars', error)})
@@ -43,6 +37,10 @@ const chartsSlice = createSlice({
   name:'charts',
   initialState,
   reducers:{
+    setFetchChartStatus(state, action){
+      state.status = action.payload
+      state.data = []
+    }
   },
   extraReducers: {
     [fetchBarsTrade.pending]: (state, action) => {
@@ -70,6 +68,6 @@ const chartsSlice = createSlice({
 
 export default chartsSlice.reducer
 
-//export const { reduceFunc } = chartsSlice.actions;
+export const { setFetchChartStatus } = chartsSlice.actions;
 
 //export const selectAllTrades = state => state.trades.trades

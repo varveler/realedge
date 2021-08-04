@@ -18,8 +18,7 @@ import { navbarSelected, selectActiveTab } from '../navbar/navBarSlicer'
 import { selectUserIsLogedIn} from '../access/accessSlicer'
 import TextField from '@material-ui/core/TextField';
 import Button from  '@material-ui/core/Button';
-import { fetchBarsTrade } from '../charts/chartsSlicer';
-
+import { fetchBarsTrade, setFetchChartStatus } from '../charts/chartsSlicer';
 
 const useStyles = makeStyles((theme) => ({
   profit:{
@@ -79,13 +78,17 @@ export default function TradeDetail(){
   const chartData = useSelector(state => state.charts.data)
   const fetchChartStatus = useSelector(state => state.charts.status)
 
+
   useEffect(() => {
     if(tradeSelected == undefined){
-      console.log('this is runiing o shit')
       dispatch(fetchTrade(slug))
     }
     if(tabSelected != 1 && userIsLogedIn == true)
       dispatch(navbarSelected(1))
+    return function cleanup() {
+      dispatch(setFetchChartStatus('idle'))
+    };
+
   },[])
   const filledOrders = tradeSelected ? tradeSelected.orders.filter(
     order => order.status === "FI").map(

@@ -12,15 +12,16 @@ class GapperChartWrapper extends React.Component {
     super(props);
   }
 
-	componentDidMount() {
-		this.props.dispatch(fetchBarsGapper({slug: this.props.slug }))
-	}
+	// componentDidMount() {
+	// 	this.props.dispatch(fetchBarsGapper({slug: this.props.slug }))
+	// }
 	render() {
-		if ( this.state.data.length == 0) {
+    const { data } = this.props;
+		if ( data.length == 0) {
 			return <div>Loading...</div>
 		}
-    var maxHigh = Math.max.apply(Math, this.props.data.map(function(x) { return x.high; })) * 1.5
-    const bars = this.props.data.map(
+    var maxHigh = Math.max.apply(Math, data.map(function(x) { return x.high; })) * 1.5
+    const bars = data.map(
       function(el){
         const parsed = new Date(el.date)
         var minute = parsed.getHours() * 60 + parsed.getMinutes()

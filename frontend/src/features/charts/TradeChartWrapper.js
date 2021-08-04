@@ -20,7 +20,7 @@ class ChartWrapper extends React.Component {
 		if ( data.length === 0) {
 			return <div>Loading...</div>
 		}
-    var maxHigh = Math.max.apply(Math, this.props.data.map(function(x) { return x.high; })) * 1.5
+    var maxHigh = Math.max.apply(Math, data.map(function(x) { return x.high; })) * 1.5
     const bars = data.map(
       function(el){
         const parsed = new Date(el.date)

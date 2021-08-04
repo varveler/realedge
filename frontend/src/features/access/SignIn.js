@@ -43,7 +43,6 @@ export default function SignIn() {
 	const userIsLogedIn = useSelector(selectUserIsLogedIn)
 	const router = useRouter()
 	const classes = useStyles();
-	console.log(2)
 	const initialFormData = Object.freeze({
 		email: '',
 		password: '',
@@ -66,7 +65,6 @@ export default function SignIn() {
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
-		console.log(formData);
 		dispatch(sendCredentials(formData))
 	};
 

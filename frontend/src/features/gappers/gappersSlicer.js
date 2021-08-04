@@ -12,7 +12,7 @@ const initialState = {
 export const fetchGappers = createAsyncThunk('gappers/fetchGappers', async () => (
   axios
   .get(`${process.env.NEXT_PUBLIC_API_URL}/data/`)
-    .then(response => {console.log('rd', response.data); return response.data})
+    .then(response => response.data)
     .catch(error => {console.log('error fetching gappers', error)})
 ));
 
@@ -21,7 +21,7 @@ export const fetchGapper = createAsyncThunk('gappers/fetchGapper', async (id) =>
     return(
       axiosInstance
       .get(`${process.env.NEXT_PUBLIC_API_URL}/gappers/${id}/`)
-        .then(response => {console.log('gapper data: ', response.data); return response.data})
+        .then(response => response.data)
         .catch(error => {console.log('error fetching 1 gapper', error)})
     )
   }
@@ -43,7 +43,7 @@ const gapperSlice = createSlice({
     [fetchGappers.fulfilled]: (state, action) => {
       state.status = 'succeeded'
       // Add any fetched gappers to the array
-      console.log('action fetch gappers action: ', action)
+      //console.log('action fetch gappers action: ', action)
 
       state.gappers = state.gappers.concat(action.payload)
     },
