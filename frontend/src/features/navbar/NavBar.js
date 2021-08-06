@@ -40,6 +40,7 @@ function a11yProps(index) {
 export default function NavBar() {
   const classes = useStyles();
   const userIsLogedIn = useSelector(selectUserIsLogedIn)
+  const dispatch = useDispatch()
   // const [value, setValue] = React.useState(0);
   //
   const handleChange = (event, newValue) => {
@@ -47,7 +48,7 @@ export default function NavBar() {
   };
 
   const activeTab = useSelector(selectActiveTab)
-  const dispatch = useDispatch()
+
 
   return (
     <div>
@@ -74,9 +75,9 @@ export default function NavBar() {
                 indicator: classes.indicator
               }}>
 
-                <Tab to="/"  component={CustomNextLink({href: "/", as:""})} label="Gappers" />
+                <Tab to="/"  component={CustomNextLink({href: "/", as:"/"})} label="Gappers" />
               {userIsLogedIn ?
-                <Tab to="/trades"  component={CustomNextLink({href: "/trades", as:""})} label="Trades" />
+                <Tab to="/trades"  component={CustomNextLink({href: "/trades", as:"/trades"})} label="Trades" />
               : null }
             </Tabs>
           </Grid>
@@ -86,8 +87,8 @@ export default function NavBar() {
                           : <Link href="/signin" as="" passHref><a>Sign In</a></Link>
             */}
             {userIsLogedIn ?
-                            <Tab to="/logout"  component={CustomNextLink({href: "/logout", as:""})} label="Logout" />
-                          : <Tab to="/signin"  component={CustomNextLink({href: "/signin", as:""})} label="Sign In" />
+                            <Tab to="/logout"  component={CustomNextLink({href: "/logout", as:"/logout"})} label="Logout" />
+                          : <Tab to="/signin"  component={CustomNextLink({href: "/signin", as:"/signin"})} label="Sign In" />
             }
           </Grid>
         </Grid>

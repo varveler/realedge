@@ -54,7 +54,7 @@ export default function GappersList () {
   const handleRoute = (e, path, trade) => {
     e.preventDefault()
     dispatch(selectGapper(trade))
-    router.push(path, '')
+    router.push(path.pathname, `/gappers/${path.query.id}`, { shallow: true })
   }
 
   let content

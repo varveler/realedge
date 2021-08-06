@@ -52,7 +52,7 @@ export default function SignIn() {
 	useEffect(()=>{
 		dispatch(navbarSelected(false))
 		if (userIsLogedIn) {
-	      router.push('/', '/')
+	      router.push('/', '/', { shallow: true }) //https://stackoverflow.com/questions/61130038/next-js-router-push-reloads-page-automatically
 	    }
 	})
 

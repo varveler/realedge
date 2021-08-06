@@ -5,7 +5,7 @@ const initialState = {
   gappers: [],
   status: 'idle',
   error: null,
-  gapperSelected: null,
+  selected: null,
   gapperSelectedStatus: 'idle'
 }
 
@@ -17,6 +17,7 @@ export const fetchGappers = createAsyncThunk('gappers/fetchGappers', async () =>
 ));
 
 export const fetchGapper = createAsyncThunk('gappers/fetchGapper', async (id) => {
+  console.log('id is ', id)
   if(id != undefined){
     return(
       axiosInstance
@@ -33,7 +34,7 @@ const gapperSlice = createSlice({
   initialState,
   reducers:{
     selectGapper(state, action){
-      state.gapperSelected = state.gappers.filter((gapper) => gapper.date == action.payload.date && gapper.ticker == action.payload.ticker  )[0]
+      state.selected = state.gappers.filter((gapper) => gapper.date == action.payload.date && gapper.ticker == action.payload.ticker  )[0]
     }
   },
   extraReducers: {
@@ -56,11 +57,11 @@ const gapperSlice = createSlice({
     },
     [fetchGapper.fulfilled]: (state, action) => {
       state.gapperSelectedStatus = 'succeeded'
-      state.gapperSelected = action.payload
+      state.selected = action.payload
     },
     [fetchGapper.rejected]: (state, action) => {
       state.gapperSelectedStatus = 'failed'
-      state.gapperSelected = null
+      state.selected = null
       state.error = action.error.message
     },
   }

@@ -21,13 +21,10 @@ def gappers(request):
         return JsonResponse(serializer.data, safe=False)
 
 
-def gapper_detail_view(request, _id):
-   return render(request, '_next/out/gappers/[id].html', {'id': _id})
-
-
 @api_view(['GET', ])
 @authentication_classes((TokenAuthentication,))
 def gapper_detail(request, _id):
+    print(_id)
     ticker = _id.split('-')[0]
     date = _id.split('-')[1]
     gapper = UpGapper.objects.filter(ticker=ticker, date__year=date[0:4], date__month=date[4:6], date__day=date[6:8])

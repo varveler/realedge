@@ -60,26 +60,27 @@ export default function GapperDetail(){
   const classes = useStyles();
   const dispatch = useDispatch()
   const userIsLogedIn = useSelector(selectUserIsLogedIn)
-  const gapperSelected = useSelector(state => state.gappers.gapperSelected)
+  const selectedGapper = useSelector(state => state.gappers.selected)
   const gapperSelectedStatus = useSelector(state => state.gappers.gapperSelectedStatus)
   const chartData = useSelector(state => state.charts.data)
   const fetchChartStatus = useSelector(state => state.charts.status)
 
   useEffect(() => {
-    if(gapperSelected == null) {
+    if(selectedGapper == undefined) {
+      console.log('selectedGapper not defined ', router)
       dispatch(fetchGapper(id))
     }
     return function cleanup() {
       dispatch(setFetchChartStatus('idle'))
     };
   },[])
-  if(gapperSelected && fetchChartStatus == 'idle' ){
+  if(selectedGapper && fetchChartStatus == 'idle' ){
     dispatch(fetchBarsGapper({slug: id}))
   }
-  if(gapperSelected === null) return <p> Loading gapper .... </p>
+  if(selectedGapper === undefined) return <p> Loading gapper .... </p>
   return(
 <div>
-        {gapperSelected ?
+        {selectedGapper ?
         <div>
           <Grid container spacing={1}>
             <Grid item xs={2}>
@@ -87,10 +88,10 @@ export default function GapperDetail(){
             <Grid item xs={8}>
                   <Grid container spacing={1}>
                     <Grid item xs={3}>
-                      <Typography className={classes.ticker} component='h1'>{gapperSelected.ticker}</Typography>
-                      <Typography className={classes.info} component='p'>{gapperSelected.company_name}</Typography>
-                      { gapperSelected.industry ? <Typography className={classes.info} component='p'><span className={classes.infoTitle}>Industry:</span> {gapperSelected.industry}</Typography>:null}
-                      <Typography className={ classes.percentage} component='p'> {gapperSelected.gap_percentage_display}<span className={classes.infoTitle}>{' '}gap</span></Typography>
+                      <Typography className={classes.ticker} component='h1'>{selectedGapper.ticker}</Typography>
+                      <Typography className={classes.info} component='p'>{selectedGapper.company_name}</Typography>
+                      { selectedGapper.industry ? <Typography className={classes.info} component='p'><span className={classes.infoTitle}>Industry:</span> {selectedGapper.industry}</Typography>:null}
+                      <Typography className={ classes.percentage} component='p'> {selectedGapper.gap_percentage_display}<span className={classes.infoTitle}>{' '}gap</span></Typography>
                     </Grid>
                     <Grid item xs={9}>
                       <TableContainer key={id} className={classes.tableContainer} component={Paper}>
@@ -106,15 +107,15 @@ export default function GapperDetail(){
                           </TableHead>
                           <TableBody>
                             <TableRow>
-                              <TableCell className={classes.cell}> {gapperSelected.pm_s2_volume} </TableCell>
-                              <TableCell className={classes.cell}> {gapperSelected.pm_s1_market_cap} </TableCell>
-                              <TableCell className={classes.cell}> {gapperSelected.pm_s2_market_cap} </TableCell>
-                              <TableCell className={classes.cell}> {gapperSelected.pm_s1_float} </TableCell>
-                              <TableCell className={classes.cell}> {gapperSelected.pm_s2_float} </TableCell>
-                              <TableCell className={classes.cell}> {gapperSelected.pm_s1_held_percent_insiders} </TableCell>
-                              <TableCell className={classes.cell}> {gapperSelected.pm_s2_held_percent_insiders} </TableCell>
-                              <TableCell className={classes.cell}> {gapperSelected.pm_s1_held_percent_institutions} </TableCell>
-                              <TableCell className={classes.cell}> {gapperSelected.pm_s2_held_percent_institutions} </TableCell>
+                              <TableCell className={classes.cell}> {selectedGapper.pm_s2_volume} </TableCell>
+                              <TableCell className={classes.cell}> {selectedGapper.pm_s1_market_cap} </TableCell>
+                              <TableCell className={classes.cell}> {selectedGapper.pm_s2_market_cap} </TableCell>
+                              <TableCell className={classes.cell}> {selectedGapper.pm_s1_float} </TableCell>
+                              <TableCell className={classes.cell}> {selectedGapper.pm_s2_float} </TableCell>
+                              <TableCell className={classes.cell}> {selectedGapper.pm_s1_held_percent_insiders} </TableCell>
+                              <TableCell className={classes.cell}> {selectedGapper.pm_s2_held_percent_insiders} </TableCell>
+                              <TableCell className={classes.cell}> {selectedGapper.pm_s1_held_percent_institutions} </TableCell>
+                              <TableCell className={classes.cell}> {selectedGapper.pm_s2_held_percent_institutions} </TableCell>
                             </TableRow>
                           </TableBody>
                         </Table>
@@ -129,7 +130,7 @@ export default function GapperDetail(){
             <Grid item xs={2}>
             </Grid>
             <Grid item xs={8}>
-                {gapperSelected ? <GapperChartWrapper slug={id} data={chartData} /> : <p>no gapper slected</p> }
+                {selectedGapper ? <GapperChartWrapper slug={id} data={chartData} /> : <p>no gapper slected</p> }
             </Grid>
             <Grid item xs={2}>
             </Grid>
