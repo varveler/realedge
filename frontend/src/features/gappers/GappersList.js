@@ -183,7 +183,7 @@ export default function GappersList () {
       )
     });
   } else  {
-    content = <div>there was an error </div>
+    content = <div>Loading .... </div>
   }
 
 
