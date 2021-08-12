@@ -98,7 +98,7 @@ const gapperSlice = createSlice({
     },
     [fetchMoreGappers.fulfilled]: (state, action) => {
       state.status = 'succeeded'
-      state.gappers = state.gappers.concat(action.payload)
+      state.gappers = action.payload
       state.isFetchingMore = false
     },
     [fetchMoreGappers.rejected]: (state, action) => {
