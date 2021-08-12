@@ -34,7 +34,13 @@ const useStyles = makeStyles((theme) => ({
   },
   cellTicker: {
     textAlign: 'center',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    color: '#556CD6',
+    fontWeight: '400'
+  },
+  tickerLink:{
+    color: '#556CD6',
+    fontWeight: '400'
   },
   cellheaderTitle: {
     textAlign: 'center',
@@ -93,7 +99,7 @@ export default function GappersList () {
     <TableRow key={id}>
       <TableCell onClick={ (e) => handleRoute(e, {pathname: '/gappers/[id]', query: { id: id }}, {date: gapper.date, ticker: gapper.ticker})} //todo refactor
                 className={classes.cellTicker}>
-        <a>{gapper.ticker}</a>
+        <a className={classes.tickerLink}>{gapper.ticker}</a>
       </TableCell>
       <TableCell className={classes.cell}> {gapper.last} </TableCell>
       <TableCell className={classes.cell}> {gapper.gap_percentage_display} </TableCell>
@@ -115,7 +121,7 @@ export default function GappersList () {
     <TableRow key={id}>
       <TableCell onClick={ (e) => handleRoute(e, {pathname: '/gappers/[id]', query: { id: id }}, {date: gapper.date, ticker: gapper.ticker})} //todo refactor
                 className={classes.cellTicker}>
-        <a>{gapper.ticker}</a>
+        <a className={classes.tickerLink}>{gapper.ticker}</a>
       </TableCell>
       <TableCell className={classes.cell}> {gapper.last} </TableCell>
       <TableCell className={classes.cell}> {gapper.gap_percentage_display} </TableCell>
