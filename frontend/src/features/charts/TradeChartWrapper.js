@@ -31,6 +31,7 @@ class ChartWrapper extends React.Component {
             </Grid>
           </Grid>
         </div>
+      )
 		}
     var maxHigh = Math.max.apply(Math, data.map(function(x) { return x.high; })) * 1.5
     const bars = data.map(
