@@ -4,6 +4,8 @@ import { TypeChooser } from "react-stockcharts/lib/helper";
 import { connect } from 'react-redux';
 import { fetchBarsGapper } from './chartsSlicer';
 import { timeParse } from "d3-time-format";
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Grid from '@material-ui/core/Grid';
 
 //https://data.alpaca.markets//v2/stocks/AAPL/bars?start=2021-04-06T09:01:00Z&end=2021-04-10T22:01:00Z&timeframe=1Min
 //timeframe, ticker, start_time, end_time
@@ -18,7 +20,22 @@ class GapperChartWrapper extends React.Component {
 	render() {
     const { data } = this.props;
 		if ( data.length == 0) {
-			return <div>Loading...</div>
+			return (
+        <div style={{height: '200px', marginTop:'150px'}}>
+          <Grid  container
+            direction="row"
+            justifyContent="space-between"
+            alignItems="stretch">
+            <Grid item xs={6}>
+            </Grid>
+            <Grid item xs={3} >
+              <CircularProgress/>
+            </Grid>
+            <Grid item xs={3}>
+            </Grid>
+          </Grid>
+        </div>
+      )
 		}
     var maxHigh = Math.max.apply(Math, data.map(function(x) { return x.high; })) * 1.5
     const bars = data.map(

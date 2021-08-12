@@ -77,7 +77,7 @@ export default function GapperDetail(){
   if(selectedGapper && fetchChartStatus == 'idle' ){
     dispatch(fetchBarsGapper({slug: id}))
   }
-  if(selectedGapper === undefined) return <p> Loading gapper .... </p>
+  if(selectedGapper === undefined) return <p> Loading.... </p>
   return(
 <div>
         {selectedGapper ?

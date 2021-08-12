@@ -21,15 +21,15 @@ def homepage(request):
 def gappers(request):
     if request.method == 'GET':
         param = request.GET.get('oldest', None)
-        EXTRA_DAYS = 8
+        EXTRA_DAYS = 9
         if param:
             oldest = convert_str_to_dateobj(param)
             extra = oldest - datetime.timedelta(days=EXTRA_DAYS)
         else:
             now = timezone.now().date()
             extra = now - datetime.timedelta(days=EXTRA_DAYS)
-        gappers = UpGapper.objects.filter(date__gte=extra)
-        serializer = GapperSerializer(gappers, many=True)
+        gappers = UpGapper.objects.filter(date__gte=extra, gap_percentage__gte=0.2)
+        serializer = GapperSerializer(gappers, many=True, )
         return JsonResponse(serializer.data, safe=False)
 
 

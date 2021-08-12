@@ -4,6 +4,8 @@ import { TypeChooser } from "react-stockcharts/lib/helper";
 import { connect } from 'react-redux';
 import { fetchBarsTrade } from './chartsSlicer';
 import { timeParse } from "d3-time-format";
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Grid from '@material-ui/core/Grid';
 
 //https://data.alpaca.markets//v2/stocks/AAPL/bars?start=2021-04-06T09:01:00Z&end=2021-04-10T22:01:00Z&timeframe=1Min
 //timeframe, ticker, start_time, end_time
@@ -11,14 +13,24 @@ class ChartWrapper extends React.Component {
   constructor(props){
     super(props);
   }
-
-	// componentDidMount() {
-	// 	this.props.dispatch(fetchBarsTrade({uuid: this.props.uuid }))
-	// }
 	render() {
     const { filledOrders, data } = this.props;
 		if ( data.length === 0) {
-			return <div>Loading...</div>
+			return (
+        <div>
+          <Grid  container
+            direction="row"
+            justifyContent="center"
+            alignItems="center">
+            <Grid item >
+            </Grid>
+            <Grid item xs={6} >
+              <CircularProgress/>
+            </Grid>
+            <Grid item >
+            </Grid>
+          </Grid>
+        </div>
 		}
     var maxHigh = Math.max.apply(Math, data.map(function(x) { return x.high; })) * 1.5
     const bars = data.map(

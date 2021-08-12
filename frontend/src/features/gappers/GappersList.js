@@ -91,10 +91,10 @@ export default function GappersList () {
   let content
   const renderRowTableUserIsLogedIn = (gapper, id) => (
     <TableRow key={id}>
-          <TableCell onClick={ (e) => handleRoute(e, {pathname: '/gappers/[id]', query: { id: id }}, {date: gapper.date, ticker: gapper.ticker})} //todo refactor
-                    className={classes.cellTicker}>
-            <a>{gapper.ticker}</a>
-          </TableCell>
+      <TableCell onClick={ (e) => handleRoute(e, {pathname: '/gappers/[id]', query: { id: id }}, {date: gapper.date, ticker: gapper.ticker})} //todo refactor
+                className={classes.cellTicker}>
+        <a>{gapper.ticker}</a>
+      </TableCell>
       <TableCell className={classes.cell}> {gapper.last} </TableCell>
       <TableCell className={classes.cell}> {gapper.gap_percentage_display} </TableCell>
       <TableCell className={classes.cell}> {gapper.pm_s2_volume} </TableCell>
@@ -113,8 +113,9 @@ export default function GappersList () {
   )
   const renderRowTableUserNotLogedIn = (gapper, id) => (
     <TableRow key={id}>
-      <TableCell className={classes.cell}>
-        {gapper.ticker }
+      <TableCell onClick={ (e) => handleRoute(e, {pathname: '/gappers/[id]', query: { id: id }}, {date: gapper.date, ticker: gapper.ticker})} //todo refactor
+                className={classes.cellTicker}>
+        <a>{gapper.ticker}</a>
       </TableCell>
       <TableCell className={classes.cell}> {gapper.last} </TableCell>
       <TableCell className={classes.cell}> {gapper.gap_percentage_display} </TableCell>
