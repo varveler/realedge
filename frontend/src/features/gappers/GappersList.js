@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
   },
   tickerLink:{
     color: '#556CD6',
-    fontWeight: '400'
+    fontWeight: '500'
   },
   cellheaderTitle: {
     textAlign: 'center',
