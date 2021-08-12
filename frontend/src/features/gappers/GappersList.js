@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchGappers, selectAllGappers, selectGapper } from './gappersSlicer';
+import { fetchGappers, selectAllGappers, selectGapper, fetchMoreGappers, setDates, setisFetchingMore, setOldesDate } from './gappersSlicer';
 import { selectUserIsLogedIn } from '../access/accessSlicer'
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
@@ -15,7 +15,7 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-
+import LinearProgress from '@material-ui/core/LinearProgress';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -50,6 +50,7 @@ export default function GappersList () {
   const dispatch = useDispatch();
   const classes = useStyles();
   const userIsLogedIn = useSelector(selectUserIsLogedIn)
+  const {dates, oldestDate, isFetchingMore} = useSelector(state => state.gappers);
 
   const handleRoute = (e, path, trade) => {
     e.preventDefault()
@@ -57,13 +58,37 @@ export default function GappersList () {
     router.push(path.pathname, `/gappers/${path.query.id}`, { shallow: true })
   }
 
-  let content
   useEffect(() => {
     dispatch(navbarSelected(0))
     if (fetchGappersStatus === 'idle') {
       dispatch(fetchGappers())
     }
   }, [fetchGappersStatus, dispatch])
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  function handleScroll() {
+    if (window.innerHeight + document.documentElement.scrollTop !== document.documentElement.offsetHeight) return;
+      dispatch(setisFetchingMore(true))
+  }
+
+  useEffect(() => {
+    if (!isFetchingMore) return;
+    dispatch(fetchMoreGappers(oldestDate));
+  }, [isFetchingMore,]);
+
+  useEffect(() => {
+    dispatch(setDates());
+  }, [gappers]);
+
+  useEffect(() => {
+    dispatch(setOldesDate());
+  }, [dates]);
+
+  let content
   const renderRowTableUserIsLogedIn = (gapper, id) => (
     <TableRow key={id}>
           <TableCell onClick={ (e) => handleRoute(e, {pathname: '/gappers/[id]', query: { id: id }}, {date: gapper.date, ticker: gapper.ticker})} //todo refactor
@@ -130,10 +155,8 @@ export default function GappersList () {
   if (fetchGappersStatus === 'loading') {
     content = <div className="loader">Loading...</div>
   } else if (gappers.length > 1 ) {
-    var dates = [];
     var row = userIsLogedIn ? renderRowTableUserIsLogedIn : renderRowTableUserNotLogedIn;
     var headers = userIsLogedIn ? renderHeadersUserIsLogedIn : renderHeadersUserNotLogedIn;
-    gappers.map(gapper => {if(!dates.includes(gapper.date)){dates.push(gapper.date)}})
     var ordererByDayGappers = {}
     dates.forEach((date, i) => {
       var gs = gappers.filter(gapper => gapper.date === date)
@@ -159,7 +182,7 @@ export default function GappersList () {
       )
     });
   } else  {
-    content = <div>there was this error </div>
+    content = <div>there was an error </div>
   }
 
 
@@ -168,6 +191,11 @@ export default function GappersList () {
       <Grid item xs={userIsLogedIn ? 1 : 3} />
       <Grid item xs={userIsLogedIn ? 10 : 6}>
       {content}
+      <br/>
+      <br/>
+      <LinearProgress/>
+      <br/>
+      <br/>
       </Grid>
       <Grid item xs={userIsLogedIn ? 1 : 3} />
     </Grid>

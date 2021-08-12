@@ -159,6 +159,9 @@ def convert_amount_benzinga(amount):
 
 
 def next_available_row_to_update(worksheet, column_header='_Stock_'):
+    """
+    Search for the next available blank row on a google sheet given a column name
+    """
     column = worksheet.find(column_header).col
     str_list = list(filter(None, worksheet.col_values(column)))  # fastest
     return len(str_list) + 1
@@ -171,13 +174,13 @@ def wait_random_seconds(min=2, max=4):
 
 def wwma(values, n):
     """
-     J. Welles Wilder's EMA
+     J. Welles Wilder's EMA (exponential moving averge)
     """
     return values.ewm(alpha=1/n, adjust=False).mean()
 
 
 def atr(df, n=14):
-    """return a dataframe object with Average True Range"""
+    """returns a dataframe object with Average True Range"""
     data = df.copy()
     high = data['high']
     low = data['low']
@@ -191,6 +194,9 @@ def atr(df, n=14):
 
 
 def next_available_row(worksheet):
+    """
+    Search for the next available blank row on a google sheet on first column
+    """
     str_list = list(filter(None, worksheet.col_values(1)))  # fastest
     return len(str_list) + 1
 
@@ -217,6 +223,7 @@ class Stock(object):
 
 
 def human_readble_amount(amount):
+    """convert an amount to short string for ex 1,200,000 to 1.2M"""
     a = str(amount)
     length = len(a)
     if length <= 3:
@@ -279,3 +286,8 @@ def convert_str_to_est_dt(s,v):
     dt_east = dt_utc.astimezone(US_EASTERN_TZ)
     #print(dt_east.strftime(format), v)
     return dt_east
+
+
+def convert_str_to_dateobj(str):
+    """Recieves a string in format as 2021-09-24 (YYY-MM-DD) and returns datetime.date object."""
+    return datetime.date.fromisoformat(str)

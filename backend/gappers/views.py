@@ -7,6 +7,10 @@ from rest_framework.authentication import TokenAuthentication
 
 from .models import UpGapper
 from .serializers import GapperSerializer
+from common.utils import convert_str_to_dateobj
+
+import datetime
+from django.utils import timezone
 
 # Create your views here.
 def homepage(request):
@@ -16,7 +20,15 @@ def homepage(request):
 @csrf_exempt
 def gappers(request):
     if request.method == 'GET':
-        gappers = UpGapper.objects.all()
+        param = request.GET.get('oldest', None)
+        EXTRA_DAYS = 8
+        if param:
+            oldest = convert_str_to_dateobj(param)
+            extra = oldest - datetime.timedelta(days=EXTRA_DAYS)
+        else:
+            now = timezone.now().date()
+            extra = now - datetime.timedelta(days=EXTRA_DAYS)
+        gappers = UpGapper.objects.filter(date__gte=extra)
         serializer = GapperSerializer(gappers, many=True)
         return JsonResponse(serializer.data, safe=False)
 

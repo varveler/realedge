@@ -6,7 +6,10 @@ const initialState = {
   status: 'idle',
   error: null,
   selected: null,
-  gapperSelectedStatus: 'idle'
+  gapperSelectedStatus: 'idle',
+  isFetchingMore: false,
+  dates: [],
+  oldestDate:''
 }
 
 export const fetchGappers = createAsyncThunk('gappers/fetchGappers', async () => (
@@ -28,6 +31,14 @@ export const fetchGapper = createAsyncThunk('gappers/fetchGapper', async (id) =>
   }
 });
 
+export const fetchMoreGappers = createAsyncThunk('gappers/fetchMoreGappers', async (oldest) => {
+  console.log('oldest thunk', oldest)
+  return (
+    axios
+    .get(`${process.env.NEXT_PUBLIC_API_URL}/data/`, { params: {oldest: oldest} })
+      .then(response => response.data)
+      .catch(error => {console.log('error fetching gappers', error)})
+  )});
 
 const gapperSlice = createSlice({
   name:'gappers',
@@ -35,6 +46,27 @@ const gapperSlice = createSlice({
   reducers:{
     selectGapper(state, action){
       state.selected = state.gappers.filter((gapper) => gapper.date == action.payload.date && gapper.ticker == action.payload.ticker  )[0]
+    },
+    setisFetchingMore(state, action){
+      state.isFetchingMore = action.payload
+    },
+    setDates(state, action){
+      var dates = [];
+      state.gappers.map(gapper => {if(!dates.includes(gapper.date)){dates.push(gapper.date)}})
+        var ordererByDayGappers = {}
+        dates.forEach((date, i) => {
+          var gs = state.gappers.filter(gapper => gapper.date === date)
+          ordererByDayGappers[date] = gs
+      });
+      state.dates = dates;
+    },
+    setOldesDate(state, action){
+      if(state.dates.length > 0 ){
+        const oldest = state.dates.reduce((c, n) =>
+            Date.parse(n) < Date.parse(c) ? n : c
+        );
+        state.oldestDate = oldest;
+      }
     }
   },
   extraReducers: {
@@ -43,9 +75,6 @@ const gapperSlice = createSlice({
     },
     [fetchGappers.fulfilled]: (state, action) => {
       state.status = 'succeeded'
-      // Add any fetched gappers to the array
-      //console.log('action fetch gappers action: ', action)
-
       state.gappers = state.gappers.concat(action.payload)
     },
     [fetchGappers.rejected]: (state, action) => {
@@ -64,11 +93,23 @@ const gapperSlice = createSlice({
       state.selected = null
       state.error = action.error.message
     },
+    [fetchMoreGappers.pending]: (state, action) => {
+      state.status = 'loadingMore'
+    },
+    [fetchMoreGappers.fulfilled]: (state, action) => {
+      state.status = 'succeeded'
+      state.gappers = state.gappers.concat(action.payload)
+      state.isFetchingMore = false
+    },
+    [fetchMoreGappers.rejected]: (state, action) => {
+      state.status = 'failed'
+      state.error = action.error.message
+    },
   }
 })
 
 export default gapperSlice.reducer
 
-export const { selectGapper } = gapperSlice.actions;
+export const { selectGapper, setisFetchingMore, setDates, setOldesDate } = gapperSlice.actions;
 
 export const selectAllGappers = state => state.gappers.gappers
