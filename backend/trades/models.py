@@ -259,12 +259,6 @@ class Order(models.Model):
                     parent_trade.set_trade_final_slug()
         super(Order, self).save(*args, **kwargs)
 
-
-
-
-
-
-
 class OrdersFile(models.Model):
     _file = models.FileField(upload_to='tempOrdersFiles/')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -276,3 +270,11 @@ class OrdersFile(models.Model):
 
     def __str__(self):
         return os.path.basename(self._file.name)
+
+
+# class TradesGroupedByDayByTicker(Trade):
+#     class Meta:
+#         abstract = True
+#
+#     def group_trade(self, trades):
+#         for trade in trades:

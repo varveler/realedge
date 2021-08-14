@@ -11,6 +11,8 @@ import time
 from decimal import Decimal
 import datetime
 import pytz
+import json
+import decimal
 #from webdriver_manager.chrome import ChromeDriverManager
 
 def get_env_variable(var_name):
@@ -291,3 +293,14 @@ def convert_str_to_est_dt(s,v):
 def convert_str_to_dateobj(str):
     """Recieves a string in format as 2021-09-24 (YYY-MM-DD) and returns datetime.date object."""
     return datetime.date.fromisoformat(str)
+
+
+class DecimalEncoder(json.JSONEncoder):
+    """
+    Used for encodign json when values contains decimal.Decimal
+    not mine https://stackoverflow.com/questions/1960516/python-json-serialize-a-decimal-object
+    """
+    def default(self, o):
+        if isinstance(o, decimal.Decimal):
+            return str(o)
+        return super(DecimalEncoder, self).default(o)

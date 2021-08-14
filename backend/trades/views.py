@@ -15,6 +15,12 @@ from .models import Order, Trade, OrdersFile
 from .serializers import TZOrderSerializer, DisplayTradeSerializer
 from .forms import OrdersFileForm
 from .tasks import process_orders_from_file_TradeZero
+from common.utils import DecimalEncoder, remove_zeros
+from django.db.models import Sum
+
+
+
+import json
 
 class OrdersViewSet(viewsets.ModelViewSet):
     """
@@ -70,7 +76,6 @@ def trades_list(request):
 @api_view(['GET',])
 @authentication_classes((TokenAuthentication,))
 def trade_detail(request, slug):
-    print(slug)
     if request.method == 'GET':
         trade = Trade.objects.get(closed_slug=slug)
         serializer = DisplayTradeSerializer(trade)
@@ -93,3 +98,51 @@ def trade_comment(request, uuid):
             trade_serialized.save()
             return Response(trade_serialized.data, status=status.HTTP_202_ACCEPTED)
     return Response("Method not allowed", status=status.HTTP_400_BAD_REQUEST)
+
+
+#@authentication_classes((TokenAuthentication,))
+@api_view(['GET', ])
+def grouped_trades_by_day_by_ticker(request):
+    if request.method == 'GET':
+        trades = Trade.objects.all().order_by('-creation')
+        days = []
+        format = '%Y-%m-%d'
+        for trade in trades:
+            if trade.start_time.date().strftime(format) not in days:
+                days.append(trade.start_time.date().strftime(format))
+        # group them together with a dict  like {'2021-04-30': {}, '2021-05-12': {}, '2021-05-13': {}}
+        grouped_trades_by_day = {k: {} for k in days}
+        for day in days:
+            trades_day = trades.filter(start_time__year=day[0:4], start_time__month=day[5:7], start_time__day=day[8:10])
+            grouped_trades_by_day[day] = trades_day
+        for date, trades in grouped_trades_by_day.items():
+            tickers = [] # get a list of tickers ['MOTH', 'AAPL', 'GME']
+            [tickers.append(trade.ticker) for trade in trades if trade.ticker not in tickers]
+            grouped_trades_by_ticker = {k: trades.filter(ticker=k) for k in tickers}
+            # inser them in dict like {'2021-04-30': {'MOTH': queryset[trades...]}, '2021-05-12': {'AAPL': queryset[trades...]}, '2021-05-13': {'GME': queryset[trades...]}}
+            grouped_trades_by_day[date] = grouped_trades_by_ticker
+        # itereate over each day, each ticker to aggregata data and give final dictionary
+        for date, ticker in grouped_trades_by_day.items():
+            for ticker, trades in ticker.items():
+                pnl = remove_zeros(trades.aggregate(Sum('pnl'))['pnl__sum'])
+                shares_traded = str(trades.aggregate(Sum('max_size'))['max_size__sum'])
+                #calculate if short, long or both
+                sides = list(set([trade.side for trade in trades])) #['SH', 'SH','SH', 'LO'] to ['SH', 'LO']
+                first = 'short' if sides[0] == 'SH' else 'long'
+                side = 'both' if len(sides) > 1 else first
+                calculated_comissions = remove_zeros(trades.aggregate(Sum('calculated_comissions'))['calculated_comissions__sum'])
+                net = str(trades.aggregate(Sum('net'))['net__sum'])
+                serializer = DisplayTradeSerializer(trades, many=True)
+                grouped_trades_by_day[date][ticker] = {'trades_count': trades.count(),
+                                                        'pnl': pnl,
+                                                        'side': side,
+                                                        'calculated_comissions': calculated_comissions,
+                                                        'net': net,
+                                                        'shares_traded': shares_traded,
+                                                        'trades': serializer.data,
+                                                        }
+        json_response = json.dumps(grouped_trades_by_day, cls=DecimalEncoder)
+        return Response(grouped_trades_by_day)
+    return Response("Method not allowed", status=status.HTTP_400_BAD_REQUEST)
+
+#create a list of day trades like ['2021-04-30', '2021-05-12', '2021-05-13']

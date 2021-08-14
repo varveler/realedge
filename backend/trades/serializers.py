@@ -4,6 +4,7 @@ from reusers.models import ReUser
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from .admin import pnl, first_entry_price, calculated_comissions, last_exit_price
 from django.contrib.humanize.templatetags.humanize import naturaltime
+from common.utils import remove_zeros
 
 class TZChoiceField(serializers.ChoiceField):
 
@@ -35,6 +36,8 @@ class BlankableDecimalField(serializers.DecimalField):
     def to_internal_value(self, data):
         if data == '':
             return None
+        else:
+            return
 
         return super(BlankableDecimalField, self).to_internal_value(data)
 
@@ -56,6 +59,9 @@ class TZOrderSerializer(serializers.ModelSerializer):
     broker_info = serializers.CharField(required=False, allow_blank=True)
     #user = serializers.HiddenField( default=serializers.CurrentUserDefault())
     user = serializers.PrimaryKeyRelatedField(queryset=ReUser.objects.all())
+    price_no_zeros = serializers.SerializerMethodField()
+    stop_price_no_zeros = serializers.SerializerMethodField()
+    limit_price_no_zeros = serializers.SerializerMethodField()
     class Meta:
         model = Order
         fields = [
@@ -79,8 +85,25 @@ class TZOrderSerializer(serializers.ModelSerializer):
             'account',
             'broker_ord_id',
             'broker_info',
-            'user'
+            'user',
+            'price_no_zeros',
+            'stop_price_no_zeros',
+            'limit_price_no_zeros',
         ]
+    def get_price_no_zeros(self, obj):
+        if obj.price == None:
+            return obj.price
+        return remove_zeros(obj.price)
+
+    def get_stop_price_no_zeros(self, obj):
+        if obj.stop_price == None:
+            return obj.stop_price
+        return remove_zeros(obj.stop_price)
+
+    def get_limit_price_no_zeros(self, obj):
+        if obj.limit_price == None:
+            return obj.limit_price
+        return remove_zeros(obj.limit_price)
 
 
     def is_valid(self, raise_exception=False):
@@ -180,6 +203,7 @@ class DisplayTradeSerializer(serializers.ModelSerializer):
     def get_natural_time(self, obj):
         return naturaltime(obj.start_time)
 
+#class TradesGroupedByDayByTickerSerializer(serializers.Serializer):
 
 
 

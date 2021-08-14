@@ -1,4 +1,72 @@
 
+from trades.models import Trade
+from django.db.models import Sum
+from trades.serializers import DisplayTradeSerializer
+from rest_framework.renderers import JSONRenderer
+import json
+import decimal
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, decimal.Decimal):
+            return str(o)
+        return super(DecimalEncoder, self).default(o)
+
+trades = Trade.objects.all().order_by('-creation')
+trades
+#create a list of day trades like ['2021-04-30', '2021-05-12', '2021-05-13']
+days = []
+format = '%Y-%m-%d'
+for trade in trades:
+    if trade.start_time.date().strftime(format) not in days:
+        days.append(trade.start_time.date().strftime(format))
+# group them together with a dict  like {'2021-04-30': {}, '2021-05-12': {}, '2021-05-13': {}}
+grouped_trades_by_day = {k:{} for k in days}
+grouped_trades_by_day
+for day in days:
+    trades_day = trades.filter(start_time__year=day[0:4], start_time__month=day[5:7], start_time__day=day[8:10])
+    grouped_trades_by_day[day] = trades_day
+for date, trades in grouped_trades_by_day.items():
+    tickers = []
+    [tickers.append(trade.ticker) for trade in trades if trade.ticker not in tickers]
+    grouped_trades_by_ticker = {k:trades.filter(ticker=k) for k in tickers}
+    grouped_trades_by_day[date] = grouped_trades_by_ticker
+grouped_trades_by_day
+grouped_trades_by_day2 = grouped_trades_by_day
+for date, ticker in grouped_trades_by_day2.items():
+    for ticker, trades in ticker.items():
+        pnl = str(trades.aggregate(Sum('pnl'))['pnl__sum'])
+        shares_traded = str(trades.aggregate(Sum('max_size'))['max_size__sum'])
+        #calculate if short, long or both
+        sides = list(set([trade.side for trade in trades])) #['SH', 'SH','SH', 'LO'] to ['SH', 'LO']
+        first = 'short' if sides[0] == 'SH' else 'long'
+        side = 'both' if len(sides) > 1 else first
+        calculated_comissions = str(trades.aggregate(Sum('calculated_comissions'))['calculated_comissions__sum'])
+        net = str(trades.aggregate(Sum('net'))['net__sum'])
+        serializer = DisplayTradeSerializer(trades, many=True)
+
+        grouped_trades_by_day[date][ticker] = {'trades_count': trades.count(),
+                                                'pnl': pnl,
+                                                'side': side,
+                                                'calculated_comissions': calculated_comissions,
+                                                'net': net,
+                                                'trades': serializer.data,
+                                                }
+
+grouped_trades_by_day2
+json_response = json.dumps(grouped_trades_by_day2, cls=DecimalEncoder)
+json_response
+
+
+
+
+
+
+
+
+
+
+"""
 https://data.alpaca.markets//v2/stocks/AAPL/bars?start=2021-04-06T09:01:00Z&end=2021-04-10T22:01:00Z&timeframe=1Min
 
 
@@ -133,7 +201,6 @@ for t in dates:
 
 
 
-"""
 import uuid
 
 uuid.uuid4()
