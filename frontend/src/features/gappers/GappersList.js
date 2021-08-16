@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchGappers, selectAllGappers, selectGapper, fetchMoreGappers, setDates, setisFetchingMore, setOldesDate } from './gappersSlicer';
+import { fetchGappers, selectAllGappers, selectGapper,
+          fetchMoreGappers, setDates, setisFetchingMore,
+          setOldesDate, resetGappers } from './gappersSlicer';
 import { selectUserIsLogedIn } from '../access/accessSlicer'
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
@@ -65,13 +67,14 @@ export default function GappersList () {
   }
 
   useEffect(() => {
-    dispatch(navbarSelected(0))
+    dispatch(resetGappers())
     if (fetchGappersStatus === 'idle') {
-      dispatch(fetchGappers())
+      dispatch(fetchGappers(userIsLogedIn))
     }
-  }, [fetchGappersStatus, dispatch])
+  }, [userIsLogedIn])
 
   useEffect(() => {
+    dispatch(navbarSelected(0))
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -83,7 +86,7 @@ export default function GappersList () {
 
   useEffect(() => {
     if (!isFetchingMore) return;
-    dispatch(fetchMoreGappers(oldestDate));
+    dispatch(fetchMoreGappers({oldestDate, userIsLogedIn}));
   }, [isFetchingMore,]);
 
   useEffect(() => {
@@ -197,12 +200,12 @@ export default function GappersList () {
     <Grid container>
       <Grid item xs={userIsLogedIn ? 1 : 3} />
       <Grid item xs={userIsLogedIn ? 10 : 6}>
-      {content}
-      <br/>
-      <br/>
-      <LinearProgress/>
-      <br/>
-      <br/>
+        {content}
+        <br/>
+        <br/>
+        <LinearProgress/>
+        <br/>
+        <br/>
       </Grid>
       <Grid item xs={userIsLogedIn ? 1 : 3} />
     </Grid>

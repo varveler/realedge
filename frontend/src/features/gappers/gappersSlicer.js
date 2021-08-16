@@ -12,12 +12,15 @@ const initialState = {
   oldestDate:''
 }
 
-export const fetchGappers = createAsyncThunk('gappers/fetchGappers', async () => (
-  axios
-  .get(`${process.env.NEXT_PUBLIC_API_URL}/data/`)
+export const fetchGappers = createAsyncThunk('gappers/fetchGappers', async (userIsLogedIn) => {
+  var endpoint = 'data';
+  if(userIsLogedIn){ endpoint = 'complete-data' }
+  return(
+  axiosInstance
+  .get(`${process.env.NEXT_PUBLIC_API_URL}/${endpoint}/`)
     .then(response => response.data)
     .catch(error => {console.log('error fetching gappers', error)})
-));
+  )});
 
 export const fetchGapper = createAsyncThunk('gappers/fetchGapper', async (id) => {
   console.log('id is ', id)
@@ -31,11 +34,14 @@ export const fetchGapper = createAsyncThunk('gappers/fetchGapper', async (id) =>
   }
 });
 
-export const fetchMoreGappers = createAsyncThunk('gappers/fetchMoreGappers', async (oldest) => {
-  console.log('oldest thunk', oldest)
+export const fetchMoreGappers = createAsyncThunk('gappers/fetchMoreGappers', async (data) => {
+  const {oldestDate, userIsLogedIn} = data;
+  console.log('oldest thunk', oldestDate)
+  var endpoint = 'data';
+  if(userIsLogedIn){ endpoint = 'complete-data' }
   return (
     axios
-    .get(`${process.env.NEXT_PUBLIC_API_URL}/data/`, { params: {oldest: oldest} })
+    .get(`${process.env.NEXT_PUBLIC_API_URL}/${endpoint}/`, { params: {oldest: oldestDate} })
       .then(response => response.data)
       .catch(error => {console.log('error fetching gappers', error)})
   )});
@@ -49,6 +55,9 @@ const gapperSlice = createSlice({
     },
     setisFetchingMore(state, action){
       state.isFetchingMore = action.payload
+    },
+    resetGappers(state, action){
+      state.gappers = []
     },
     setDates(state, action){
       var dates = [];
@@ -76,6 +85,7 @@ const gapperSlice = createSlice({
     [fetchGappers.fulfilled]: (state, action) => {
       state.status = 'succeeded'
       state.gappers = state.gappers.concat(action.payload)
+      state.status = 'idle'
     },
     [fetchGappers.rejected]: (state, action) => {
       state.status = 'failed'
@@ -110,6 +120,6 @@ const gapperSlice = createSlice({
 
 export default gapperSlice.reducer
 
-export const { selectGapper, setisFetchingMore, setDates, setOldesDate } = gapperSlice.actions;
+export const { selectGapper, setisFetchingMore, setDates, setOldesDate, resetGappers } = gapperSlice.actions;
 
 export const selectAllGappers = state => state.gappers.gappers

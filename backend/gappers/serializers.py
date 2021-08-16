@@ -16,7 +16,6 @@ from .admin import (gap_percentage_display,
                     pm_red_gaps)
 
 
-
 class GapperSerializer(serializers.ModelSerializer):
     last = serializers.SerializerMethodField()
     gap_percentage_display = serializers.SerializerMethodField()
@@ -93,3 +92,30 @@ class GapperSerializer(serializers.ModelSerializer):
 
     def get_pm_red_gaps(self, obj):
         return pm_red_gaps(obj)
+
+class PublicGapperSerializer(serializers.ModelSerializer):
+    last = serializers.SerializerMethodField()
+    gap_percentage_display = serializers.SerializerMethodField()
+    pm_s2_volume = serializers.SerializerMethodField()
+    pm_s1_market_cap = serializers.SerializerMethodField()
+    class Meta:
+        model = UpGapper
+        fields = ('date',
+                  'ticker',
+                  'gap_percentage',
+                  'last',
+                  'gap_percentage_display',
+                  'pm_s2_volume',
+                  'pm_s1_market_cap')
+
+    def get_last(self, obj):
+        return last(obj)
+
+    def get_gap_percentage_display(self, obj):
+        return gap_percentage_display(obj)
+
+    def get_pm_s2_volume(self, obj):
+        return pm_s2_volume(obj)
+
+    def get_pm_s1_market_cap(self, obj):
+        return pm_s1_market_cap(obj)

@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view, authentication_classes
 from rest_framework.authentication import TokenAuthentication
 
 from .models import UpGapper
-from .serializers import GapperSerializer
+from .serializers import GapperSerializer, PublicGapperSerializer
 from common.utils import convert_str_to_dateobj
 
 import datetime
@@ -18,7 +18,7 @@ def homepage(request):
 
 
 @csrf_exempt
-def gappers(request):
+def public_gappers(request):
     if request.method == 'GET':
         param = request.GET.get('oldest', None)
         EXTRA_DAYS = 9
@@ -29,6 +29,23 @@ def gappers(request):
             now = timezone.now().date()
             extra = now - datetime.timedelta(days=EXTRA_DAYS)
         gappers = UpGapper.objects.filter(date__gte=extra, gap_percentage__gte=0.2)
+        serializer = PublicGapperSerializer(gappers, many=True, )
+        return JsonResponse(serializer.data, safe=False)
+
+
+@api_view(['GET', ])
+@authentication_classes((TokenAuthentication,))
+def loged_in_gappers(request):
+    if request.method == 'GET':
+        param = request.GET.get('oldest', None)
+        EXTRA_DAYS = 9
+        if param:
+            oldest = convert_str_to_dateobj(param)
+            extra = oldest - datetime.timedelta(days=EXTRA_DAYS)
+        else:
+            now = timezone.now().date()
+            extra = now - datetime.timedelta(days=EXTRA_DAYS)
+        gappers = UpGapper.objects.filter(date__gte=extra)
         serializer = GapperSerializer(gappers, many=True, )
         return JsonResponse(serializer.data, safe=False)
 

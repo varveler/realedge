@@ -50,6 +50,9 @@ const useStyles = makeStyles((theme) => ({
   },
   tableContainer: {
     marginTop: '35px'
+  },
+  gapperContainer:{
+  paddingTop: '30px'
   }
 }))
 
@@ -81,7 +84,7 @@ export default function GapperDetail(){
   return(
 <div>
         {selectedGapper ?
-        <div>
+        <div className={classes.gapperContainer}>
           <Grid container spacing={1}>
             <Grid item xs={2}>
             </Grid>
