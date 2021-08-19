@@ -99,8 +99,8 @@ def trade_comment(request, uuid):
     return Response("Method not allowed", status=status.HTTP_400_BAD_REQUEST)
 
 
-@authentication_classes((TokenAuthentication,))
 @api_view(['GET', ])
+@authentication_classes((TokenAuthentication,))
 def grouped_trades_by_day_by_ticker(request):
     if request.method == 'GET':
         try:
