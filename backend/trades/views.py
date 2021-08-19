@@ -18,8 +18,7 @@ from .tasks import process_orders_from_file_TradeZero
 from common.utils import DecimalEncoder, remove_zeros
 from django.db.models import Sum
 
-
-
+import datetime
 import json
 
 class OrdersViewSet(viewsets.ModelViewSet):
@@ -68,7 +67,7 @@ def file_update(request):
 @authentication_classes((TokenAuthentication,))
 def trades_list(request):
     if request.method == 'GET':
-        trades = Trade.objects.all().order_by('-creation')
+        trades = Trade.objects.all().order_by('creation')
         serializer = DisplayTradeSerializer(trades, many=True)
         return Response(serializer.data)
 
@@ -100,11 +99,11 @@ def trade_comment(request, uuid):
     return Response("Method not allowed", status=status.HTTP_400_BAD_REQUEST)
 
 
-#@authentication_classes((TokenAuthentication,))
+@authentication_classes((TokenAuthentication,))
 @api_view(['GET', ])
 def grouped_trades_by_day_by_ticker(request):
     if request.method == 'GET':
-        trades = Trade.objects.all().order_by('-creation')
+        trades = Trade.objects.all().order_by('creation')
         days = []
         format = '%Y-%m-%d'
         for trade in trades:
@@ -122,8 +121,10 @@ def grouped_trades_by_day_by_ticker(request):
             # inser them in dict like {'2021-04-30': {'MOTH': queryset[trades...]}, '2021-05-12': {'AAPL': queryset[trades...]}, '2021-05-13': {'GME': queryset[trades...]}}
             grouped_trades_by_day[date] = grouped_trades_by_ticker
         # itereate over each day, each ticker to aggregata data and give final dictionary
+        final_trades = []
         for date, ticker in grouped_trades_by_day.items():
             for ticker, trades in ticker.items():
+                trades.order_by('-start_time')
                 pnl = remove_zeros(trades.aggregate(Sum('pnl'))['pnl__sum'])
                 shares_traded = str(trades.aggregate(Sum('max_size'))['max_size__sum'])
                 #calculate if short, long or both
@@ -133,16 +134,47 @@ def grouped_trades_by_day_by_ticker(request):
                 calculated_comissions = remove_zeros(trades.aggregate(Sum('calculated_comissions'))['calculated_comissions__sum'])
                 net = str(trades.aggregate(Sum('net'))['net__sum'])
                 serializer = DisplayTradeSerializer(trades, many=True)
-                grouped_trades_by_day[date][ticker] = {'trades_count': trades.count(),
-                                                        'pnl': pnl,
-                                                        'side': side,
-                                                        'calculated_comissions': calculated_comissions,
-                                                        'net': net,
-                                                        'shares_traded': shares_traded,
-                                                        'trades': serializer.data,
-                                                        }
-        json_response = json.dumps(grouped_trades_by_day, cls=DecimalEncoder)
-        return Response(grouped_trades_by_day)
+                start_date = datetime.datetime.strftime(trades[0].start_time, '%b-%d-%Y').lower()
+                small_uuid = str(trades[0].uuid).split('-')[0]
+                slug = F'{ticker}-trades-by-{trades[0].user.user_name}-on-{start_date}-{small_uuid}'
+                trade_info = {'trades_count': trades.count(),
+                            'ticker': ticker,
+                            'pnl': pnl,
+                            'start_time': trades[0].start_time,
+                            'date': date,
+                            'side': side,
+                            'calculated_comissions': calculated_comissions,
+                            'net': net,
+                            'shares_traded': shares_traded,
+                            'trades_uuids': [trade.uuid for trade in trades],
+                            'slug': slug,
+                            #'trades': serializer.data,
+                            }
+                final_trades.append(trade_info)
+                grouped_trades_by_day[date][ticker] = trade_info
+
+        #json_response = json.dumps(grouped_trades_by_day, cls=DecimalEncoder)
+        return Response(final_trades)
     return Response("Method not allowed", status=status.HTTP_400_BAD_REQUEST)
 
-#create a list of day trades like ['2021-04-30', '2021-05-12', '2021-05-13']
+
+
+#from operator import itemgetter
+#from itertools import groupby
+
+
+# @authentication_classes((TokenAuthentication,))
+# @api_view(['GET', ])
+# def grouped_trades_by_day_by_ticker2(request):
+#     if request.method == 'GET':
+#         trades = Trade.objects.all().order_by('-creation')
+#         key = itemgetter('date')
+#         iter = groupby(trades, key=key) # assuming queryset is already sorted by city_name
+#         for key, group in iter:
+#             print(key)
+#             key2 = itemgetter('ticker')
+#             iter2 = groupby(sorted(group, key=key2), key=key2) # now we must sort by company_name
+#             for comp, branch in iter2:
+#                 print(comp)
+#                 for b in branch:
+#                     print(b)

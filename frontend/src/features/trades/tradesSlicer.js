@@ -4,17 +4,30 @@ import axiosInstance from '../../components/axios'
 //const axios = require('axios');
 const initialState = {
   trades: [],
+  tradesGroupedByTicker: [],
   status: 'idle',
   error: null,
   tradeSelected: null,
-  tradeSelectedStatus: 'idle'
+  tradeSelectedStatus: 'idle',
+  groupedFetchStatus: 'idle',
 }
-export const fetchTrades = createAsyncThunk('trades/fetchTrades', async () => (
+
+
+
+export const fetchTrades = createAsyncThunk('trades/fetchTrades', async (groupByTicker) => (
   axiosInstance
   .get(`${process.env.NEXT_PUBLIC_API_URL}/trades/trades/`)
     .then(response => (response.data))
     .catch(error => {console.log('error fetching trades', error)})
 ));
+
+export const fetchTradesGroupedByTicker = createAsyncThunk('trades/fetchTradesGroupedByTicker', async () => (
+  axiosInstance
+  .get(`${process.env.NEXT_PUBLIC_API_URL}/trades/byticker/`)
+    .then(response => (response.data))
+    .catch(error => {console.log('error fetching trades', error)})
+));
+
 export const submitComment = createAsyncThunk('trades/submitComment', async (data) => {
   return(
   axiosInstance
@@ -71,6 +84,18 @@ const tradesSlice = createSlice({
     [fetchTrade.rejected]: (state, action) => {
       state.tradeSelectedStatus = 'failed'
       state.tradeSelected = {}
+      state.error = action.error.message
+    },
+    [fetchTradesGroupedByTicker.pending]: (state, action) => {
+      state.groupedFetchStatus = 'loading'
+    },
+    [fetchTradesGroupedByTicker.fulfilled]: (state, action) => {
+      state.groupedFetchStatus = 'succeeded'
+      state.tradesGroupedByTicker = state.tradesGroupedByTicker.concat(action.payload)
+    },
+    [fetchTradesGroupedByTicker.rejected]: (state, action) => {
+      state.groupedFetchStatus = 'failed'
+      state.tradesGroupedByTicker = []
       state.error = action.error.message
     },
   }

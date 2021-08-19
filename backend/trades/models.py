@@ -7,6 +7,7 @@ import os
 import uuid
 import datetime
 
+
 class Trade(models.Model):
     SHORT = 'SH'
     LONG = 'LO'
@@ -34,6 +35,8 @@ class Trade(models.Model):
     update = models.DateTimeField(auto_now=True)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField(null=True)
+    #str_start_date = models.CharField(max_length=8) #"20210820" YYYYMMDD
+    #str_end_date = models.CharField(max_length=8) #"20210820" YYYYMMDD
 
     ticker = models.CharField(max_length=10)
     market = models.CharField(max_length=20) # NYSE #NASDAQ #pinksheets #ETC
@@ -65,6 +68,14 @@ class Trade(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     comments = models.TextField(default='', null=True)
+
+    @property
+    def str_start_date(self):
+        return datetime.datetime.strftime(self.start_time, '%Y%m%d')
+
+    @property
+    def str_end_date(self):
+        return datetime.datetime.strftime(self.end_time, '%Y%m%d')
 
     @property
     def calculate_comissions(self):
@@ -272,9 +283,49 @@ class OrdersFile(models.Model):
         return os.path.basename(self._file.name)
 
 
-# class TradesGroupedByDayByTicker(Trade):
-#     class Meta:
-#         abstract = True
-#
-#     def group_trade(self, trades):
-#         for trade in trades:
+class TradesGroupedByDayByTicker(Trade):
+    class Meta:
+        abstract = True
+
+    def __init__(self, trades):
+        self.trades = trades
+        self.trades_count = 0
+
+    def group_trades(self, trades):
+        days = []
+        format = '%Y-%m-%d'
+        for trade in trades:
+            if trade.start_time.date().strftime(format) not in days:
+                days.append(trade.start_time.date().strftime(format))
+        # group them together with a dict  like {'2021-04-30': {}, '2021-05-12': {}, '2021-05-13': {}}
+        grouped_trades_by_day = {k: {} for k in days}
+        for day in days:
+            trades_day = trades.filter(start_time__year=day[0:4], start_time__month=day[5:7], start_time__day=day[8:10])
+            grouped_trades_by_day[day] = trades_day
+        for date, trades in grouped_trades_by_day.items():
+            tickers = [] # get a list of tickers ['MOTH', 'AAPL', 'GME']
+            [tickers.append(trade.ticker) for trade in trades if trade.ticker not in tickers]
+            grouped_trades_by_ticker = {k: trades.filter(ticker=k) for k in tickers}
+            # inser them in dict like {'2021-04-30': {'MOTH': queryset[trades...]}, '2021-05-12': {'AAPL': queryset[trades...]}, '2021-05-13': {'GME': queryset[trades...]}}
+            grouped_trades_by_day[date] = grouped_trades_by_ticker
+        # itereate over each day, each ticker to aggregata data and give final dictionary
+        for date, ticker in grouped_trades_by_day.items():
+            for ticker, trades in ticker.items():
+                pnl = remove_zeros(trades.aggregate(Sum('pnl'))['pnl__sum'])
+                shares_traded = str(trades.aggregate(Sum('max_size'))['max_size__sum'])
+                #calculate if short, long or both
+                sides = list(set([trade.side for trade in trades])) #['SH', 'SH','SH', 'LO'] to ['SH', 'LO']
+                first = 'short' if sides[0] == 'SH' else 'long'
+                side = 'both' if len(sides) > 1 else first
+                calculated_comissions = remove_zeros(trades.aggregate(Sum('calculated_comissions'))['calculated_comissions__sum'])
+                net = str(trades.aggregate(Sum('net'))['net__sum'])
+                serializer = DisplayTradeSerializer(trades, many=True)
+                grouped_trades_by_day[date][ticker] = {'trades_count': trades.count(),
+                                                        'pnl': pnl,
+                                                        'side': side,
+                                                        'calculated_comissions': calculated_comissions,
+                                                        'net': net,
+                                                        'shares_traded': shares_traded,
+                                                        'trades': serializer.data,
+                                                        }
+        return grouped_trades_by_day

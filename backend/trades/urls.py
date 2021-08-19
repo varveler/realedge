@@ -4,7 +4,8 @@ from .views import (trade_detail,
                     file_update,
                     trades_list,
                     trade_comment,
-                    grouped_trades_by_day_by_ticker,)
+                    grouped_trades_by_day_by_ticker,
+                    )
 
 urlpatterns = [
     path('detail/<slug>/', trade_detail),
@@ -12,5 +13,6 @@ urlpatterns = [
     path('upload/', file_update),
     path('trades/', trades_list),
     path('comment/<uuid>/', trade_comment),
-    path('by-day/', grouped_trades_by_day_by_ticker),
+    path('byticker/', grouped_trades_by_day_by_ticker),
+    #path('byticker2/', grouped_trades_by_day_by_ticker2),
 ]

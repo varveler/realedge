@@ -7,7 +7,8 @@ const initialState = {
   userIsLogedIn: false,
   status: 'idle',
   logOutStatus : 'idle',
-  error: null
+  error: null,
+  groupByTicker: true,
 }
 
 
@@ -49,6 +50,9 @@ const accessSlice = createSlice({
   name:'access',
   initialState,
   reducers:{
+    handleChangeGroupByTicker(state, action){
+      state.groupByTicker = !state.groupByTicker
+    }
   },
   extraReducers: {
     [sendCredentials.pending]: (state, action) => {
@@ -81,5 +85,7 @@ const accessSlice = createSlice({
 })
 
 export default accessSlice.reducer
+
+export const { handleChangeGroupByTicker } = accessSlice.actions;
 
 export const selectUserIsLogedIn = state => state.access.userIsLogedIn

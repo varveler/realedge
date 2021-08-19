@@ -1,4 +1,33 @@
 
+from trades.models import TradesGroupedByDayByTicker
+from trades.models import Trade
+from trades.serializers import DisplayTradeSerializer
+trades = Trade.objects.all().order_by('-creation')
+
+from operator import itemgetter
+from itertools import groupby
+
+s = DisplayTradeSerializer(trades, many=True)
+s.data
+
+
+
+key = itemgetter('str_start_date')
+iter = groupby(s.data, key=key) # assuming queryset is already sorted by city_name
+
+
+for date, group in iter:
+    print('1', date)
+    print('2', group)
+    key2 = itemgetter('ticker')
+    iter2 = groupby(sorted(group, key=key2), key=key2) # now we must sort by company_name
+    for ticker, trades in iter2:
+        print('3', ticker)
+        for trade in trades:
+            print('4', trade)
+
+
+"""
 from trades.models import Trade
 from django.db.models import Sum
 from trades.serializers import DisplayTradeSerializer
@@ -66,7 +95,7 @@ json_response
 
 
 
-"""
+
 https://data.alpaca.markets//v2/stocks/AAPL/bars?start=2021-04-06T09:01:00Z&end=2021-04-10T22:01:00Z&timeframe=1Min
 
 

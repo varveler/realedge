@@ -5,6 +5,8 @@ from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from .admin import pnl, first_entry_price, calculated_comissions, last_exit_price
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from common.utils import remove_zeros
+import datetime
+
 
 class TZChoiceField(serializers.ChoiceField):
 
@@ -163,6 +165,7 @@ class DisplayTradeSerializer(serializers.ModelSerializer):
     last_exit_price = serializers.SerializerMethodField()
     orders = TZOrderSerializer(source='order_set', many=True)
     natural_time = serializers.SerializerMethodField()
+    str_start_date = serializers.SerializerMethodField()
     class Meta:
         model = Trade
         fields = ['ticker',
@@ -186,7 +189,8 @@ class DisplayTradeSerializer(serializers.ModelSerializer):
                   'orders',
                   'natural_time',
                   'comments',
-                  'uuid']
+                  'uuid',
+                  'str_start_date']
 
     def get_pnl(self, obj):
         return pnl(obj)
@@ -202,6 +206,9 @@ class DisplayTradeSerializer(serializers.ModelSerializer):
 
     def get_natural_time(self, obj):
         return naturaltime(obj.start_time)
+
+    def get_str_start_date(self, obj):
+        return datetime.datetime.strftime(obj.start_time, '%Y%m%d')
 
 #class TradesGroupedByDayByTickerSerializer(serializers.Serializer):
 
