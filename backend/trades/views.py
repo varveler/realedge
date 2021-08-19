@@ -67,7 +67,7 @@ def file_update(request):
 @authentication_classes((TokenAuthentication,))
 def trades_list(request):
     if request.method == 'GET':
-        trades = Trade.objects.all().order_by('creation')
+        trades = Trade.objects.all().order_by('-creation')
         serializer = DisplayTradeSerializer(trades, many=True)
         return Response(serializer.data)
 
