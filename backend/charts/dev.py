@@ -1,3 +1,35 @@
+import datetime
+from trades.models import Trade
+from charts.mutils import (get_all_data, give_trade_chart_start_and_end_dates, give_gapper_chart_start_and_end_dates, fix_data, combine_data_filled_orders, apply_vwap_pandas, apply_intraday_vwap_pandas)
+slug = 'LHDX-trades-by-varveler-on-may-12-2021-e96d3598'
+params = slug.split('-')
+ticker = params[0]
+user_name = params[3]
+d = datetime.datetime.strptime('-'.join(params[5:8]), '%b-%d-%Y')
+
+trades = Trade.objects.filter(start_time__year=d.year, start_time__month=d.month, start_time__day=d.day)
+start, end = give_trade_chart_start_and_end_dates(trades[0])
+data = get_all_data('1Min', trades[0].ticker, start, end)
+data = apply_vwap_pandas(data)
+data = apply_intraday_vwap_pandas(data)
+fix_data(data)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 from charts.mutils import get_all_data, give_trade_chart_start_and_end_dates, give_gapper_chart_start_and_end_dates, fix_data, combine_data_filled_orders, give_gapper_chart_start_and_end_dates
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes
