@@ -9,7 +9,7 @@ from .mutils import (get_all_data,
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes
 from rest_framework.authentication import TokenAuthentication
-from trades.models import Trade
+from trades.models import Trade, Order
 from gappers.models import UpGapper
 from django.http import JsonResponse
 from pprint import pprint
@@ -17,18 +17,19 @@ from pprint import pprint
 # Create your views here.
 @api_view(['GET', ])
 @authentication_classes((TokenAuthentication,))
-def chart_data(request, uuid):
-    print(uuid)
+def chart_data(request):
     if request.method == 'GET':
-        trade = Trade.objects.get(uuid=uuid)
-        start, end = give_trade_chart_start_and_end_dates(trade)
-        data = get_all_data('1Min', trade.ticker, start, end)
+        uuids = request.query_params.getlist('trade[]')
+        trades = Trade.objects.filter(uuid__in=uuids)
+        orders = Order.objects.filter(trade__uuid__in=uuids)
+        ticker = trades.first().ticker
+        start, end = give_trade_chart_start_and_end_dates(trades[0])
+        data = get_all_data('1Min', ticker, start, end)
         data = apply_vwap_pandas(data)
         data = apply_intraday_vwap_pandas(data)
         fix_data(data)
-        combine_data_filled_orders(data, trade)
+        combine_data_filled_orders(data, trades[0], orders)
         return Response(data)
-
 
 
 @api_view(['GET', ])
@@ -48,3 +49,21 @@ def gapper_data(request, slug):
         data = apply_intraday_vwap_pandas(data)
         fix_data(data)
         return Response(data)
+
+
+# @api_view(['GET', ])
+# @authentication_classes((TokenAuthentication,))
+# def chart_data(request, slug): #slug: CEMI-trades-by-varveler-on-jul-22-2021-b1ab8977
+#     if request.method == 'GET':
+#         params = slug.split('-')
+#         ticker = params[0]
+#         user_name = params[3]
+#         date = datetime.datetime.strptime()
+#         trade = Trade.objects.filter(ticker:uuid=uuid)
+#         start, end = give_trade_chart_start_and_end_dates(trade)
+#         data = get_all_data('1Min', trade.ticker, start, end)
+#         data = apply_vwap_pandas(data)
+#         data = apply_intraday_vwap_pandas(data)
+#         fix_data(data)
+#         combine_data_filled_orders(data, trade)
+#         return Response(data)

@@ -89,15 +89,15 @@ def give_triangle_distance(data, index, n=14, factor=1):
     return atr(df, n=n).get(n) * factor
 
 #entry orders
-def combine_data_filled_orders(data, parent_trade):
+def combine_data_filled_orders(data, parent_trade, orders):
     """
         fills missing data on chart data like orders executionPrice
         and triangle markers: entryShort, entryLong, exitShort, exitLong
     """
-    orders = parent_trade.order_set.filter(status='FI')
+    filled_orders = orders.filter(status='FI')
     format = '%Y-%m-%dT%H:%M:00Z'
     for i, candle in enumerate(data):
-        for order in orders:
+        for order in filled_orders:
             order_date = datetime.datetime.strftime(order.last_time, format)
             if candle['date'] == order_date:
                 extra_distance = give_triangle_distance(data, i)
