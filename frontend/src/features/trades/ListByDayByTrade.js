@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { selectTrade, fetchTradesGroupedByTicker, selectAllTrades } from './tradesSlicer';
+import { selectTrade, fetchTrades, selectAllTrades } from './tradesSlicer';
 import { navbarSelected, selectActiveTab } from '../navbar/navBarSlicer'
 import { selectUserIsLogedIn} from '../access/accessSlicer'
 import { useRouter } from 'next/router'
@@ -46,61 +46,74 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ByDayByTrade () {
   const userIsLogedIn = useSelector(selectUserIsLogedIn)
+  const fetchTradesStatus = useSelector(state => state.trades.status);
+  const groupByTicker = useSelector(state => state.trades.groupByTicker);
+  const trades = useSelector(selectAllTrades);
   const dispatch = useDispatch();
   const classes = useStyles();
   const router = useRouter()
-  const {groupedFetchStatus, tradesGroupedByTicker} = useSelector(state => state.trades);
-  const {groupByTicker} = useSelector(state => state.access);
-
   let content
   useEffect(() => {
-    if (!userIsLogedIn) {
-        router.push('/signin')
-      } else {
-        dispatch(navbarSelected(1))
-        if (groupedFetchStatus === 'idle') {
-          console.log('groupByTicker', groupByTicker)
-          dispatch(fetchTradesGroupedByTicker())
-        }
-}
-  }, [groupedFetchStatus, dispatch]);
+    dispatch(navbarSelected(1))
+    if (fetchTradesStatus === 'idle') {
+      dispatch(fetchTrades())
+    }
+  },[])
+  // useEffect(() => {
+  //   if (!userIsLogedIn) {
+  //       router.push('/signin')
+  //     } else {
+  //       dispatch(navbarSelected(1))
+  //       if (fetchTradesStatus === 'idle') {
+  //         console.log('groupByTicker', groupByTicker)
+  //         dispatch(fetchTrades())
+  //       }
+  // }
+  // }, [fetchTradesStatus, dispatch]);
 
   const handleRoute = (e, path, uuid) => {
     e.preventDefault()
-    dispatch(selectTrade(uuid))
     router.push(path)
 
   };
 
 
-  if (groupedFetchStatus === 'loading') {
+  if (fetchTradesStatus === 'loading') {
     content = <div className="loader">Loading Trades...</div>
-  } else if (groupedFetchStatus === 'succeeded' && tradesGroupedByTicker.length >= 1) {
+  } else if (fetchTradesStatus === 'succeeded' && trades.length >= 1) {
     var dates = [];
 
-    tradesGroupedByTicker.map(trade => {
+    trades.map(trade => {
       let trimedDate = trade.start_time.split('T')[0]
       if(!dates.includes(trimedDate)){dates.push(trimedDate)}})
       var ordererByDayTrades = {}
       dates.forEach((date, i) => {
-        var gs = tradesGroupedByTicker.filter(trade => trade.start_time.split('T')[0] === date)
+        var gs = trades.filter(trade => trade.start_time.split('T')[0] === date)
         ordererByDayTrades[date] = gs
     });
     content = dates.map((date, i) => {
       var slDate = date.replace(/-/g, '');
       var renderedTrades = ordererByDayTrades[date].map(trade => {
-        var path = `/trades/${trade.slug}`
+        var path = trade.closed ? `/trades/${trade.closed_slug}`: `/trades/${trade.slug}`
         return(
         <TableRow key={trade.uuid}>
           <TableCell onClick={ (e) => handleRoute(e, path, trade.uuid)} className={classes.cellLink}>
             <a>{trade.ticker}</a>
           </TableCell>
+          <TableCell className={classes.cell}> {trade.start_time} </TableCell>
+          <TableCell className={classes.cell}> {trade.end_time} </TableCell>
+          <TableCell className={classes.cell}> {trade.duration} </TableCell>
+          <TableCell className={classes.cell}> {trade.max_size} </TableCell>
           <TableCell className={classes.cell}> {trade.side} </TableCell>
           <TableCell className={classes.cell}> {trade.pnl} </TableCell>
           <TableCell className={classes.cell}> {trade.calculated_comissions} </TableCell>
           <TableCell className={classes.cell}> {trade.net} </TableCell>
-          <TableCell className={classes.cell}> {trade.trades_count} </TableCell>
-          <TableCell className={classes.cell}> {trade.shares_traded} </TableCell>
+          <TableCell className={classes.cell}> {trade.entries} </TableCell>
+          <TableCell className={classes.cell}> {trade.exits} </TableCell>
+          <TableCell className={classes.cell}> {trade.first_entry_price} </TableCell>
+          <TableCell className={classes.cell}> {trade.last_exit_price} </TableCell>
+          <TableCell className={classes.cell}> {trade.closed ? 'Closed' : 'Open'} </TableCell>
+          <TableCell className={classes.cell}> {trade.position} </TableCell>
         </TableRow>
       )});
       return(
@@ -110,12 +123,20 @@ export default function ByDayByTrade () {
             <TableHead>
               <TableRow>
                 <TableCell size={"small"} className={classes.cellheaderTitle}> Ticker </TableCell>
+                <TableCell size={"small"} className={classes.cellheaderTitle}> Start Date </TableCell>
+                <TableCell size={"small"} className={classes.cellheaderTitle}> End Date </TableCell>
+                <TableCell size={"small"} className={classes.cellheaderTitle}> Duration </TableCell>
+                <TableCell size={"small"} className={classes.cellheaderTitle}> Max Size </TableCell>
                 <TableCell size={"small"} className={classes.cellheaderTitle}> Side </TableCell>
                 <TableCell size={"small"} className={classes.cellheaderTitle}> PNL </TableCell>
                 <TableCell size={"small"} className={classes.cellheaderTitle}> Cal. Com. </TableCell>
                 <TableCell size={"small"} className={classes.cellheaderTitle}> NET </TableCell>
-                <TableCell size={"small"} className={classes.cellheaderTitle}> Trades </TableCell>
-                <TableCell size={"small"} className={classes.cellheaderTitle}> Shares Traded </TableCell>
+                <TableCell size={"small"} className={classes.cellheaderTitle}> Entries </TableCell>
+                <TableCell size={"small"} className={classes.cellheaderTitle}> Exits </TableCell>
+                <TableCell size={"small"} className={classes.cellheaderTitle}> FEP </TableCell>
+                <TableCell size={"small"} className={classes.cellheaderTitle}> LEP </TableCell>
+                <TableCell size={"small"} className={classes.cellheaderTitle}> Closed </TableCell>
+                <TableCell size={"small"} className={classes.cellheaderTitle}> Position </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -125,7 +146,7 @@ export default function ByDayByTrade () {
         </TableContainer>
       )
     });
-  } else if (groupedFetchStatus === 'failed') {
+  } else if (fetchTradesStatus === 'failed') {
     content = <div>there was an error Loading Trades</div>
   } else {
     content = <p>There are no saved trades </p>

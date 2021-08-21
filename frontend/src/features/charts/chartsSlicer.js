@@ -10,11 +10,12 @@ const initialState = {
 
 
 //https://data.alpaca.markets//v2/stocks/AAPL/bars?start=2021-04-06T09:01:00Z&end=2021-04-10T22:01:00Z&timeframe=1Min
-export const fetchBarsTrade = createAsyncThunk('chart/fetchBarsTrade', async (data) => {
-  const {uuid, timeframe} = data;
+export const fetchBarsTrade = createAsyncThunk('chart/fetchBarsTrade', async (uuids) => {
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/charts/trade?${uuids.map((n, index) => `trade[]=${n}`).join('&')}`
+  console.log('url',url)
   return (
   axiosInstance
-  .get(`${process.env.NEXT_PUBLIC_API_URL}/charts/trade/${uuid}/`)
+  .get(url)
   .then(response => {
     return response.data
   })

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchTrade, submitComment, changeComment } from './tradesSlicer';
+import { fetchGroupedTradesDetails, submitComment, changeComment, fetchOrders, cleanGroupedTradesDetailsFetchStatus, cleanFetchOrdersStatus } from './tradesSlicer';
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
@@ -69,7 +69,6 @@ const useStyles = makeStyles((theme) => ({
 export default function TradeDetail(){
   const router = useRouter();
   const classes = useStyles();
-  const tradeSelected = useSelector(state => state.trades.tradeSelected);
   const dispatch = useDispatch();
   const {slug}  = router.query;
   const parseDate = timeParse("%H:%M:%S %Y/%m/%d");
@@ -77,20 +76,41 @@ export default function TradeDetail(){
   const userIsLogedIn = useSelector(selectUserIsLogedIn);
   const chartData = useSelector(state => state.charts.data)
   const fetchChartStatus = useSelector(state => state.charts.status)
-
+  const {fetchGroupedTradesDetailsStatus,
+        fetchOrdersStatus,
+        orders,
+        detailGroupedTrades,
+        groupedDetails} = useSelector(state => state.trades)
 
   useEffect(() => {
-    if(tradeSelected == undefined){
-      dispatch(fetchTrade(slug))
-    }
     if(tabSelected != 1 && userIsLogedIn == true)
       dispatch(navbarSelected(1))
     return function cleanup() {
       dispatch(setFetchChartStatus('idle'))
+      dispatch(cleanGroupedTradesDetailsFetchStatus('idle'))
+      dispatch(cleanFetchOrdersStatus('idle'))
     };
 
   },[])
-  const filledOrders = tradeSelected ? tradeSelected.orders.filter(
+  useEffect(() => {
+    if(slug != undefined) dispatch(fetchGroupedTradesDetails(slug))
+  },[slug])
+
+  useEffect(() => {
+    if(fetchGroupedTradesDetailsStatus === 'succeeded' && fetchOrdersStatus === 'idle'){
+      var uuids = []
+      detailGroupedTrades.forEach((trade, i) => {
+        uuids.push(trade.uuid)
+      });
+      console.log('uuids', uuids)
+      dispatch(fetchOrders(uuids))
+    }
+    if(detailGroupedTrades && detailGroupedTrades.length >= 1 && fetchChartStatus == 'idle' ){
+      dispatch(fetchBarsTrade(uuids))
+    }
+  },[detailGroupedTrades])
+
+  const filledOrders = orders.length >= 1 ? orders.filter(
     order => order.status === "FI").map(
       order => {
                 let parsedDate = parseDate(order.last_time)
@@ -99,10 +119,8 @@ export default function TradeDetail(){
       }
     )
   : []
-  if(tradeSelected && fetchChartStatus == 'idle' ){
-    dispatch(fetchBarsTrade({uuid:tradeSelected.uuid}))
-  }
-  const renderTradeDetails = (tradeSelected) => (
+
+  const renderGroupedTradeDetails = (groupedDetails) => (
     <div>
       <Grid container spacing={1}>
         <Grid item xs={2}>
@@ -110,11 +128,12 @@ export default function TradeDetail(){
         <Grid item xs={8}>
             <Grid container spacing={1}>
               <Grid item xs={3}>
-                {tradeSelected.pnl > 0 ?
-                  <Typography className={classes.profit} component='h1'>{tradeSelected.pnl}<span className={classes.infoTitle}>{' '}profit</span></Typography>
-                : <Typography className={classes.loss} component='h1'>{tradeSelected.pnl}<span className={classes.infoTitle}>{' '}loss</span></Typography>
+                {groupedDetails.pnl > 0 ?
+                  <Typography className={classes.profit} component='h1'>{groupedDetails.pnl}<span className={classes.infoTitle}>{' '}profit</span></Typography>
+                : <Typography className={classes.loss} component='h1'>{groupedDetails.pnl}<span className={classes.infoTitle}>{' '}loss</span></Typography>
                 }
-                <Typography className={classes.info} component='p'><span className={classes.infoTitle}>on{' '}</span>{tradeSelected.ticker} <span className={classes.infoTitle}>{' '}{tradeSelected.natural_time}</span></Typography>
+                <Typography className={classes.info} component='p'><span className={classes.infoTitle}>on{' '}</span>{groupedDetails.ticker} <span className={classes.infoTitle}>{' '}{groupedDetails.natural_time}</span></Typography>
+                <Typography className={classes.info} component='p'><span className={classes.infoTitle}>with{' '}</span>{groupedDetails.trades_count} <span className={classes.infoTitle}>{groupedDetails.trades_count == 1 ? 'trade' : 'trades'}</span></Typography>
               </Grid>
               <Grid item xs={9}>
                 <TableContainer className={classes.tableContainer} component={Paper}>
@@ -153,8 +172,8 @@ export default function TradeDetail(){
         <Grid item xs={1}>
         </Grid>
         <Grid item xs={10}>
-          <TradeChartWrapper uuid={tradeSelected.uuid} filledOrders={filledOrders} data={chartData}/>
-          <TextField
+          <TradeChartWrapper uuid={detailGroupedTrades[0].uuid} filledOrders={filledOrders} data={chartData}/>
+          {/*<TextField
             className={classes.tradeComents}
             id="outlined-multiline-static"
             label="Trade Comments"
@@ -162,23 +181,23 @@ export default function TradeDetail(){
             multiline
             rows={4}
             variant="outlined"
-            value={tradeSelected.comments}
+            value={groupedDetails.comments}
             onChange={event => dispatch(changeComment(event.target.value))}
           />
-          <Button onClick={(event) => {event.preventDefault; dispatch(submitComment({uuid:tradeSelected.uuid, comment:tradeSelected.comments}))}} variant="contained" color="primary">
+          <Button onClick={(event) => {event.preventDefault; dispatch(submitComment({uuid:groupedDetails.uuid, comment:tradeSelected.comments}))}} variant="contained" color="primary">
             Save
-          </Button>
+          </Button> /*/}
         </Grid>
         <Grid item xs={1}>
         </Grid>
       </Grid>
     </div>
   )
-  const renderNoTradeSelected = () => <p> Loading Trade Data.... </p>
+  const renderNoTradeSelected = () => <p> Loading Data.... </p>
 
   return(
     <div>
-      {tradeSelected ? renderTradeDetails(tradeSelected) : renderNoTradeSelected}
+      {detailGroupedTrades && detailGroupedTrades.length >= 1 ? renderGroupedTradeDetails(groupedDetails[0]) : renderNoTradeSelected}
     </div>
   )
 }

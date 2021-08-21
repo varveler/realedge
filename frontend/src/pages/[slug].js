@@ -1,12 +1,12 @@
 import React, { Fragment } from 'react';
-import TradeDetail from './../../features/trades/SingleTradeDetail'
-import NavBar from './../../features/navbar/NavBar'
+import GroupedTradesDetail from './../features/trades/GroupedTradesDetail'
+import NavBar from './../features/navbar/NavBar'
 
 const TradeDetailView = () => {
     return (
         <Fragment>
           <NavBar />
-          <TradeDetail />
+          <GroupedTradesDetail />
         </Fragment>
     )
 }

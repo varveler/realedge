@@ -7,8 +7,8 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import Box from '@material-ui/core/Box';
 import {handleChangeGroupByTicker} from '../access/accessSlicer';
-import ByDayByTicker from './ByDayByTicker';
-import ByDayByTrade from './ByDayByTrade';
+import ByDayByTicker from './ListByDayByTicker';
+import ByDayByTrade from './ListByDayByTrade';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -23,7 +23,7 @@ export default function TradesList(){
   const classes = useStyles();
   const dispatch = useDispatch();
   const groupByTicker = useSelector(state => state.access.groupByTicker )
-  const handleChange = () =>{
+  const handleChange = () => {
     dispatch(handleChangeGroupByTicker())
   }
   return (
