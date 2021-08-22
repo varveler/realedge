@@ -1,5 +1,6 @@
 from common.utils import remove_zeros
 from django.db.models import Sum
+from .serializers import DisplayTradeSerializer
 
 import datetime
 
@@ -34,7 +35,7 @@ def group_trades_by_ticker(trades):
             side = 'both' if len(sides) > 1 else first
             calculated_comissions = remove_zeros(trades.aggregate(Sum('calculated_comissions'))['calculated_comissions__sum'])
             net = str(trades.aggregate(Sum('net'))['net__sum'])
-            #serializer = DisplayTradeSerializer(trades, many=True)
+            serializer = DisplayTradeSerializer(trades, many=True)
             start_date = datetime.datetime.strftime(trades[0].start_time, '%b-%d-%Y').lower()
             small_uuid = str(trades[0].uuid).split('-')[0]
             slug = F'{ticker}-trades-by-{trades[0].user.user_name}-on-{start_date}-{small_uuid}'
@@ -49,7 +50,7 @@ def group_trades_by_ticker(trades):
                         'shares_traded': shares_traded,
                         'trades_uuids': [trade.uuid for trade in trades],
                         'slug': slug,
-                        #'trades': serializer.data,
+                        'trades': serializer.data,
                         }
             final_trades.append(trade_info)
             grouped_trades_by_day[date][ticker] = trade_info

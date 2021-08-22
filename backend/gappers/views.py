@@ -4,6 +4,8 @@ from django.http import JsonResponse
 
 from rest_framework.decorators import api_view, authentication_classes
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.response import Response
+from rest_framework import status
 
 from .models import UpGapper
 from .serializers import GapperSerializer, PublicGapperSerializer
@@ -57,6 +59,8 @@ def gapper_detail(request, _id):
     ticker = _id.split('-')[0]
     date = _id.split('-')[1]
     gapper = UpGapper.objects.filter(ticker=ticker, date__year=date[0:4], date__month=date[4:6], date__day=date[6:8])
-    gapper = gapper[0]
-    serializer = GapperSerializer(gapper)
-    return JsonResponse(serializer.data)
+    if gapper:
+        gapper = gapper[0]
+        serializer = GapperSerializer(gapper)
+        return JsonResponse(serializer.data)
+    return Response([], status=status.HTTP_404_NOT_FOUND)

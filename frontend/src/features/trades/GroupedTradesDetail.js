@@ -19,8 +19,13 @@ import { selectUserIsLogedIn} from '../access/accessSlicer'
 import TextField from '@material-ui/core/TextField';
 import Button from  '@material-ui/core/Button';
 import { fetchBarsTrade, setFetchChartStatus } from '../charts/chartsSlicer';
-
+import TradesDetailsTables from './TradesDetailsTables'
+import {fetchGapper} from '../gappers/gappersSlicer';
+import TopTableGapperDetail from '../gappers/TopTableGapperDetail';
 const useStyles = makeStyles((theme) => ({
+  containerDetail:{
+    marginTop: '20px'
+  },
   profit:{
     fontSize: '2.5rem',
     color: 'green'
@@ -76,6 +81,7 @@ export default function TradeDetail(){
   const userIsLogedIn = useSelector(selectUserIsLogedIn);
   const chartData = useSelector(state => state.charts.data)
   const fetchChartStatus = useSelector(state => state.charts.status)
+  const gapper = useSelector(state => state.gappers.selected)
   const {fetchGroupedTradesDetailsStatus,
         fetchOrdersStatus,
         orders,
@@ -104,11 +110,13 @@ export default function TradeDetail(){
       });
       console.log('uuids', uuids)
       dispatch(fetchOrders(uuids))
+      dispatch(fetchGapper(`${groupedDetails[0].ticker}-${groupedDetails[0].date.replace('-', '').replace('-', '')}`))
     }
     if(detailGroupedTrades && detailGroupedTrades.length >= 1 && fetchChartStatus == 'idle' ){
       dispatch(fetchBarsTrade(uuids))
     }
   },[detailGroupedTrades])
+
 
   const filledOrders = orders.length >= 1 ? orders.filter(
     order => order.status === "FI").map(
@@ -121,7 +129,7 @@ export default function TradeDetail(){
   : []
 
   const renderGroupedTradeDetails = (groupedDetails) => (
-    <div>
+    <div className={classes.containerDetail}>
       <Grid container spacing={1}>
         <Grid item xs={2}>
         </Grid>
@@ -136,32 +144,7 @@ export default function TradeDetail(){
                 <Typography className={classes.info} component='p'><span className={classes.infoTitle}>with{' '}</span>{groupedDetails.trades_count} <span className={classes.infoTitle}>{groupedDetails.trades_count == 1 ? 'trade' : 'trades'}</span></Typography>
               </Grid>
               <Grid item xs={9}>
-                <TableContainer className={classes.tableContainer} component={Paper}>
-                  <Table className={classes.table} size="small" aria-label="table">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell size={"small"} className={classes.cellheaderTitle}> PM Volume </TableCell>
-                        <TableCell size={"small"} className={classes.cellheaderTitle} colSpan={2}>Market Capitalization </TableCell>
-                        <TableCell size={"small"} className={classes.cellheaderTitle} colSpan={2}>Float Shares</TableCell>
-                        <TableCell size={"small"} className={classes.cellheaderTitle} colSpan={2}>Held by Insiders </TableCell>
-                        <TableCell size={"small"} className={classes.cellheaderTitle} colSpan={2}>Held by Institutions </TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      <TableRow>
-                        {/* }<TableCell className={classes.cell}> {gapper.pm_s2_volume} </TableCell>
-                        <TableCell className={classes.cell}> {gapper.pm_s1_market_cap} </TableCell>
-                        <TableCell className={classes.cell}> {gapper.pm_s2_market_cap} </TableCell>
-                        <TableCell className={classes.cell}> {gapper.pm_s1_float} </TableCell>
-                        <TableCell className={classes.cell}> {gapper.pm_s2_float} </TableCell>
-                        <TableCell className={classes.cell}> {gapper.pm_s1_held_percent_insiders} </TableCell>
-                        <TableCell className={classes.cell}> {gapper.pm_s2_held_percent_insiders} </TableCell>
-                        <TableCell className={classes.cell}> {gapper.pm_s1_held_percent_institutions} </TableCell>
-                        <TableCell className={classes.cell}> {gapper.pm_s2_held_percent_institutions} </TableCell> */}
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                {gapper ? <TopTableGapperDetail gapper={gapper}/> : null }
               </Grid>
             </Grid>
       </Grid>
@@ -173,7 +156,8 @@ export default function TradeDetail(){
         </Grid>
         <Grid item xs={10}>
           <TradeChartWrapper uuid={detailGroupedTrades[0].uuid} filledOrders={filledOrders} data={chartData}/>
-          {/*<TextField
+          <TradesDetailsTables groupedTradesDetails={groupedDetails} trades={groupedDetails.trades} orders={orders} />
+            {/*<TextField
             className={classes.tradeComents}
             id="outlined-multiline-static"
             label="Trade Comments"

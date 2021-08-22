@@ -127,8 +127,8 @@ def grouped_trades_by_day_by_ticker(request):
     return Response("Method not allowed", status=status.HTTP_400_BAD_REQUEST)
 
 
-def trade_detail_by_day_by_ticker(request):
-    uuids = request.query_params.getlist('trade[]')
+# def trade_detail_by_day_by_ticker(request):
+#     uuids = request.query_params.getlist('trade[]')
 
 #from operator import itemgetter
 #from itertools import groupby

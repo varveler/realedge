@@ -3,7 +3,13 @@ from trades.models import TradesGroupedByDayByTicker
 from trades.models import Trade
 from trades.serializers import DisplayTradeSerializer
 trades = Trade.objects.all().order_by('-creation')
+for trade in trades:
+    print(trade.uuid)
+trades.prefetch_related('order_set').all()
+orders = [trade.order_set.all() for trade in trades]
+orders
 
+Order.objects.filter(trade__pk__in=[50,49])
 from operator import itemgetter
 from itertools import groupby
 
