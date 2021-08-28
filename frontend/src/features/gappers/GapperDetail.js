@@ -140,7 +140,7 @@ export default function GapperDetail(){
             </Grid>
             <Grid item xs={8}>
                 {selectedGapper ? <GapperChartWrapper slug={id} data={chartData} /> : <p>no gapper slected</p> }
-                {news && news.length >= 1 ? <NewsTable news={news} /> : null }
+                {/* news && news.length >= 1 ? <NewsTable news={news} /> : null /*/}
             </Grid>
             <Grid item xs={2}>
             </Grid>
