@@ -2,6 +2,7 @@ from django.db import models
 from gappers.models import UpGapper, DownGapper
 
 import uuid
+import datetime
 
 # Create your models here.
 class News(models.Model):
@@ -36,6 +37,10 @@ class News(models.Model):
     # relationships
     up_gapper = models.ManyToManyField(UpGapper, null=True, blank=True)
     down_gapper = models.ManyToManyField(DownGapper, null=True, blank=True)
+
+    @property
+    def str_date(self):
+        return datetime.datetime.strftime(self.creation, '%Y%m%d')
 
     def __str__(self):
         return '{internal_source} {publish_date} {title} {url}'.format(

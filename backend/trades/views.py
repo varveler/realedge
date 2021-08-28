@@ -7,8 +7,7 @@ from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes, authentication_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, authentication_classes
 from rest_framework.authentication import TokenAuthentication
 
 from .models import Order, Trade, OrdersFile
@@ -18,7 +17,6 @@ from .tasks import process_orders_from_file_TradeZero
 from .mutils import group_trades_by_ticker
 
 import datetime
-import json
 
 class OrdersViewSet(viewsets.ModelViewSet):
     """

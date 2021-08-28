@@ -1,3 +1,16 @@
+
+from news.models import News
+
+News.objects.filter(tickers__contains='SPRT').count()
+#
+
+
+
+
+
+
+
+"""
 from common.utils import ghost_driver, wait_random_seconds
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait

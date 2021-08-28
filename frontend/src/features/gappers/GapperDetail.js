@@ -15,6 +15,10 @@ import { useRouter } from 'next/router'
 import { selectUserIsLogedIn} from '../access/accessSlicer'
 import GapperChartWrapper from '../charts/GapperChartWrapper'
 import {fetchBarsGapper, setFetchChartStatus} from '../charts/chartsSlicer'
+import NewsTable from '../news/NewsTable'
+import {fetchNews} from '../news/newsSlicer'
+
+
 
 //const useStyles = makeStyles((theme) => ({})
 
@@ -67,6 +71,7 @@ export default function GapperDetail(){
   const gapperSelectedStatus = useSelector(state => state.gappers.gapperSelectedStatus)
   const chartData = useSelector(state => state.charts.data)
   const fetchChartStatus = useSelector(state => state.charts.status)
+  const {news, newsStatus} = useSelector(state => state.news)
 
   useEffect(() => {
     if(selectedGapper == undefined) {
@@ -79,6 +84,7 @@ export default function GapperDetail(){
   },[])
   if(selectedGapper && fetchChartStatus == 'idle' ){
     dispatch(fetchBarsGapper({slug: id}))
+    //if(newsStatus == 'idle') dispatch(fetchNews(slug.split('-')[0]))
   }
   if(selectedGapper === undefined) return <p> Loading.... </p>
   return(
@@ -134,6 +140,7 @@ export default function GapperDetail(){
             </Grid>
             <Grid item xs={8}>
                 {selectedGapper ? <GapperChartWrapper slug={id} data={chartData} /> : <p>no gapper slected</p> }
+                {news && news.length >= 1 ? <NewsTable news={news} /> : null }
             </Grid>
             <Grid item xs={2}>
             </Grid>

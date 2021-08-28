@@ -5,6 +5,7 @@ import navBarReducers from './features/navbar/navBarSlicer'
 import tradesReducers from './features/trades/tradesSlicer'
 import accessReducers from './features/access/accessSlicer'
 import chartsReducers from './features/charts/chartsSlicer'
+import newsReducers from './features/news/newsSlicer'
 
 export default configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export default configureStore({
     navbar: navBarReducers,
     trades: tradesReducers,
     access: accessReducers,
-    charts: chartsReducers
+    charts: chartsReducers,
+    news: newsReducers,
   },
 })
