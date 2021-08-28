@@ -28,7 +28,7 @@ class Trade(models.Model):
     PARTIALLY_CLOSED = 'PC'
 
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
-    slug = models.CharField(max_length=200, null=True) #AAPL-open-live-trade-by-varvevler-dasdsassad-sad-asd-asdasdsda-adsads
+    slug = models.CharField(max_length=200, null=True) #CEMI-trades-by-varveler-on-jul-22-2021-b1ab8977
     closed_slug = models.CharField(max_length=200, null=True) #realedge.io/AAPL-1500-profit-by-varveler-on-may-05-2021-63b40372
 
     creation = models.DateTimeField(auto_now_add=True)
@@ -104,16 +104,15 @@ class Trade(models.Model):
             self.save()
 
 
-    def set_self_slug(self):
+    def set_self_slug(self, small_uuid):
+        #CEMI-trades-by-varveler-on-jul-22-2021-b1ab8977
         if not self.slug:
-            small_uuid = '-'.join(str(self.uuid).split('-')[0:2])
-            self.slug = '{ticker}-open-live-trade-by-{username}-{uuid}'.format(
+            self.slug = '{ticker}-trades-by-{username}-on-{date}-{uuid}'.format(
                                                         ticker = self.ticker,
                                                         username = self.user.user_name,
-                                                        uuid = small_uuid)
+                                                        uuid = small_uuid,
+                                                        date = datetime.datetime.strftime(self.start_time, '%b-%d-%Y').lower())
             self.save()
-
-
 
 
 class Order(models.Model):
@@ -210,7 +209,13 @@ class Order(models.Model):
                         entries = 1,
                         pnl_accumulator = self.price * self.shares_executed,
                         max_size = self.shares_executed)
-                    new_trade.set_self_slug()
+                    same_day_trades = Trade.objects.filter(start_time__day=self.start_time.day, start_time__month=self.start_time.month, start_time__year=self.start_time.year).order_by('start_time')
+                    if same_day_trades:
+                        first_trade_of_day = same_day_trades[0]
+                        short_uuid = str(first_trade_of_day.uuid).split('-')[0]
+                        new_trade.set_self_slug(short_uuid)
+                    else:
+                        new_trade.set_self_slug(str(new_trade.uuid).split('-')[0])
                     self.trade = new_trade
                     self.starter_order = True
                     self.in_out = self.InOut.IN

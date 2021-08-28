@@ -22,8 +22,7 @@ import { fetchBarsTrade, setFetchChartStatus } from '../charts/chartsSlicer';
 import {fetchGapper} from '../gappers/gappersSlicer';
 import TopTableGapperDetail from '../gappers/TopTableGapperDetail';
 import TradesDetailsTables from './TradesDetailsTables'
-import NewsTable from '../news/NewsTable'
-import {fetchNews} from '../news/newsSlicer'
+
 
 const useStyles = makeStyles((theme) => ({
   containerDetail:{
@@ -87,7 +86,6 @@ export default function TradeDetail(){
   const fetchChartStatus = useSelector(state => state.charts.status)
   const {fetchTradeDetailsStatus, fetchOrdersStatus, orders} = useSelector(state => state.trades)
   const gapper = useSelector(state => state.gappers.selected)
-  const {news, newsStatus} = useSelector(state => state.news)
 
   useEffect(() => {
     //if(slug != undefined) dispatch(fetchTradeDetails(slug))
@@ -103,10 +101,7 @@ export default function TradeDetail(){
   useEffect(() => {
     if(slug != undefined){
       dispatch(fetchTradeDetails(slug))
-      if(newsStatus == 'idle') dispatch(fetchNews(slug.split('-')[0]))
     }
-
-
   },[slug])
 
   useEffect(() => {
@@ -160,7 +155,6 @@ export default function TradeDetail(){
         <Grid item xs={10}>
           <TradeChartWrapper uuid={tradeSelected.uuid} filledOrders={filledOrders} data={chartData}/>
           <TradesDetailsTables trades={[tradeSelected]} orders={orders} />
-          <NewsTable news={news} />
           <TextField
             className={classes.tradeComents}
             id="outlined-multiline-static"

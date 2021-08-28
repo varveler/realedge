@@ -1,6 +1,14 @@
 
+
+from trades.models import Trade, Order
+
+ o = Order.objects.filter(ticker='MVIS')[3]
+o
+
+Trade.objects.filter(start_time__day=o.start_time.day, start_time__month=o.start_time.month, start_time__year=o.start_time.year)
+
+
 from trades.models import TradesGroupedByDayByTicker
-from trades.models import Trade
 from trades.serializers import DisplayTradeSerializer
 trades = Trade.objects.all().order_by('-creation')
 for trade in trades:

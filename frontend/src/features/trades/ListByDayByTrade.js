@@ -94,7 +94,7 @@ export default function ByDayByTrade () {
     content = dates.map((date, i) => {
       var slDate = date.replace(/-/g, '');
       var renderedTrades = ordererByDayTrades[date].map(trade => {
-        var path = trade.closed ? `/trades/${trade.closed_slug}`: `/trades/${trade.slug}`
+        var path = trade.closed ? `/${trade.slug}`: `/${trade.slug}`
         return(
         <TableRow key={trade.uuid}>
           <TableCell onClick={ (e) => handleRoute(e, path, trade.uuid)} className={classes.cellLink}>

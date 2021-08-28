@@ -9,7 +9,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Typography from '@material-ui/core/Typography';
-
+import {fetchNews} from './newsSlicer'
 
 const useStyles = makeStyles((theme) => ({
   groupedTradesDetailContainer:{
@@ -39,16 +39,21 @@ const useStyles = makeStyles((theme) => ({
   },
   cellTrade: {
     fontSize: '16px',
-    textAlign:'center'
+    textAlign:'center',
+    whiteSpace: 'nowrap'
   },
   tradesDetailsTitle:{
     fontSize: '20px'
   },
 }));
 
-export default function TradesDetails({news}){
+export default function TradesDetails({ticker}){
   const classes = useStyles()
-
+  const dispatch = useDispatch();
+  const {news, newsStatus} = useSelector(state => state.news)
+  useEffect(() => {
+    dispatch(fetchNews(ticker))
+  },[])
   return(
     <Fragment>
       <div className={classes.mainTradesContainer}>
@@ -66,10 +71,10 @@ export default function TradesDetails({news}){
               <TableBody>
                 {news && news.length >= 1 && news.map(n => (
               <TableRow key={n.uuid}>
-                <TableCell className={classes.cellTrade}> {n.publish_date} </TableCell>
-                <TableCell className={classes.cellTrade}> {n.title} </TableCell>
-                <TableCell className={classes.cellTrade}> {n.source} </TableCell>
-                <TableCell className={classes.cellTrade}> {n.internal_source} </TableCell>
+                <TableCell size={"small"} className={classes.cellTrade}> {n.publish_date} </TableCell>
+                <TableCell size={"small"} className={classes.cellTrade}> {n.title} </TableCell>
+                <TableCell size={"small"} className={classes.cellTrade}> {n.source} </TableCell>
+                <TableCell size={"small"} className={classes.cellTrade}> {n.internal_source} </TableCell>
               </TableRow>
               ))}
             </TableBody>
