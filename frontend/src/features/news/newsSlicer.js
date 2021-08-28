@@ -26,7 +26,7 @@ const newsSlicer = createSlice({
     },
     [fetchNews.fulfilled]: (state, action) => {
       state.newsStatus = 'succeeded'
-      state.gappers = state.news.concat(action.payload)
+      state.news = state.news.concat(action.payload)
     },
     [fetchNews.rejected]: (state, action) => {
       state.newsStatus = 'failed'
