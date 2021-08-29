@@ -2,10 +2,10 @@
 
 from trades.models import Trade, Order
 
- o = Order.objects.filter(ticker='MVIS')[3]
+ o = Order.objects.filter(ticker='CEMI')[3]
 o
 
-Trade.objects.filter(start_time__day=o.start_time.day, start_time__month=o.start_time.month, start_time__year=o.start_time.year)
+t = Trade.objects.filter(start_time__day=o.start_time.day, start_time__month=o.start_time.month, start_time__year=o.start_time.year).order_by('start_time')
 
 
 from trades.models import TradesGroupedByDayByTicker

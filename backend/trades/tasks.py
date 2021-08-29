@@ -20,6 +20,7 @@ def process_orders_from_file_TradeZero(pk, user_pk):
     df = df.sort_values(by='sort_date')
     df.fillna('', inplace=True)
     for index, row in df.iterrows():
+        print(row['AvgPrice'], row['Executed'] )
         serializer = TZOrderSerializer( data = {
             'ticker': row['Symbol/Contract'],
             'action' : row['Action'],
@@ -41,7 +42,8 @@ def process_orders_from_file_TradeZero(pk, user_pk):
             'limit_price' : row['LMT Price'],
             'broker' : 'TradeZero',
             'broker_ord_id': row['UserOrderID'],
-            'user' : user.pk }
+            'user' : user.pk
+            }
         )
         if serializer.is_valid():
             serializer.save()

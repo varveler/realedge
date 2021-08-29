@@ -48,6 +48,7 @@ class ReUserSerializer(serializers.ModelSerializer):
         model = ReUser
         fields = ('username', )
 
+
 class TZOrderSerializer(serializers.ModelSerializer):
     start_time = serializers.DateTimeField(format='%H:%M:%S %Y/%m/%d')
     last_time = serializers.DateTimeField(format='%H:%M:%S %Y/%m/%d')
@@ -61,9 +62,7 @@ class TZOrderSerializer(serializers.ModelSerializer):
     broker_info = serializers.CharField(required=False, allow_blank=True)
     #user = serializers.HiddenField( default=serializers.CurrentUserDefault())
     user = serializers.PrimaryKeyRelatedField(queryset=ReUser.objects.all())
-    price_no_zeros = serializers.SerializerMethodField()
-    stop_price_no_zeros = serializers.SerializerMethodField()
-    limit_price_no_zeros = serializers.SerializerMethodField()
+
     class Meta:
         model = Order
         fields = [
@@ -88,21 +87,88 @@ class TZOrderSerializer(serializers.ModelSerializer):
             'broker_ord_id',
             'broker_info',
             'user',
-            'price_no_zeros',
-            'stop_price_no_zeros',
-            'limit_price_no_zeros',
         ]
-    def get_price_no_zeros(self, obj):
+
+    # def is_valid(self, raise_exception=False):
+    #     if hasattr(self, 'initial_data'):
+    #         # If we are instantiating with data={something}
+    #         try:
+    #             # Try to get the object in question
+    #             obj = Order.objects.get(user=self.initial_data['user'], start_time=self.initial_data['start_time'], broker_ord_id=self.initial_data['broker_ord_id'])
+    #         except (ObjectDoesNotExist, MultipleObjectsReturned):
+    #             # Except not finding the object or the data being ambiguous
+    #             # for defining it. Then validate the data as usual
+    #             return super().is_valid(raise_exception)
+    #         else:
+    #             # If the object is found add it to the serializer. Then
+    #             # validate the data as usual
+    #             self.instance = obj
+    #             return super().is_valid(raise_exception)
+    #     else:
+    #         # If the Serializer was instantiated with just an object, and no
+    #         # data={something} proceed as usual
+    #         return super().is_valid(raise_exception)
+
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    start_time = serializers.DateTimeField(format='%H:%M:%S %Y/%m/%d')
+    last_time = serializers.DateTimeField(format='%H:%M:%S %Y/%m/%d')
+    action = TZChoiceField(Order.ACTION_CHOICES)
+    status = TZChoiceField(Order.STATUS_CHOICES)
+    type = TZChoiceField(Order.TYPE_CHOICES)
+    price = BlankableDecimalField(max_digits=16, decimal_places=10)
+    stop_price = BlankableDecimalField(max_digits=16, decimal_places=10)
+    limit_price = BlankableDecimalField(max_digits=16, decimal_places=10)
+    broker = serializers.CharField(required=False, allow_blank=True)
+    broker_info = serializers.CharField(required=False, allow_blank=True)
+    #user = serializers.HiddenField( default=serializers.CurrentUserDefault())
+    user = serializers.PrimaryKeyRelatedField(queryset=ReUser.objects.all())
+    no_zeros_price = serializers.SerializerMethodField()
+    no_zeros_stop_price = serializers.SerializerMethodField()
+    no_zeros_limit_price = serializers.SerializerMethodField()
+    class Meta:
+        model = Order
+        read_only_fields = ('no_zeros_price',
+                            'no_zeros_stop_price',
+                            'no_zeros_limit_price',)
+        fields = [
+            'start_time',
+            'last_time',
+            'ticker',
+            'action',
+            'action_raw',
+            'shares',
+            'shares_executed',
+            'status',
+            'status_raw',
+            'type',
+            'route',
+            'type_raw',
+            'price',
+            'stop_price',
+            'limit_price',
+            'expiration',
+            'broker',
+            'account',
+            'broker_ord_id',
+            'broker_info',
+            'user',
+            'no_zeros_price',
+            'no_zeros_stop_price',
+            'no_zeros_limit_price',
+        ]
+    def get_no_zeros_price(self, obj):
         if obj.price == None:
             return obj.price
         return remove_zeros(obj.price)
 
-    def get_stop_price_no_zeros(self, obj):
+    def get_no_zeros_stop_price(self, obj):
         if obj.stop_price == None:
             return obj.stop_price
         return remove_zeros(obj.stop_price)
 
-    def get_limit_price_no_zeros(self, obj):
+    def get_no_zeros_limit_price(self, obj):
         if obj.limit_price == None:
             return obj.limit_price
         return remove_zeros(obj.limit_price)
