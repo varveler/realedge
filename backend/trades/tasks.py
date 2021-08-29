@@ -47,4 +47,6 @@ def process_orders_from_file_TradeZero(pk, user_pk):
         )
         if serializer.is_valid():
             serializer.save()
+        else:
+            print(serializer.errors)
     order_file.delete()

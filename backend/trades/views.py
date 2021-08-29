@@ -11,7 +11,7 @@ from rest_framework.decorators import api_view, authentication_classes
 from rest_framework.authentication import TokenAuthentication
 
 from .models import Order, Trade, OrdersFile
-from .serializers import TZOrderSerializer, DisplayTradeSerializer
+from .serializers import TZOrderSerializer, DisplayTradeSerializer, OrderSerializer
 from .forms import OrdersFileForm
 from .tasks import process_orders_from_file_TradeZero
 from .mutils import group_trades_by_ticker
@@ -34,15 +34,13 @@ def orders_list(request):
         uuids = request.query_params.getlist('trade[]')
         orders = Order.objects.filter(trade__uuid__in=uuids)
         many = True if orders.count() > 1 else False
-        serializer = TZOrderSerializer(orders, many=many)
+        serializer = OrderSerializer(orders, many=many)
         return Response(serializer.data)
     elif request.method == 'POST':
-        serializer = TZOrderSerializer(data=request.data, context={'request': request})
+        serializer = OrderSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        print(serializer.errors)
-        print(3)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

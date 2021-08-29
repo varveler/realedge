@@ -38,8 +38,6 @@ class BlankableDecimalField(serializers.DecimalField):
     def to_internal_value(self, data):
         if data == '':
             return None
-        else:
-            return
 
         return super(BlankableDecimalField, self).to_internal_value(data)
 
@@ -89,25 +87,25 @@ class TZOrderSerializer(serializers.ModelSerializer):
             'user',
         ]
 
-    # def is_valid(self, raise_exception=False):
-    #     if hasattr(self, 'initial_data'):
-    #         # If we are instantiating with data={something}
-    #         try:
-    #             # Try to get the object in question
-    #             obj = Order.objects.get(user=self.initial_data['user'], start_time=self.initial_data['start_time'], broker_ord_id=self.initial_data['broker_ord_id'])
-    #         except (ObjectDoesNotExist, MultipleObjectsReturned):
-    #             # Except not finding the object or the data being ambiguous
-    #             # for defining it. Then validate the data as usual
-    #             return super().is_valid(raise_exception)
-    #         else:
-    #             # If the object is found add it to the serializer. Then
-    #             # validate the data as usual
-    #             self.instance = obj
-    #             return super().is_valid(raise_exception)
-    #     else:
-    #         # If the Serializer was instantiated with just an object, and no
-    #         # data={something} proceed as usual
-    #         return super().is_valid(raise_exception)
+    def is_valid(self, raise_exception=False):
+        if hasattr(self, 'initial_data'):
+            # If we are instantiating with data={something}
+            try:
+                # Try to get the object in question
+                obj = Order.objects.get(user=self.initial_data['user'], start_time=self.initial_data['start_time'], broker_ord_id=self.initial_data['broker_ord_id'])
+            except (ObjectDoesNotExist, MultipleObjectsReturned):
+                # Except not finding the object or the data being ambiguous
+                # for defining it. Then validate the data as usual
+                return super().is_valid(raise_exception)
+            else:
+                # If the object is found add it to the serializer. Then
+                # validate the data as usual
+                self.instance = obj
+                return super().is_valid(raise_exception)
+        else:
+            # If the Serializer was instantiated with just an object, and no
+            # data={something} proceed as usual
+            return super().is_valid(raise_exception)
 
 
 
@@ -122,16 +120,12 @@ class OrderSerializer(serializers.ModelSerializer):
     limit_price = BlankableDecimalField(max_digits=16, decimal_places=10)
     broker = serializers.CharField(required=False, allow_blank=True)
     broker_info = serializers.CharField(required=False, allow_blank=True)
-    #user = serializers.HiddenField( default=serializers.CurrentUserDefault())
     user = serializers.PrimaryKeyRelatedField(queryset=ReUser.objects.all())
     no_zeros_price = serializers.SerializerMethodField()
     no_zeros_stop_price = serializers.SerializerMethodField()
     no_zeros_limit_price = serializers.SerializerMethodField()
     class Meta:
         model = Order
-        read_only_fields = ('no_zeros_price',
-                            'no_zeros_stop_price',
-                            'no_zeros_limit_price',)
         fields = [
             'start_time',
             'last_time',
