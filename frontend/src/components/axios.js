@@ -27,9 +27,8 @@ if(!ISSERVER){
 
 			if (typeof error.response === 'undefined') {
 				alert(
-					'A server/network error occurred. ' +
-						'Looks like CORS might be the problem. ' +
-						'Sorry about this - we will get it fixed shortly.'
+					'Sorry! An error occurred. ' +
+						'We will get it fixed ASAP.'
 				);
 				return Promise.reject(error);
 			}

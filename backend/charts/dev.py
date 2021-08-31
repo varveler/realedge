@@ -44,7 +44,7 @@ import time
 
 
 uuid= 'f0766c31-e97d-4c43-abb9-c358b5bc8e39'
-slug = 'GSAT-20210830'
+slug = 'BBIG-20210830'
 ticker = slug.split('-')[0]
 date = slug.split('-')[1]
 gappers = UpGapper.objects.filter(ticker=ticker, date__year=date[0:4], date__month=date[4:6], date__day=date[6:8])
@@ -53,6 +53,7 @@ gapper = gappers[0]
 #trade = Trade.objects.get(uuid=uuid)
 start, end = give_gapper_chart_start_and_end_dates(gapper)
 data = get_all_data('1Min', gapper.ticker, start, end)
+data
 news = News.objects.filter(tickers__contains=ticker, publish_date__lte=end, publish_date__gte=start)
 news
 fix_data(data)

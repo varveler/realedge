@@ -58,6 +58,11 @@ const useStyles = makeStyles((theme) => ({
   },
   gapperContainer:{
   paddingTop: '30px'
+  },
+  infoNoNews:{
+    color: 'gray',
+    fontSize: '1rem',
+    marginTop: '30px'
   }
 }))
 
@@ -126,7 +131,7 @@ export default function GapperDetail(){
             </Grid>
             <Grid item xs={8}>
                 {selectedGapper ? <GapperChartWrapper slug={id} data={chartData} /> : <p>no gapper slected</p> }
-                {news && news.length >= 1 ? <NewsTable news={news} /> : <Typography className={classes.infoTitle} align={'center'} component='p'>No news found</Typography> }
+                {news && news.length >= 1 ? <NewsTable news={news} /> : <Typography className={classes.infoNoNews} align={'center'} component='p'>No news found</Typography> }
             </Grid>
             <Grid item xs={2}>
             </Grid>
