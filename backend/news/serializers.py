@@ -5,6 +5,7 @@ from .models import News
 
 
 class NewsSerializer(serializers.ModelSerializer):
+    natural_time = serializers.SerializerMethodField()
     class Meta:
         model = News
         fields = [ 'uuid',
@@ -19,4 +20,7 @@ class NewsSerializer(serializers.ModelSerializer):
                    'summary',
                    'tickers',
                    'url',
-                   'str_date']
+                   'str_date',
+                   'natural_time']
+    def get_natural_time(self, obj):
+        return naturaltime(obj.publish_date)

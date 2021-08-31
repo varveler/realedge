@@ -6,6 +6,8 @@ const initialState = {
   data: [], //{oneMin:[], fiveMin:[], day:[]},
   status: 'idle',
   error: null,
+  _from:null,
+  to:null
 }
 
 
@@ -41,6 +43,14 @@ const chartsSlice = createSlice({
     setFetchChartStatus(state, action){
       state.status = action.payload
       state.data = []
+    },
+    setFromTo(state, action){
+      state._from = action.payload._from
+      state.to = action.payload.to
+    },
+    cleanFromTo(state, action){
+      state._from = ''
+      state.to = ''
     }
   },
   extraReducers: {
@@ -69,6 +79,6 @@ const chartsSlice = createSlice({
 
 export default chartsSlice.reducer
 
-export const { setFetchChartStatus } = chartsSlice.actions;
+export const { setFetchChartStatus, setFromTo, cleanFromTo } = chartsSlice.actions;
 
 //export const selectAllTrades = state => state.trades.trades

@@ -30,27 +30,62 @@ fix_data(data)
 
 
 
-from charts.mutils import get_all_data, give_trade_chart_start_and_end_dates, give_gapper_chart_start_and_end_dates, fix_data, combine_data_filled_orders, give_gapper_chart_start_and_end_dates
+from charts.mutils import combine_data_with_news, get_all_data, give_trade_chart_start_and_end_dates, give_gapper_chart_start_and_end_dates, fix_data, combine_data_filled_orders, give_gapper_chart_start_and_end_dates
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes
 from rest_framework.authentication import TokenAuthentication
 from trades.models import Trade
 import pandas as pd
 import numpy as np
-
+import datetime
+import time
 
 
 
 
 uuid= 'f0766c31-e97d-4c43-abb9-c358b5bc8e39'
-slug = 'ERYP-20210731'
+slug = 'GSAT-20210830'
 ticker = slug.split('-')[0]
 date = slug.split('-')[1]
-gapper = UpGapper.objects.filter(ticker=ticker, date__year=date[0:4], date__month=date[4:6], date__day=date[6:8])
-gapper = gapper[0]
-trade = Trade.objects.get(uuid=uuid)
+gappers = UpGapper.objects.filter(ticker=ticker, date__year=date[0:4], date__month=date[4:6], date__day=date[6:8])
+gappers
+gapper = gappers[0]
+#trade = Trade.objects.get(uuid=uuid)
 start, end = give_gapper_chart_start_and_end_dates(gapper)
 data = get_all_data('1Min', gapper.ticker, start, end)
+news = News.objects.filter(tickers__contains=ticker, publish_date__lte=end, publish_date__gte=start)
+news
+fix_data(data)
+
+def combine_data_with_news2(data, news):
+    format = '%Y-%m-%dT%H:%M:00Z'
+    dates = [datetime.datetime.strftime(n.publish_date, format) for n in news]
+    news_dict = {datetime.datetime.strftime(n.publish_date, format): n.title for n in news}
+    for candle in data:
+        if candle['date'] in dates:
+            candle['news'] = news_dict[candle['date']]
+
+
+
+def method1(data,news):
+    start_time = time.time()
+    combine_data_with_news(data, news)
+    print("--- %s seconds ---" % (time.time() - start_time))
+
+
+def method2(data, news):
+    start_time = time.time()
+    combine_data_with_news2(data, news)
+    print("--- %s seconds ---" % (time.time() - start_time))
+
+%time method1(data,news)
+
+%time method2(data,news)
+
+data
+
+
+
 df = pd.DataFrame(data)
 df['dt'] = pd.to_datetime(df['t']).copy()
 df['EST'] = df['dt'].dt.tz_convert('US/Eastern').copy()

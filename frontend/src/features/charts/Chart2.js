@@ -25,7 +25,7 @@ import {
 } from "react-stockcharts/lib/coordinates";
 
 import { XAxis, YAxis } from "react-stockcharts/lib/axes";
-
+import { LabelAnnotation, Label, Annotate } from "react-stockcharts/lib/annotation";
 import { discontinuousTimeScaleProvider } from "react-stockcharts/lib/scale";
 import { fitWidth } from "react-stockcharts/lib/helper";
 import { last } from "react-stockcharts/lib/utils";
@@ -60,6 +60,18 @@ class CandleStickStockScaleChartWithVolumeBarV3 extends React.Component {
 		const end = xAccessor(data[Math.max(0, data.length - 700)]);
 		//const end = xAccessor(data.filter(el => el.entryShort != null || el.entryLong != null)[0])
 		const xExtents = [start, end];
+		const annotationProps = {
+			fontFamily: "Roboto",
+			fontSize: 15,
+			fontWeight: 600,
+			fill: "#060F8F",
+			opacity: 0.8,
+			text: "N",
+			y: ({ yScale }) => yScale.range()[0],
+			onClick: console.log.bind(console),
+			tooltip: d => d.news,
+			onMouseOver: console.log.bind(console)
+		};
 
 
 
@@ -137,6 +149,9 @@ class CandleStickStockScaleChartWithVolumeBarV3 extends React.Component {
 					<CurrentCoordinate yAccessor={d => d.volume} fill="#9B0A47" />
 					<EdgeIndicator itemType="last" orient="right" edgeAt="right"
 						yAccessor={d => d.volume} displayFormat={format(".4s")} fill="#0F0F0F"/>
+					<Annotate with={LabelAnnotation}
+						when={d => d.news != 0 /* some condition */}
+						usingProps={annotationProps} />
 				</Chart>
 				<CrossHairCursor />
 				<Chart id={2} origin={(w, h) => [0, h - 150]} height={150} yExtents={d => d.volume}>

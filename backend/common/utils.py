@@ -304,3 +304,16 @@ class DecimalEncoder(json.JSONEncoder):
         if isinstance(o, decimal.Decimal):
             return str(o)
         return super(DecimalEncoder, self).default(o)
+
+
+def get_start_end_dates(_from: str, to: str):
+    """
+        recieves a date in the format 20210820 and returns datetime object start of day
+        and end of day (EOD) respectevly
+    """
+    format = '%Y%m%dT%H:%M:%S%z'
+    start_time = datetime.datetime.strptime(_from + 'T0:0:00-0400', format)
+    end_time = datetime.datetime.strptime(to + 'T11:59:59-0400', format)
+    start = start_time.astimezone(US_EASTERN_TZ)
+    end = end_time.astimezone(US_EASTERN_TZ)
+    return start, end

@@ -14,11 +14,12 @@ import Typography from '@material-ui/core/Typography';
 import { useRouter } from 'next/router'
 import { selectUserIsLogedIn} from '../access/accessSlicer'
 import GapperChartWrapper from '../charts/GapperChartWrapper'
-import {fetchBarsGapper, setFetchChartStatus} from '../charts/chartsSlicer'
+import {fetchBarsGapper, setFetchChartStatus, setFromTo} from '../charts/chartsSlicer'
 import NewsTable from '../news/NewsTable'
 import {fetchNews} from '../news/newsSlicer'
-
-
+import { timeFormat } from "d3-time-format";
+import {fromToDates} from '../../components/helpers'
+import TopTableGapperDetail from './TopTableGapperDetail'
 
 //const useStyles = makeStyles((theme) => ({})
 
@@ -60,6 +61,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
+
 export default function GapperDetail(){
 
   const router = useRouter();
@@ -72,20 +74,29 @@ export default function GapperDetail(){
   const chartData = useSelector(state => state.charts.data)
   const fetchChartStatus = useSelector(state => state.charts.status)
   const {news, newsStatus} = useSelector(state => state.news)
-
+  const {_from, to} = useSelector(state => state.charts)
+  console.log(id, _from, to)
   useEffect(() => {
-    if(selectedGapper == undefined) {
-      console.log('selectedGapper not defined ', router)
-      dispatch(fetchGapper(id))
-    }
     return function cleanup() {
       dispatch(setFetchChartStatus('idle'))
     };
   },[])
-  if(selectedGapper && fetchChartStatus == 'idle' ){
-    dispatch(fetchBarsGapper({slug: id}))
-    //if(newsStatus == 'idle') dispatch(fetchNews(slug.split('-')[0]))
-  }
+  useEffect(() => {
+    if(id != undefined) {
+      dispatch(fetchGapper(id))
+      var {from, to} = fromToDates(id.split('-')[1])
+      console.log('id.split', id.split('-')[1])
+      console.log(from,to)
+      dispatch(setFromTo({_from: from, to: to}))
+      if(fetchChartStatus == 'idle') dispatch(fetchBarsGapper({slug: id}))
+    }
+  },[id])
+
+  useEffect(() => {
+    if(id != undefined && _from != undefined && to != undefined) {
+    dispatch(fetchNews({ticker: id.split('-')[0], from:_from, to:to}))
+    }
+  },[id, _from, to])
   if(selectedGapper === undefined) return <p> Loading.... </p>
   return(
 <div>
@@ -103,32 +114,7 @@ export default function GapperDetail(){
                       <Typography className={ classes.percentage} component='p'> {selectedGapper.gap_percentage_display}<span className={classes.infoTitle}>{' '}gap</span></Typography>
                     </Grid>
                     <Grid item xs={9}>
-                      <TableContainer key={id} className={classes.tableContainer} component={Paper}>
-                        <Table className={classes.table} size="small" aria-label="table">
-                          <TableHead>
-                            <TableRow>
-                              <TableCell size={"small"} className={classes.cellheaderTitle}> PM Volume </TableCell>
-                              <TableCell size={"small"} className={classes.cellheaderTitle} colSpan={2}>Market Capitalization </TableCell>
-                              <TableCell size={"small"} className={classes.cellheaderTitle} colSpan={2}>Float Shares</TableCell>
-                              <TableCell size={"small"} className={classes.cellheaderTitle} colSpan={2}>Held by Insiders </TableCell>
-                              <TableCell size={"small"} className={classes.cellheaderTitle} colSpan={2}>Held by Institutions </TableCell>
-                            </TableRow>
-                          </TableHead>
-                          <TableBody>
-                            <TableRow>
-                              <TableCell className={classes.cell}> {selectedGapper.pm_s2_volume} </TableCell>
-                              <TableCell className={classes.cell}> {selectedGapper.pm_s1_market_cap} </TableCell>
-                              <TableCell className={classes.cell}> {selectedGapper.pm_s2_market_cap} </TableCell>
-                              <TableCell className={classes.cell}> {selectedGapper.pm_s1_float} </TableCell>
-                              <TableCell className={classes.cell}> {selectedGapper.pm_s2_float} </TableCell>
-                              <TableCell className={classes.cell}> {selectedGapper.pm_s1_held_percent_insiders} </TableCell>
-                              <TableCell className={classes.cell}> {selectedGapper.pm_s2_held_percent_insiders} </TableCell>
-                              <TableCell className={classes.cell}> {selectedGapper.pm_s1_held_percent_institutions} </TableCell>
-                              <TableCell className={classes.cell}> {selectedGapper.pm_s2_held_percent_institutions} </TableCell>
-                            </TableRow>
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
+                      <TopTableGapperDetail gapper={selectedGapper} />
                     </Grid>
                   </Grid>
             </Grid>
@@ -140,7 +126,7 @@ export default function GapperDetail(){
             </Grid>
             <Grid item xs={8}>
                 {selectedGapper ? <GapperChartWrapper slug={id} data={chartData} /> : <p>no gapper slected</p> }
-                {/* news && news.length >= 1 ? <NewsTable news={news} /> : null /*/}
+                {news && news.length >= 1 ? <NewsTable news={news} /> : <Typography className={classes.infoTitle} align={'center'} component='p'>No news found</Typography> }
             </Grid>
             <Grid item xs={2}>
             </Grid>

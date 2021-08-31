@@ -62,6 +62,10 @@ def give_gapper_chart_start_and_end_dates(gapper):
     return end_of_prev_day_utc, end_of_day_utc
 
 def fix_data(data):
+    """
+        Converts keys from alpaca to correct words like o to open and c to close
+        and adds other keys that will be necesary to mark on chart like entries or news
+    """
     for candle in data:
         candle['open'] = candle.pop('o')
         candle['close'] = candle.pop('c')
@@ -74,13 +78,14 @@ def fix_data(data):
         candle['exitShort'] = None
         candle['exitLong'] = None
         candle['executionPrice'] = None
+        candle['news'] = 0
     return data
 
 
 def give_triangle_distance(data, index, n=14, factor=1):
     """
         trims and converts a list of dictionaries to pandas dataframe then
-        caluclate the last atr used for the chart feature to give extra space
+        caluclate the last ATR used for the chart feature to give extra space
         on entry triangles
     """
 
@@ -155,3 +160,14 @@ def apply_intraday_vwap_pandas(data):
     df = df.join(vwap)
     df.intradayVwap = df.intradayVwap.fillna('')
     return df.reset_index().to_dict('records')
+
+def combine_data_with_news(data, news):
+    """" Given a list of chart candle, writes a 1 if the 1 min candle contains a news
+        in that minute in order to be able to show in the grafic
+    """
+    format = '%Y-%m-%dT%H:%M:00Z'
+    dates = [datetime.datetime.strftime(n.publish_date, format) for n in news]
+    news_dict = {datetime.datetime.strftime(n.publish_date, format): n.title for n in news}
+    for candle in data:
+        if candle['date'] in dates:
+            candle['news'] = news_dict[candle['date']]

@@ -18,11 +18,12 @@ import { navbarSelected, selectActiveTab } from '../navbar/navBarSlicer'
 import { selectUserIsLogedIn} from '../access/accessSlicer'
 import TextField from '@material-ui/core/TextField';
 import Button from  '@material-ui/core/Button';
-import { fetchBarsTrade, setFetchChartStatus } from '../charts/chartsSlicer';
+import { fetchBarsTrade, setFetchChartStatus, setFromTo, cleanFromTo } from '../charts/chartsSlicer';
 import TradesDetailsTables from './TradesDetailsTables'
 import {fetchGapper} from '../gappers/gappersSlicer';
 import TopTableGapperDetail from '../gappers/TopTableGapperDetail';
 import NewsTable from '../news/NewsTable'
+import {fromGpedSlugToStartEndDates} from '../../components/helpers'
 
 
 
@@ -100,12 +101,15 @@ export default function TradeDetail(){
       dispatch(setFetchChartStatus('idle'))
       dispatch(cleanGroupedTradesDetailsFetchStatus('idle'))
       dispatch(cleanFetchOrdersStatus('idle'))
+      dispatch(cleanFromTo())
     };
 
   },[])
   useEffect(() => {
     if(slug != undefined) {
-    dispatch(fetchGroupedTradesDetails(slug))
+      dispatch(fetchGroupedTradesDetails(slug))
+      var {from, to} = fromGpedSlugToStartEndDates(slug)
+      dispatch(setFromTo({from: from, to: to}))
     }
   },[slug])
 
@@ -164,7 +168,7 @@ export default function TradeDetail(){
         <Grid item xs={10}>
           <TradeChartWrapper uuid={detailGroupedTrades[0].uuid} filledOrders={filledOrders} data={chartData}/>
           <TradesDetailsTables groupedTradesDetails={groupedDetails} trades={groupedDetails.trades} orders={orders} />
-          <NewsTable ticker={slug.split('-')[0]} />
+          {/* <NewsTable ticker={slug.split('-')[0]} />
             {/*<TextField
             className={classes.tradeComents}
             id="outlined-multiline-static"

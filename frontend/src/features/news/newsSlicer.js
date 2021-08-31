@@ -4,16 +4,20 @@ import axiosInstance from '../../components/axios'
 const initialState = {
   news: [],
   newsStatus: 'idle',
-  error: null
+  error: null,
+  selected:''
 }
 
 
-export const fetchNews = createAsyncThunk('news/fetchNews', async (ticker) => (
-  axiosInstance
-  .get(`${process.env.NEXT_PUBLIC_API_URL}/news/${ticker}`)
-    .then(response => response.data)
-    .catch(error => {console.log('error fetching news', error)})
-))
+export const fetchNews = createAsyncThunk('news/fetchNews', async (data) => {
+  const {ticker, from, to} = data;
+  var endpoint = `${process.env.NEXT_PUBLIC_API_URL}/news/${ticker}?from=${from}&to=${to}`
+  return(
+    axiosInstance
+    .get(endpoint)
+      .then(response => response.data)
+      .catch(error => {console.log('error fetching news', error)})
+)})
 
 
 const newsSlicer = createSlice({
@@ -26,7 +30,7 @@ const newsSlicer = createSlice({
     },
     [fetchNews.fulfilled]: (state, action) => {
       state.newsStatus = 'succeeded'
-      state.news = state.news.concat(action.payload)
+      state.news = action.payload
     },
     [fetchNews.rejected]: (state, action) => {
       state.newsStatus = 'failed'
