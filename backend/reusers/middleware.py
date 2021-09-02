@@ -16,11 +16,11 @@ class AuthenticationMiddlewareJWT(object):
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         if request.get_full_path_info() not in ['/token/', '/token/refresh/']:
+            print(request.user)
             try:
                 user_jwt = JWTAuthentication().authenticate(Request(request))
             except Exception as e:
                 print('error was', e)
-                content = {'please move along': 'nothing to see here'}
                 return JsonResponse(status=401, data={'code': 'token_not_valid'})
             user = get_user(request)
             if user.is_authenticated:
