@@ -40,7 +40,6 @@ def chart_data(request):
 
 
 @api_view(['GET', ])
-@permission_classes((IsAuthenticated,))
 def gapper_data(request, slug):
     if request.method == 'GET':
         ticker = slug.split('-')[0]
