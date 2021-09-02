@@ -8,7 +8,7 @@ from .mutils import (get_all_data,
                     apply_intraday_vwap_pandas,
                     combine_data_with_news)
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, authentication_classes
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.authentication import TokenAuthentication
 from trades.models import Trade, Order
 from gappers.models import UpGapper
@@ -16,11 +16,12 @@ from news.models import News
 from django.http import JsonResponse
 from pprint import pprint
 #from .data import data
+from rest_framework.permissions import IsAuthenticated
 
 
 # Create your views here.
 @api_view(['GET', ])
-@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
 def chart_data(request):
     if request.method == 'GET':
         uuids = request.query_params.getlist('trade[]')
@@ -39,7 +40,7 @@ def chart_data(request):
 
 
 @api_view(['GET', ])
-@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
 def gapper_data(request, slug):
     if request.method == 'GET':
         ticker = slug.split('-')[0]
