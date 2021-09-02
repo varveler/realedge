@@ -47,7 +47,7 @@ def partialnews_list(request, ticker):
         news = News.objects.filter(tickers__contains=ticker,
             internal_source='scraping Finviz',
             publish_date__lte=end,
-            publish_date__gte=start).order_by('title', '-publish_date').distinct('title')
+            publish_date__gte=start).order_by('title', 'publish_date').distinct('title')
         if news.exists():
             many = True if news.count() > 1 else False
             serializer = NewsSerializer(news, many=many)
