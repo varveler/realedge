@@ -32,7 +32,7 @@ if(!ISSERVER){
 				);
 				return Promise.reject(error);
 			}
-
+			console.log('error.response', error.response)
 			if (
 				error.response.status === 401 &&
 				originalRequest.url === baseURL + 'token/refresh/'
@@ -46,7 +46,7 @@ if(!ISSERVER){
 				error.response.status === 401 &&
 				error.response.statusText === 'Unauthorized'
 			) {
-				const refreshToken = localStorage.getItem('refresh_token_reio');
+				const refreshToken = localStorage.getItem('refresh_token');
 
 				if (refreshToken) {
 					const tokenParts = JSON.parse(atob(refreshToken.split('.')[1]));
@@ -60,7 +60,7 @@ if(!ISSERVER){
 							.post('/token/refresh/', { refresh: refreshToken })
 							.then((response) => {
 								sessionStorage.setItem('access_token', response.data.access);
-								localStorage.setItem('refresh_token_reio', response.data.refresh);
+								localStorage.setItem('refresh_token', response.data.refresh);
 
 								axiosInstance.defaults.headers['Authorization'] =
 									'JWT ' + response.data.access;

@@ -59,9 +59,11 @@ INSTALLED_APPS = [
     'webpack_loader',
     'corsheaders',
     'reusers',
+    'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'rest_framework.authtoken',
-    'charts'
+    'charts',
+    'logs'
 ]
 
 MIDDLEWARE = [
@@ -71,6 +73,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'reusers.middleware.AuthenticationMiddlewareJWT',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -221,8 +224,10 @@ CHROMEDRIVER_PATH = '/backend/backend/drivers/chromedriver'
 REST_FRAMEWORK = {
     'DATETIME_INPUT_FORMATS': ["%H:%M:%S %Y/%m/%d", ],
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        #'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
+        #'rest_framework.authentication.SessionAuthentication', disable because it asks for CSRF cookie on post request
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        #'rest_framework_simplejwt.authentication.JWTTokenUserAuthentication', #https://django-rest-framework-simplejwt.readthedocs.io/en/latest/experimental_features.html?highlight=JWTAuthentication#jwttokenuserauthentication-backend
+        #'rest_framework.authentication.TokenAuthentication',
     )
 
 }

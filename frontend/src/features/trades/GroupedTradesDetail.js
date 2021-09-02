@@ -24,7 +24,7 @@ import {fetchGapper} from '../gappers/gappersSlicer';
 import TopTableGapperDetail from '../gappers/TopTableGapperDetail';
 import NewsTable from '../news/NewsTable'
 import {fromGpedSlugToStartEndDates} from '../../components/helpers'
-
+import CommentsForm from '../logs/CommentsForm'
 
 
 
@@ -168,6 +168,7 @@ export default function TradeDetail(){
         <Grid item xs={10}>
           <TradeChartWrapper uuid={detailGroupedTrades[0].uuid} filledOrders={filledOrders} data={chartData}/>
           <TradesDetailsTables groupedTradesDetails={groupedDetails} trades={groupedDetails.trades} orders={orders} />
+          <CommentsForm ticker={groupedDetails.ticker} date={groupedDetails.date} />
           {/* <NewsTable ticker={slug.split('-')[0]} />
             {/*<TextField
             className={classes.tradeComents}

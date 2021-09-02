@@ -4,8 +4,9 @@ from .base import *
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '0.0.0.0', '127.0.0.1', 'api.realedge.io']
+#ALLOWED_HOSTS = ['localhost', '0.0.0.0', '127.0.0.1', 'api.realedge.io']
 
+ALLOWED_HOSTS = []
 #print "running on settings base and development"
 
 #OAUTH2_REDIRECT_URI = 'http://localhost/oauth2/oauth2callback'
