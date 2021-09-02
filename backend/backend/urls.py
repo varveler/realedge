@@ -31,4 +31,5 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('charts/', include('charts.urls')),
     path('news/', include('news.urls')),
+    path('logs/', include('logs.urls')),
 ]

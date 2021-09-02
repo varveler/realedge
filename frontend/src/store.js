@@ -6,6 +6,7 @@ import tradesReducers from './features/trades/tradesSlicer'
 import accessReducers from './features/access/accessSlicer'
 import chartsReducers from './features/charts/chartsSlicer'
 import newsReducers from './features/news/newsSlicer'
+import logsReducers from './features/logs/logsSlicer'
 
 export default configureStore({
   reducer: {
@@ -15,5 +16,6 @@ export default configureStore({
     access: accessReducers,
     charts: chartsReducers,
     news: newsReducers,
+    logs: logsReducers,
   },
 })

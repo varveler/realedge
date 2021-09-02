@@ -7,8 +7,8 @@ from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, authentication_classes
-from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 from .models import Order, Trade, OrdersFile
 from .serializers import TZOrderSerializer, DisplayTradeSerializer, OrderSerializer
@@ -28,11 +28,11 @@ class OrdersViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['GET', 'POST'])
-@authentication_classes((TokenAuthentication, ))
+@permission_classes((IsAuthenticated,))
 def orders_list(request):
     if request.method == 'GET':
         uuids = request.query_params.getlist('trade[]')
-        orders = Order.objects.filter(trade__uuid__in=uuids)
+        orders = Order.objects.filter(user=request.user, trade__uuid__in=uuids)
         many = True if orders.count() > 1 else False
         serializer = OrderSerializer(orders, many=many)
         return Response(serializer.data)
@@ -61,10 +61,11 @@ def file_update(request):
 
 
 @api_view(['GET', ])
-@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
 def trades_list(request):
     if request.method == 'GET':
-        trades = Trade.objects.all().order_by('-creation')
+        print('##', request.user)
+        trades = Trade.objects.filter(user=request.user).order_by('-creation')
         serializer = DisplayTradeSerializer(trades, many=True)
         return Response(serializer.data)
 
@@ -72,7 +73,7 @@ def trades_list(request):
 
 
 @api_view(['GET',])
-@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
 def trade_detail(request, slug):
     if request.method == 'GET':
         trade = Trade.objects.get(closed_slug=slug)
@@ -81,7 +82,7 @@ def trade_detail(request, slug):
 
 
 @api_view(['GET',])
-@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
 def grouped_trade_detail(request, slug):
     if request.method == 'GET':
         params = slug.split('-')
@@ -99,7 +100,7 @@ def grouped_trade_detail(request, slug):
 
 
 @api_view(['POST', ])
-@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
 def trade_comment(request, uuid):
     if request.method == 'POST':
         comment = request.data.get('comment', None)
@@ -114,7 +115,7 @@ def trade_comment(request, uuid):
 
 
 @api_view(['GET', ])
-@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
 def grouped_trades_by_day_by_ticker(request):
     if request.method == 'GET':
         trades = Trade.objects.all().order_by('-creation')

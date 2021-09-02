@@ -23,7 +23,7 @@ export const sendCredentials = createAsyncThunk('access/sendCredentials', async 
     .then(response => {
       //console.log('response data access: ', response.data);
       sessionStorage.setItem('access_token', response.data.access);
-			localStorage.setItem('refresh_token_reio', response.data.refresh);
+			localStorage.setItem('refresh_token', response.data.refresh);
 			axiosInstance.defaults.headers['Authorization'] =
 				'JWT ' + sessionStorage.getItem('access_token');
       return response.status
@@ -38,7 +38,7 @@ export const logOut = createAsyncThunk('access/logOut', async (token) => (
     .then(response => {
       //console.log('logout response: ', response.data);
       sessionStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token_reio');
+      localStorage.removeItem('refresh_token');
       axiosInstance.defaults.headers['Authorization'] = null;
       return response.data
     })

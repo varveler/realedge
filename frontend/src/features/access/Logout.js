@@ -7,7 +7,7 @@ export default function Logout() {
 	const userIsLogedIn = useSelector(selectUserIsLogedIn)
 	const dispatch = useDispatch()
 	useEffect(() => {
-			let token = {refresh_token: localStorage.getItem('refresh_token_reio')}
+			let token = {refresh_token: localStorage.getItem('refresh_token')}
       dispatch(logOut(token))
       }, [userIsLogedIn, dispatch])
 

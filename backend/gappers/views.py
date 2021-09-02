@@ -2,10 +2,11 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 
-from rest_framework.decorators import api_view, authentication_classes
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
 from .models import UpGapper
 from .serializers import GapperSerializer, PublicGapperSerializer
@@ -36,7 +37,7 @@ def public_gappers(request):
 
 
 @api_view(['GET', ])
-@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
 def loged_in_gappers(request):
     if request.method == 'GET':
         param = request.GET.get('oldest', None)
@@ -53,7 +54,7 @@ def loged_in_gappers(request):
 
 
 @api_view(['GET', ])
-@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
 def gapper_detail(request, _id):
     print(_id)
     ticker = _id.split('-')[0]
