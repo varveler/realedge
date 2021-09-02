@@ -10,7 +10,7 @@ class News(models.Model):
 
     class Meta:
         unique_together = ['internal_source', 'title', 'publish_date']
-        ordering = ['-publish_date', 'title']
+        ordering = ['-publish_date',]
 
     # internaly created
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
