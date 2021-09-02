@@ -90,8 +90,6 @@ export default function GapperDetail(){
     if(id != undefined) {
       dispatch(fetchGapper(id))
       var {from, to} = fromToDates(id.split('-')[1])
-      console.log('id.split', id.split('-')[1])
-      console.log(from,to)
       dispatch(setFromTo({_from: from, to: to}))
       if(fetchChartStatus == 'idle') dispatch(fetchBarsGapper({slug: id}))
     }
@@ -99,7 +97,7 @@ export default function GapperDetail(){
 
   useEffect(() => {
     if(id != undefined && _from != undefined && to != undefined) {
-    dispatch(fetchNews({ticker: id.split('-')[0], from:_from, to:to}))
+    dispatch(fetchNews({ticker: id.split('-')[0], from:_from, to:to, userIsLogedIn:userIsLogedIn}))
     }
   },[id, _from, to])
   if(selectedGapper === undefined) return <p> Loading.... </p>

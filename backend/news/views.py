@@ -45,7 +45,7 @@ def partialnews_list(request, ticker):
         print('########## # # #ticker from to ####### # # #', ticker, _from, to)
         start, end = get_start_end_dates(_from, to)
         news = News.objects.filter(tickers__contains=ticker,
-            internal_source='scraping Finviz',
+            #internal_source='scraping Finviz',
             publish_date__lte=end,
             publish_date__gte=start).order_by('title', 'publish_date').distinct('title')
         if news.exists():

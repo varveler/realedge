@@ -10,8 +10,13 @@ const initialState = {
 
 
 export const fetchNews = createAsyncThunk('news/fetchNews', async (data) => {
-  const {ticker, from, to} = data;
-  var endpoint = `${process.env.NEXT_PUBLIC_API_URL}/news/${ticker}?from=${from}&to=${to}`
+  const {ticker, from, to, userIsLogedIn} = data;
+  let endpoint;
+  if(userIsLogedIn){
+    endpoint = `${process.env.NEXT_PUBLIC_API_URL}/news/${ticker}?from=${from}&to=${to}`
+  }else{
+    endpoint = `${process.env.NEXT_PUBLIC_API_URL}/news/partialnews/${ticker}?from=${from}&to=${to}`
+  }
   return(
     axiosInstance
     .get(endpoint)
