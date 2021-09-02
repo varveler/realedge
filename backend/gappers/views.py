@@ -54,7 +54,6 @@ def loged_in_gappers(request):
 
 
 @api_view(['GET', ])
-@permission_classes((IsAuthenticated,))
 def gapper_detail(request, _id):
     print(_id)
     ticker = _id.split('-')[0]
