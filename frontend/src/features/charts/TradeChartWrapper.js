@@ -25,9 +25,9 @@ export default function TradeChartWrapper ({uuids, timeFrame}){
         dispatch(fetchBarsTrade({uuids:uuids, timeFrame:timeFrame}))
       }
     }
-    // return function cleanup() {
-    //   dispatch(setFetchChartStatus('idle'))
-    // };
+    return function cleanup() {
+      dispatch(setFetchChartStatus('idle'))
+    };
   },[])
 
   // useEffect(() => {
