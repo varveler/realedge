@@ -15,7 +15,7 @@ from gappers.models import UpGapper
 from news.models import News
 from django.http import JsonResponse
 from pprint import pprint
-from .data import data
+#from .data import data
 from rest_framework.permissions import IsAuthenticated
 
 
