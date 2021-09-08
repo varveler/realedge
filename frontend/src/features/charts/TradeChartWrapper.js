@@ -15,15 +15,7 @@ export default function TradeChartWrapper ({uuids, timeFrame}){
 
   useEffect(() => {
     if(status === 'idle'){
-      if(timeFrame==='1Day'){
-        console.log('laging')
-        setTimeout(()=>{
-          console.log('go!')
-          dispatch(fetchBarsTrade({uuids:uuids, timeFrame:timeFrame}))
-        }, 3000)
-      }else{
         dispatch(fetchBarsTrade({uuids:uuids, timeFrame:timeFrame}))
-      }
     }
     return function cleanup() {
       dispatch(setFetchChartStatus('idle'))

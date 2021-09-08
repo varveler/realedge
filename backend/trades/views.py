@@ -87,10 +87,9 @@ def grouped_trade_detail(request, slug):
     if request.method == 'GET':
         params = slug.split('-')
         ticker = params[0]
-        user_name = params[3]
         d = datetime.datetime.strptime('-'.join(params[5:8]), '%b-%d-%Y')
         trades = Trade.objects.filter( ticker=ticker,
-                                    #user=request.user,
+                                    user=request.user,
                                     start_time__year=d.year,
                                     start_time__month=d.month,
                                     start_time__day=d.day)
