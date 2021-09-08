@@ -17,10 +17,9 @@ export default function GapperChartWrapper ({slug, timeFrame}){
     if(status == 'idle'){
       dispatch(fetchBarsGapper({slug: slug, timeFrame: timeFrame}))
     }
-
-    // return function cleanup() {
-    //   dispatch(setFetchChartStatus('idle'))
-    // };
+    return function cleanup() {
+      dispatch(setFetchChartStatus('idle'))
+    };
   },[])
 
   // useEffect(() => {
