@@ -1,42 +1,51 @@
 import React from "react";
 import PropTypes from "prop-types";
-
+import withStyles from "@material-ui/core/styles/withStyles";
 import { format } from "d3-format";
+import { curveMonotoneX } from "d3-shape";
 import { timeFormat } from "d3-time-format";
+
 import { ChartCanvas, Chart } from "react-stockcharts";
 import {
-	ScatterSeries,
-	TriangleMarker,
 	BarSeries,
 	CandlestickSeries,
+  ScatterSeries,
+	TriangleMarker,
+	LineSeries,
+	CircleMarker,
+	AreaSeries
 } from "react-stockcharts/lib/series";
-import { XAxis, YAxis } from "react-stockcharts/lib/axes";
+
 import {
 	CrossHairCursor,
 	EdgeIndicator,
 	CurrentCoordinate,
 	MouseCoordinateX,
-	MouseCoordinateY,
+	MouseCoordinateY
 } from "react-stockcharts/lib/coordinates";
 
+import { XAxis, YAxis } from "react-stockcharts/lib/axes";
+import { LabelAnnotation, Label, Annotate } from "react-stockcharts/lib/annotation";
 import { discontinuousTimeScaleProvider } from "react-stockcharts/lib/scale";
-import { OHLCTooltip } from "react-stockcharts/lib/tooltip";
 import { fitWidth } from "react-stockcharts/lib/helper";
 import { last } from "react-stockcharts/lib/utils";
+import { createVerticalLinearGradient, hexToRGBA } from "react-stockcharts/lib/utils";
+
 import {DataWrapper} from "./DataWrapper";
 
+import { OHLCTooltip } from "react-stockcharts/lib/tooltip";
 
-class CandleStickChartForDiscontinuousIntraDay extends React.Component {
+const style = {
+  triangleMarker:{
+		color: 'pink'
+  }
+}
+
+
+
+class CandleStickStockScaleChartWithVolumeBarV3 extends React.Component {
 	render() {
-		const { type, data: initialData, width, ratio } = this.props;
-		const data2 = [
-			{
-				price:4.5
-			},
-			{
-				price:4.5
-			}
-		]
+		const { type, data: initialData, width, ratio, classes, intraday, timeFrame } = this.props;
 		const xScaleProvider = discontinuousTimeScaleProvider
 			.inputDateAccessor(d => d.date);
 		const {
@@ -46,15 +55,37 @@ class CandleStickChartForDiscontinuousIntraDay extends React.Component {
 			displayXAccessor,
 		} = xScaleProvider(initialData);
 
+		let tf;
+		if(intraday){
+			tf = timeFormat("%H:%M:%S")
+		}else{
+			tf = timeFormat("%Y-%m-%d")
+		}
+
 		const start = xAccessor(last(data));
-		const end = xAccessor(data[Math.max(0, data.length - 150)]);
+		const end = xAccessor(data[Math.max(0, data.length - 700)]);
+		//const end = xAccessor(data.filter(el => el.entryShort != null || el.entryLong != null)[0])
 		const xExtents = [start, end];
+		const annotationProps = {
+			fontFamily: "Roboto",
+			fontSize: 15,
+			fontWeight: 600,
+			fill: "#060F8F",
+			opacity: 0.8,
+			text: "N",
+			y: ({ yScale }) => yScale.range()[0],
+			onClick: console.log.bind(console),
+			tooltip: d => d.news,
+			onMouseOver: console.log.bind(console)
+		};
+
+
 
 		return (
-			<ChartCanvas height={400}
+			<ChartCanvas height={600}
 				ratio={ratio}
 				width={width}
-				margin={{ left: 80, right: 80, top: 10, bottom: 30 }}
+				margin={{ left: 50, right: 50, top: 10, bottom: 30 }}
 				type={type}
 				seriesName="MSFT"
 				data={data}
@@ -63,76 +94,93 @@ class CandleStickChartForDiscontinuousIntraDay extends React.Component {
 				displayXAccessor={displayXAccessor}
 				xExtents={xExtents}
 			>
-				<Chart id={2}
-					yExtents={[d => d.volume]}
-					height={150} origin={(w, h) => [0, h - 150]}
-				>
-					<YAxis axisAt="left" orient="left" ticks={5} tickFormat={format(".2s")}/>
-
-					<MouseCoordinateY
-						at="left"
-						orient="left"
-						displayFormat={format(".4s")} />
-
-
-					<CurrentCoordinate yAccessor={d => d.volume} fill="#9B0A47" />
-					<BarSeries yAccessor={d => d.volume} fill={d => d.close > d.open ? "#6BA583" : "#FF0000"} />
-
-					<DataWrapper childData={data}>
-						<ScatterSeries
-								yAccessor={d => d.open}
-								marker={TriangleMarker}
-								markerProps={{
-									width:  d => Math.sqrt(d.volume)*0.5
-								,	stroke: "#2ca02c"
-								,	fill: "#2ca02c"
-								}}
-						/>
-					</DataWrapper>
-
-
-					<EdgeIndicator itemType="last" orient="right" edgeAt="right"
-						yAccessor={d => d.volume} displayFormat={format(".4s")} fill="#0F0F0F"/>
-				</Chart>
-				<Chart id={1}
-					yExtents={[d => [d.high, d.low]]}
-					padding={{ top: 40, bottom: 20 }}
-				>
-					<XAxis axisAt="bottom" orient="bottom"/>
+				<Chart id={1} height={400} yExtents={d => [d.high, d.low]} >
+					<defs>
+						<linearGradient id="MyGradient" x1="0" y1="100%" x2="0" y2="0%">
+							<stop offset="100%" stopColor="#b5d0ff" stopOpacity={0.8} />
+							<stop offset="70%" stopColor="#6fa4fc" stopOpacity={0.4} />
+							<stop offset="0%"  stopColor="#4286f4" stopOpacity={0.2} />
+						</linearGradient>
+					</defs>
+					<Label x={(width) / 2} y={50}
+						fontSize="30" opacity={.20} text={timeFrame} />
 					<YAxis axisAt="right" orient="right" ticks={5} />
-
+					<XAxis axisAt="bottom" orient="bottom" showTicks={false}/>
 					<MouseCoordinateX
-						rectWidth={60}
+						rectWidth={70}
 						at="bottom"
 						orient="bottom"
-						displayFormat={timeFormat("%H:%M:%S")} />
+						displayFormat={tf} />
 					<MouseCoordinateY
 						at="right"
 						orient="right"
 						displayFormat={format(".2f")} />
-
 					<CandlestickSeries />
-					<EdgeIndicator itemType="last" orient="right" edgeAt="right"
-						yAccessor={d => d.close} fill={d => d.close > d.open ? "#6BA583" : "#FF0000"}/>
+          <DataWrapper childData={data}>
+						<ScatterSeries
+								yAccessor={d => d.entryShort}
+								marker={TriangleMarker}
+								markerProps={{
+									width:  20,
+                	direction: "bottom",
+									stroke: "#ff2626",
+									fill: "#ff2626"
+								}}
+						/>
+						<ScatterSeries
+								yAccessor={d => d.exitShort}
+								marker={TriangleMarker}
+								markerProps={{
+									width:  20,
+									stroke: "#269619",
+									fill: "#269619"
+								}}
+						/>
+						<ScatterSeries
+						yAccessor={d => d.executionPrice}
+						marker={CircleMarker}
+						markerProps={{ r: 3 }} />
+						<LineSeries
+							yAccessor={d => d.vwap_pandas}
+							stroke="#FF9535" />
+						<LineSeries
+							yAccessor={d => d.intradayVwap}
+							stroke="#bababa" />
+						<AreaSeries
+							yAccessor={d => d.shadowPremarket}
+							fill="rgba(0, 0, 0, 0.03)"
+							strokeWidth={0.01}
 
+						/>
+					</DataWrapper>
 					<OHLCTooltip origin={[-40, 0]} xDisplayFormat={timeFormat("%Y-%m-%d %H:%M:%S")}/>
+					<CurrentCoordinate yAccessor={d => d.volume} fill="#9B0A47" />
+					<EdgeIndicator itemType="last" orient="right" edgeAt="right"
+						yAccessor={d => d.volume} displayFormat={format(".4s")} fill="#0F0F0F"/>
+					<Annotate with={LabelAnnotation}
+						when={d => d.news != 0 /* some condition */}
+						usingProps={annotationProps} />
 				</Chart>
 				<CrossHairCursor />
+				<Chart id={2} origin={(w, h) => [0, h - 150]} height={150} yExtents={d => d.volume}>
+					<XAxis axisAt="bottom" orient="bottom"/>
+					<YAxis axisAt="left" orient="left" ticks={5} tickFormat={format(".2s")}/>
+					<BarSeries yAccessor={d => d.volume} fill={(d) => d.close > d.open ? "#6BA583" : "red"} />
+				</Chart>
 			</ChartCanvas>
 		);
 	}
 }
-
-CandleStickChartForDiscontinuousIntraDay.propTypes = {
+CandleStickStockScaleChartWithVolumeBarV3.propTypes = {
 	data: PropTypes.array.isRequired,
 	width: PropTypes.number.isRequired,
 	ratio: PropTypes.number.isRequired,
 	type: PropTypes.oneOf(["svg", "hybrid"]).isRequired,
 };
 
-CandleStickChartForDiscontinuousIntraDay.defaultProps = {
+CandleStickStockScaleChartWithVolumeBarV3.defaultProps = {
 	type: "svg",
 };
-CandleStickChartForDiscontinuousIntraDay = fitWidth(CandleStickChartForDiscontinuousIntraDay);
+CandleStickStockScaleChartWithVolumeBarV3 = fitWidth(CandleStickStockScaleChartWithVolumeBarV3);
 
-export default CandleStickChartForDiscontinuousIntraDay;
+export default withStyles(style)(CandleStickStockScaleChartWithVolumeBarV3);

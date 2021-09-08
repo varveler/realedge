@@ -31,35 +31,41 @@ def get_all_data(timeframe, ticker, start, end, page_token=None, bars=[]):
     return get_all_data(timeframe, ticker, start, end, page_token=token, bars=bars)
 
 
-def give_trade_chart_start_and_end_dates(trade):
+def give_trade_chart_start_and_end_dates(trade, time_frame):
     tstart = trade.start_time
-    start_time_est = tstart.astimezone(US_EASTERN_TZ)
-    trading_hours_trade_end_time = datetime.datetime(start_time_est.year, start_time_est.month, start_time_est.day, 3, 31, 0, tzinfo=US_EASTERN_TZ)
-    if start_time_est.weekday() == 0: #is monday
-        days = 3
-    else:
-        days = 1
-    end_of_prev_day_est = trading_hours_trade_end_time - datetime.timedelta(days=days)
-    end_of_prev_day_utc = end_of_prev_day_est.astimezone(utc)
-    tend = trade.end_time
-    end_time_est = tend.astimezone(US_EASTERN_TZ)
-    end_of_day_est = datetime.datetime(end_time_est.year, end_time_est.month, end_time_est.day, 23, 59, 59, tzinfo=US_EASTERN_TZ)
-    end_of_day_utc = end_of_day_est.astimezone(utc)
-    return end_of_prev_day_utc, end_of_day_utc
+    if time_frame == '1Min':
+        start_time_est = tstart.astimezone(US_EASTERN_TZ)
+        trading_hours_trade_end_time = datetime.datetime(start_time_est.year, start_time_est.month, start_time_est.day, 3, 31, 0, tzinfo=US_EASTERN_TZ)
+        if start_time_est.weekday() == 0: #is monday
+            days = 3
+        else:
+            days = 1
+        end_of_prev_day_est = trading_hours_trade_end_time - datetime.timedelta(days=days)
+        end_of_prev_day_utc = end_of_prev_day_est.astimezone(utc)
+        tend = trade.end_time
+        end_time_est = tend.astimezone(US_EASTERN_TZ)
+        end_of_day_est = datetime.datetime(end_time_est.year, end_time_est.month, end_time_est.day, 23, 59, 59, tzinfo=US_EASTERN_TZ)
+        end_of_day_utc = end_of_day_est.astimezone(utc)
+        return end_of_prev_day_utc, end_of_day_utc
+    elif time_frame == '1Day':
+        return tstart - datetime.timedelta(days=140), tstart + datetime.timedelta(days=20)
 
 
-def give_gapper_chart_start_and_end_dates(gapper):
+def give_gapper_chart_start_and_end_dates(gapper, time_frame):
     gdate = gapper.date
-    trading_hours_trade_end_time = datetime.datetime(gdate.year, gdate.month, gdate.day, 3, 31, 0, tzinfo=US_EASTERN_TZ)
-    if gdate.weekday() == 0: #is monday
-        days = 3
-    else:
-        days = 1
-    end_of_prev_day_est = trading_hours_trade_end_time - datetime.timedelta(days=days)
-    end_of_prev_day_utc = end_of_prev_day_est.astimezone(utc)
-    end_of_day_est = datetime.datetime(gdate.year, gdate.month, gdate.day, 23, 59, 59, tzinfo=US_EASTERN_TZ)
-    end_of_day_utc = end_of_day_est.astimezone(utc)
-    return end_of_prev_day_utc, end_of_day_utc
+    if time_frame == '1Min':
+        trading_hours_trade_end_time = datetime.datetime(gdate.year, gdate.month, gdate.day, 3, 31, 0, tzinfo=US_EASTERN_TZ)
+        if gdate.weekday() == 0: #is monday
+            days = 3
+        else:
+            days = 1
+        end_of_prev_day_est = trading_hours_trade_end_time - datetime.timedelta(days=days)
+        end_of_prev_day_utc = end_of_prev_day_est.astimezone(utc)
+        end_of_day_est = datetime.datetime(gdate.year, gdate.month, gdate.day, 23, 59, 59, tzinfo=US_EASTERN_TZ)
+        end_of_day_utc = end_of_day_est.astimezone(utc)
+        return end_of_prev_day_utc, end_of_day_utc
+    elif time_frame == '1Day':
+        return gdate - datetime.timedelta(days=140), gdate + datetime.timedelta(days=15)
 
 def fix_data(data):
     """

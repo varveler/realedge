@@ -38,7 +38,6 @@ class TradesTickerLogDetail(APIView):
     def get_object_with_uuid(self, uuid):
         try:
             obj = TradesTickerLog.objects.get(uuid=uuid)
-            print('get obj with uuid', obj)
             self.check_object_permissions(self.request, obj)
             return obj
         except TradesTickerLog.DoesNotExist:

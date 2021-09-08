@@ -27,7 +27,6 @@ import {fromGpedSlugToStartEndDates} from '../../components/helpers'
 import CommentsForm from '../logs/CommentsForm'
 
 
-
 const useStyles = makeStyles((theme) => ({
   containerDetail:{
     marginTop: '20px'
@@ -85,8 +84,8 @@ export default function TradeDetail(){
   const parseDate = timeParse("%H:%M:%S %Y/%m/%d");
   const tabSelected = useSelector(selectActiveTab);
   const userIsLogedIn = useSelector(selectUserIsLogedIn);
-  const chartData = useSelector(state => state.charts.data)
-  const fetchChartStatus = useSelector(state => state.charts.status)
+  //const chartData = useSelector(state => state.charts.data)
+  //const fetchChartStatus = useSelector(state => state.charts.status)
   const gapper = useSelector(state => state.gappers.selected)
   const {fetchGroupedTradesDetailsStatus,
         fetchOrdersStatus,
@@ -94,11 +93,13 @@ export default function TradeDetail(){
         detailGroupedTrades,
         groupedDetails} = useSelector(state => state.trades)
 
+
+
   useEffect(() => {
     if(tabSelected != 1 && userIsLogedIn == true)
       dispatch(navbarSelected(1))
     return function cleanup() {
-      dispatch(setFetchChartStatus('idle'))
+      //dispatch(setFetchChartStatus('idle'))
       dispatch(cleanGroupedTradesDetailsFetchStatus('idle'))
       dispatch(cleanFetchOrdersStatus('idle'))
       dispatch(cleanFromTo())
@@ -115,31 +116,37 @@ export default function TradeDetail(){
 
   useEffect(() => {
     if(fetchGroupedTradesDetailsStatus === 'succeeded' && fetchOrdersStatus === 'idle'){
-      var uuids = []
+      const uuids = [];
       detailGroupedTrades.forEach((trade, i) => {
         uuids.push(trade.uuid)
       });
-      console.log('uuids', uuids)
       dispatch(fetchOrders(uuids))
       dispatch(fetchGapper(`${groupedDetails[0].ticker}-${groupedDetails[0].date.replace('-', '').replace('-', '')}`))
     }
-    if(detailGroupedTrades && detailGroupedTrades.length >= 1 && fetchChartStatus == 'idle' ){
-      dispatch(fetchBarsTrade(uuids))
-    }
+    // if(detailGroupedTrades && detailGroupedTrades.length >= 1 && fetchChartStatus == 'idle' ){
+    //   dispatch(fetchBarsTrade(uuids))
+    // }
   },[detailGroupedTrades])
 
 
-  const filledOrders = orders.length >= 1 ? orders.filter(
-    order => order.status === "FI").map(
-      order => {
-                let parsedDate = parseDate(order.last_time)
-                const norder = {...order, date: parsedDate, price: parseFloat(order.price)}
-                return norder
-      }
-    )
-  : []
+  // const filledOrders = orders.length >= 1 ? orders.filter(
+  //   order => order.status === "FI").map(
+  //     order => {
+  //               let parsedDate = parseDate(order.last_time)
+  //               const norder = {...order, date: parsedDate, price: parseFloat(order.price)}
+  //               return norder
+  //     }
+  //   )
+  // : []
 
-  const renderGroupedTradeDetails = (groupedDetails) => (
+  const renderGroupedTradeDetails = (groupedDetails, detailGroupedTrades) => {
+  const uuids = [];
+  if(detailGroupedTrades.length >= 1){
+    detailGroupedTrades.forEach((trade, i) => {
+      uuids.push(trade.uuid)
+    });
+  }
+  return(
     <div className={classes.containerDetail}>
       <Grid container spacing={1}>
         <Grid item xs={2}>
@@ -166,7 +173,8 @@ export default function TradeDetail(){
         <Grid item xs={1}>
         </Grid>
         <Grid item xs={10}>
-          <TradeChartWrapper uuid={detailGroupedTrades[0].uuid} filledOrders={filledOrders} data={chartData}/>
+          {uuids.length >= 1 ? <TradeChartWrapper uuids={uuids} timeFrame={'1Min'}/> : null }
+          {uuids.length >= 1 ? <TradeChartWrapper uuids={uuids} timeFrame={'1Day'}/> : null }
           <TradesDetailsTables groupedTradesDetails={groupedDetails} trades={groupedDetails.trades} orders={orders} />
           <CommentsForm ticker={groupedDetails.ticker} date={groupedDetails.date} />
           {/* <NewsTable ticker={slug.split('-')[0]} />
@@ -189,12 +197,12 @@ export default function TradeDetail(){
         </Grid>
       </Grid>
     </div>
-  )
+  )}
   const renderNoTradeSelected = () => <p> Loading Data.... </p>
 
   return(
     <div>
-      {detailGroupedTrades && detailGroupedTrades.length >= 1 ? renderGroupedTradeDetails(groupedDetails[0]) : renderNoTradeSelected}
+      {detailGroupedTrades && detailGroupedTrades.length >= 1 ? renderGroupedTradeDetails(groupedDetails[0], detailGroupedTrades) : renderNoTradeSelected}
     </div>
   )
 }

@@ -3,7 +3,7 @@ import axiosInstance from '../../components/axios'
 
 //const axios = require('axios');
 const initialState = {
-  data: [], //{oneMin:[], fiveMin:[], day:[]},
+  data: {'1Min':[], '1Day':[]}, //{oneMin:[], fiveMin:[], day:[]},
   status: 'idle',
   error: null,
   _from:null,
@@ -12,9 +12,9 @@ const initialState = {
 
 
 //https://data.alpaca.markets//v2/stocks/AAPL/bars?start=2021-04-06T09:01:00Z&end=2021-04-10T22:01:00Z&timeframe=1Min
-export const fetchBarsTrade = createAsyncThunk('chart/fetchBarsTrade', async (uuids) => {
-  const url = `${process.env.NEXT_PUBLIC_API_URL}/charts/trade?${uuids.map((n, index) => `trade[]=${n}`).join('&')}`
-  console.log('url',url)
+export const fetchBarsTrade = createAsyncThunk('chart/fetchBarsTrade', async (data) => {
+  const {uuids, timeFrame} = data;
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/charts/trade/${timeFrame}/?${uuids.map((n, index) => `trade[]=${n}`).join('&')}`
   return (
   axiosInstance
   .get(url)
@@ -26,10 +26,10 @@ export const fetchBarsTrade = createAsyncThunk('chart/fetchBarsTrade', async (uu
 
 
 export const fetchBarsGapper = createAsyncThunk('chart/fetchBarsGapper', async (data) => {
-  const {slug} = data;
+  const {slug, timeFrame} = data;
   return (
   axiosInstance
-  .get(`${process.env.NEXT_PUBLIC_API_URL}/charts/gapper/${slug}/`)
+  .get(`${process.env.NEXT_PUBLIC_API_URL}/charts/gapper/${timeFrame}/${slug}/`)
   .then(response => {
     return response.data
   })
@@ -42,7 +42,7 @@ const chartsSlice = createSlice({
   reducers:{
     setFetchChartStatus(state, action){
       state.status = action.payload
-      state.data = []
+      state.data = {'1Min':[], '1Day':[]}
     },
     setFromTo(state, action){
       state._from = action.payload._from
@@ -59,7 +59,7 @@ const chartsSlice = createSlice({
     },
     [fetchBarsTrade.fulfilled]: (state, action) => {
       state.status = 'succeeded'
-      state.data = action.payload },
+      state.data[action.meta.arg.timeFrame] = action.payload },
     [fetchBarsTrade.rejected]: (state, action) => {
       state.status = 'failed'
       state.error = action.error.message
@@ -69,7 +69,7 @@ const chartsSlice = createSlice({
     },
     [fetchBarsGapper.fulfilled]: (state, action) => {
       state.status = 'succeeded'
-      state.data = action.payload },
+      state.data[action.meta.arg.timeFrame] = action.payload },
     [fetchBarsGapper.rejected]: (state, action) => {
       state.status = 'failed'
       state.error = action.error.message

@@ -14,7 +14,6 @@ def news_list(request, ticker):
     if request.method == 'GET':
         _from = request.GET.get('from', None)
         to = request.GET.get('to', None)
-        print('########## # # #ticker from to ####### # # #', ticker, _from, to)
         start, end = get_start_end_dates(_from, to)
         news = News.objects.filter(tickers__contains=ticker,
             publish_date__lte=end,

@@ -1,7 +1,7 @@
-from django.urls import path
-from .views import chart_data, gapper_data
+from django.urls import path, re_path
+from .views import trade_data, gapper_data
 
 urlpatterns = [
-    path('trade/', chart_data),
-    path('gapper/<str:slug>/', gapper_data)
+    path('trade/<str:time_frame>/', trade_data),
+    path('gapper/<str:time_frame>/<str:slug>/', gapper_data),
 ]

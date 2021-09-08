@@ -81,17 +81,17 @@ export default function GapperDetail(){
   const {news, newsStatus} = useSelector(state => state.news)
   const {_from, to} = useSelector(state => state.charts)
   console.log(id, _from, to)
-  useEffect(() => {
-    return function cleanup() {
-      dispatch(setFetchChartStatus('idle'))
-    };
-  },[])
+  // useEffect(() => {
+  //   return function cleanup() {
+  //     dispatch(setFetchChartStatus('idle'))
+  //   };
+  // },[])
   useEffect(() => {
     if(id != undefined) {
       dispatch(fetchGapper(id))
       var {from, to} = fromToDates(id.split('-')[1])
       dispatch(setFromTo({_from: from, to: to}))
-      if(fetchChartStatus == 'idle') dispatch(fetchBarsGapper({slug: id}))
+      //if(fetchChartStatus == 'idle') dispatch(fetchBarsGapper({slug: id, timeFrame: '1Min'}))
     }
   },[id])
 
@@ -128,8 +128,9 @@ export default function GapperDetail(){
             <Grid item xs={2}>
             </Grid>
             <Grid item xs={8}>
-                {selectedGapper ? <GapperChartWrapper slug={id} data={chartData} /> : <p>no gapper slected</p> }
+                {selectedGapper ? <GapperChartWrapper slug={id} timeFrame={'1Min'} /> : <p>no gapper slected</p> }
                 {news && news.length >= 1 ? <NewsTable news={news} /> : <Typography className={classes.infoNoNews} align={'center'} component='p'>No news found</Typography> }
+                { selectedGapper ? <GapperChartWrapper slug={id} timeFrame={'1Day'} daily /> : <p>no gapper slected</p>}
             </Grid>
             <Grid item xs={2}>
             </Grid>

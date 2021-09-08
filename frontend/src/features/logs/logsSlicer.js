@@ -19,7 +19,7 @@ export const getLogs = createAsyncThunk('logs/getLogs', async (data) => {
     axiosInstance
     .get(endpoint)
       .then(response => response.data)
-      .catch(error => {console.log('error get logs', error)})
+      //.catch(error => {console.log('error get logs', error)})
 )})
 
 
