@@ -1,5 +1,20 @@
 
 
+from trades.models import Trade
+from django.utils import timezone
+
+
+
+
+qs = Trade.objects.filter(ticker='AAPL')
+
+qs.exists()
+
+trade = Trade.objects.first()
+
+timezone.localtime(trade.start_time).date() == timezone.localtime(trade.end_time).date()
+
+"""
 from trades.models import Trade, Order
 
  o = Order.objects.filter(ticker='CEMI')[3]
@@ -41,7 +56,10 @@ for date, group in iter:
             print('4', trade)
 
 
-"""
+
+
+
+
 from trades.models import Trade
 from django.db.models import Sum
 from trades.serializers import DisplayTradeSerializer

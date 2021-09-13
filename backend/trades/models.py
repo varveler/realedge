@@ -8,6 +8,64 @@ import uuid
 import datetime
 
 
+class DayTradesGroupedByDayByTicker(models.Model):
+    """
+        Grouped Day trades by ticker by user that the user took on one particular day
+        this class is used to get all trades like some_day_trades_gby_ticker.grouped_day_trades_set.all()
+        since the relationship exist on Trade object
+    """
+    class Meta:
+        unique_together = ('user', 'ticker', 'date')
+
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
+    creation = models.DateTimeField(auto_now_add=True)
+    update = models.DateTimeField(auto_now=True)
+    ticker = models.CharField(max_length=10)
+    date = models.DateField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    # def group_trades(self, trades):
+    #     days = []
+    #     format = '%Y-%m-%d'
+    #     for trade in trades:
+    #         if trade.start_time.date().strftime(format) not in days:
+    #             days.append(trade.start_time.date().strftime(format))
+    #     # group them together with a dict  like {'2021-04-30': {}, '2021-05-12': {}, '2021-05-13': {}}
+    #     grouped_trades_by_day = {k: {} for k in days}
+    #     for day in days:
+    #         trades_day = trades.filter(start_time__year=day[0:4], start_time__month=day[5:7], start_time__day=day[8:10])
+    #         grouped_trades_by_day[day] = trades_day
+    #     for date, trades in grouped_trades_by_day.items():
+    #         tickers = [] # get a list of tickers ['MOTH', 'AAPL', 'GME']
+    #         [tickers.append(trade.ticker) for trade in trades if trade.ticker not in tickers]
+    #         grouped_trades_by_ticker = {k: trades.filter(ticker=k) for k in tickers}
+    #         # inser them in dict like {'2021-04-30': {'MOTH': queryset[trades...]}, '2021-05-12': {'AAPL': queryset[trades...]}, '2021-05-13': {'GME': queryset[trades...]}}
+    #         grouped_trades_by_day[date] = grouped_trades_by_ticker
+    #     # itereate over each day, each ticker to aggregata data and give final dictionary
+    #     for date, ticker in grouped_trades_by_day.items():
+    #         for ticker, trades in ticker.items():
+    #             pnl = remove_zeros(trades.aggregate(Sum('pnl'))['pnl__sum'])
+    #             shares_traded = str(trades.aggregate(Sum('max_size'))['max_size__sum'])
+    #             #calculate if short, long or both
+    #             sides = list(set([trade.side for trade in trades])) #['SH', 'SH','SH', 'LO'] to ['SH', 'LO']
+    #             first = 'short' if sides[0] == 'SH' else 'long'
+    #             side = 'both' if len(sides) > 1 else first
+    #             calculated_comissions = remove_zeros(trades.aggregate(Sum('calculated_comissions'))['calculated_comissions__sum'])
+    #             net = str(trades.aggregate(Sum('net'))['net__sum'])
+    #             serializer = DisplayTradeSerializer(trades, many=True)
+    #             grouped_trades_by_day[date][ticker] = {'trades_count': trades.count(),
+    #                                                     'pnl': pnl,
+    #                                                     'side': side,
+    #                                                     'calculated_comissions': calculated_comissions,
+    #                                                     'net': net,
+    #                                                     'shares_traded': shares_traded,
+    #                                                     'trades': serializer.data,
+    #                                                     }
+    #     return grouped_trades_by_day
+
+
+
+
 class Trade(models.Model):
     SHORT = 'SH'
     LONG = 'LO'
@@ -54,6 +112,7 @@ class Trade(models.Model):
     ecn_fees = models.DecimalField(null=True, blank=True, max_digits=22, decimal_places=10)
 
     #dependent of orders fields:
+    daytrade = models.BooleanField(default=False)
     closed = models.BooleanField(default=False)
     position = models.IntegerField(null=True) #-100 -200 0 100 200 300 400 500 1000 20,000
     max_size = models.PositiveIntegerField(null=True) #100 200 300 400 500 1000 20,000
@@ -66,6 +125,7 @@ class Trade(models.Model):
 
     upgapper = models.ForeignKey(UpGapper, on_delete=models.PROTECT, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    grouped_day_trades = models.ForeignKey(DayTradesGroupedByDayByTicker, on_delete=models.SET_NULL, null=True, blank=True)
 
     comments = models.TextField(default='', null=True)
 
@@ -247,6 +307,16 @@ class Order(models.Model):
                                 parent_trade.pnl = parent_trade.pnl_accumulator
                                 parent_trade.duration = self.last_time - timezone.localtime(parent_trade.start_time)
                                 parent_trade.calculated_comissions = parent_trade.calculate_comissions
+                                if timezone.localtime(parent_trade.start_time).date() == self.last_time.date(): #it is a day trade link to DayTradesGroupedByDayByTicker
+                                    parent_trade.daytrade = True
+                                    parent_grouped_day_trades = DayTradesGroupedByDayByTicker.objects.filter(ticker=self.ticker, user=self.user, date=parent_trade.start_time.date())
+                                    if parent_grouped_day_trades.exists():
+                                        parent_trade.grouped_day_trades = parent_grouped_day_trades.first()
+                                    else:
+                                        parent_grouped_day_trades = DayTradesGroupedByDayByTicker.objects.create(ticker=self.ticker,
+                                                                                                                user=self.user,
+                                                                                                                date=parent_trade.start_time.date())
+                                        parent_trade.grouped_day_trades = parent_grouped_day_trades
                     else: # parent is a long
                         if self.action in [Order.SHORT, Order.SELL]: # sell to cover
                             self.in_out = self.InOut.OUT
@@ -263,6 +333,16 @@ class Order(models.Model):
                                 parent_trade.pnl = parent_trade.pnl_accumulator * (-1)
                                 parent_trade.duration = self.last_time - timezone.localtime(parent_trade.start_time)
                                 parent_trade.calculated_comissions = parent_trade.calculate_comissions
+                                if timezone.localtime(parent_trade.start_time).date() == self.last_time.date(): #it is a day trade link to DayTradesGroupedByDayByTicker
+                                    parent_trade.daytrade = True
+                                    parent_grouped_day_trades = DayTradesGroupedByDayByTicker.objects.filter(ticker=self.ticker, user=self.user, date=parent_trade.start_time.date())
+                                    if parent_grouped_day_trades.exists():
+                                        parent_trade.grouped_day_trades = parent_grouped_day_trades.first()
+                                    else:
+                                        parent_grouped_day_trades = DayTradesGroupedByDayByTicker.objects.create(ticker=self.ticker,
+                                                                                                                user=self.user,
+                                                                                                                date=parent_trade.start_time.date())
+                                        parent_trade.grouped_day_trades = parent_grouped_day_trades
                         else: # adding
                             self.in_out = self.InOut.IN
                             pos = parent_trade.position + int(self.shares_executed)

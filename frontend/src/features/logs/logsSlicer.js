@@ -9,6 +9,11 @@ const initialState = {
   submitCommentsStatus: 'idle',
   deleteCommentsStatus: 'idle',
   error: null,
+  tags: [],
+  getTagsStatus: 'idle',
+  putTagsStatus: 'idle',
+  postTagsStatus: 'idle',
+  deleteTagsStatus: 'idle',
 }
 
 
@@ -54,6 +59,48 @@ export const deleteLogs = createAsyncThunk('logs/deleteLogs', async (data) => {
       .catch(error => {console.log('error delete logs', error)})
 )})
 
+
+export const getTags = createAsyncThunk('logs/getTags', async (data) => {
+  const {ticker, date} = data;
+  var endpoint = `${process.env.NEXT_PUBLIC_API_URL}/logs/tags/${ticker}/${date}/`;
+  return(
+    axiosInstance
+    .get(endpoint)
+    .then(response => response.data)
+)})
+
+
+export const putTags = createAsyncThunk('logs/putTags', async (data) => {
+  const {ticker, date, name, type} = data;
+  var endpoint = `${process.env.NEXT_PUBLIC_API_URL}/logs/tags/${ticker}/${date}/`;
+  return(
+    axiosInstance
+    .put(endpoint, {name:name, type:type })
+    .then(response => response.data)
+)})
+
+
+export const postTags = createAsyncThunk('logs/postTags', async (data) => {
+  const {ticker, date} = data;
+  var endpoint = `${process.env.NEXT_PUBLIC_API_URL}/logs/tags/${ticker}/${date}/`;
+  return(
+    axiosInstance
+    .post(endpoint, {ticker:ticker, date:date})
+    .then(response => response.data)
+)})
+
+
+export const deleteTags = createAsyncThunk('logs/deleteTags', async (data) => {
+  const {ticker, date, name, type} = data;
+  console.log('slicer' ,name, type)
+  var endpoint = `${process.env.NEXT_PUBLIC_API_URL}/logs/tags/${ticker}/${date}/`;
+  return(
+    axiosInstance
+    .delete(endpoint, {data:{name:name, type:type}})
+    .then(response => response.data)
+)})
+
+
 const logsSlicer = createSlice({
   name : 'logs',
   initialState,
@@ -97,6 +144,52 @@ const logsSlicer = createSlice({
     },
     [deleteLogs.rejected]: (state, action) => {
       state.deleteCommentsStatus = 'failed'
+      state.error = action.error.message
+    },
+    [getTags.pending]: (state, action) => {
+      state.getTagsStatus = 'loading'
+    },
+    [getTags.fulfilled]: (state, action) => {
+      state.getTagsStatus = 'succeeded'
+      state.tags = action.payload
+    },
+    [getTags.rejected]: (state, action) => {
+      state.getTagsStatus = 'failed'
+      state.error = action.error.message
+    },
+    [putTags.pending]: (state, action) => {
+      state.putTagsStatus = 'loading'
+    },
+    [putTags.fulfilled]: (state, action) => {
+      state.putTagsStatus = 'succeeded'
+      var ftags = state.tags.filter(tag => !(tag.name == action.payload.name && tag.type == action.payload.type))
+      state.tags = [...ftags, {...action.payload}]
+    },
+    [putTags.rejected]: (state, action) => {
+      state.putTagsStatus = 'failed'
+      state.error = action.error.message
+    },
+    [postTags.pending]: (state, action) => {
+      state.postTagsStatus = 'loading'
+    },
+    [postTags.fulfilled]: (state, action) => {
+      state.postTagsStatus = 'succeeded'
+      state.tags = state.tags.append(action.payload)
+    },
+    [postTags.rejected]: (state, action) => {
+      state.postTagsStatus = 'failed'
+      state.error = action.error.message
+    },
+    [deleteTags.pending]: (state, action) => {
+      state.deleteTagsStatus = 'loading'
+    },
+    [deleteTags.fulfilled]: (state, action) => {
+      state.deleteTagsStatus = 'succeeded'
+      var ftags = state.tags.filter(tag => !(tag.name == action.payload.name && tag.type == action.payload.type))
+      state.tags = [...ftags, {...action.payload}]
+    },
+    [deleteTags.rejected]: (state, action) => {
+      state.deleteTagsStatus = 'failed'
       state.error = action.error.message
     },
   }

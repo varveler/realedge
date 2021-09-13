@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Trade, Order
+from .models import Trade, Order, DayTradesGroupedByDayByTicker
 from common.utils import human_readble_amount, remove_zeros
 
 
@@ -130,3 +130,6 @@ class TradeAdmin(admin.ModelAdmin):
         'uuid'
         )
     pnl.admin_order_field = 'pnl'
+
+
+admin.site.register(DayTradesGroupedByDayByTicker)
