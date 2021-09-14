@@ -65,7 +65,7 @@ def give_gapper_chart_start_and_end_dates(gapper, time_frame):
         end_of_day_utc = end_of_day_est.astimezone(utc)
         return end_of_prev_day_utc, end_of_day_utc
     elif time_frame == '1Day':
-        return gdate - datetime.timedelta(days=140), gdate + datetime.timedelta(days=15)
+        return gdate - datetime.timedelta(days=740), gdate + datetime.timedelta(days=15)
 
 def fix_data(data):
     """
