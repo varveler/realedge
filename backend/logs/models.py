@@ -18,6 +18,8 @@ class TradesTickerLog(models.Model):
 
 
 class TradeTag(models.Model):
+    class Meta:
+        unique_together = ('name', 'type', 'user')
     ASSERTION = 'AS'
     ERROR = 'ER'
     NEUTRAL = 'NE'

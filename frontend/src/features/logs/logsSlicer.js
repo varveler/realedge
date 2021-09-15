@@ -81,11 +81,11 @@ export const putTags = createAsyncThunk('logs/putTags', async (data) => {
 
 
 export const postTags = createAsyncThunk('logs/postTags', async (data) => {
-  const {ticker, date} = data;
+  const {ticker, date, name, type} = data;
   var endpoint = `${process.env.NEXT_PUBLIC_API_URL}/logs/tags/${ticker}/${date}/`;
   return(
     axiosInstance
-    .post(endpoint, {ticker:ticker, date:date})
+    .post(endpoint, {name:name, type:type })
     .then(response => response.data)
 )})
 
@@ -174,7 +174,8 @@ const logsSlicer = createSlice({
     },
     [postTags.fulfilled]: (state, action) => {
       state.postTagsStatus = 'succeeded'
-      state.tags = state.tags.append(action.payload)
+      console.log(action.payload)
+      state.tags = [...state.tags, action.payload]
     },
     [postTags.rejected]: (state, action) => {
       state.postTagsStatus = 'failed'
