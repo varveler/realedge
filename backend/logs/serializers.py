@@ -29,8 +29,8 @@ class TagsSerializer(serializers.ModelSerializer):
     def get_selected(self, obj):
         ticker = self.context.get('ticker')
         date = self.context.get('date')
-        print(obj.ticker_date.filter(ticker=ticker, date=date))
-        return obj.ticker_date.exists()
+        #print('get selected', obj.ticker_date.filter(ticker=ticker, date=date))
+        return obj.ticker_date.filter(ticker=ticker, date=date).exists()
         # if self.context.get('selected'):
         #     return self.context.get('selected')
         # return self.context.get('selected')

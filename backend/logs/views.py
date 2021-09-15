@@ -124,11 +124,11 @@ class TradeAddRemoveTags(APIView):
             return Response('Bad Request No trades on that day with given ticker =( ', status=status.HTTP_400_BAD_REQUEST)
         name = request.data.get('name', '')
         type = request.data.get('type', '')
-        print('################', name, type, request.user)
+        #print('################', name, type, request.user)
         tag = TradeTag.objects.get(name=name, type=type, user=request.user)
         self.check_object_permissions(self.request, tag)
         tag.ticker_date.add(day_trades.get())
-        serializer = TagsSerializer(tag)
+        serializer = TagsSerializer(tag, context={'ticker': ticker, 'date': date})
         return Response(serializer.data)
 
     def delete(self, request, ticker, date, *args, **kwargs):
@@ -138,7 +138,7 @@ class TradeAddRemoveTags(APIView):
             return Response('Bad Request No trades on that day with given ticker =( ', status=status.HTTP_400_BAD_REQUEST)
         name = request.data.get('name', '')
         type = request.data.get('type', '')
-        print('################', name, type, request.user)
+        #print('################', name, type, request.user)
         tag = get_object_or_404(TradeTag, name=name, type=type, user=request.user)
         self.check_object_permissions(self.request, tag)
         serializer = TagsSerializer(tag)

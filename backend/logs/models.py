@@ -38,3 +38,7 @@ class TradeTag(models.Model):
 class TagTickerDayTrade(models.Model):
     tradetag = models.ForeignKey(TradeTag, on_delete=models.SET_NULL, related_name='tags', null=True, blank=True)
     grouped_day_trades = models.ForeignKey(DayTradesGroupedByDayByTicker, on_delete=models.SET_NULL, related_name='grouped_trades', null=True, blank=True)
+
+
+    def __str__(self):
+        return '"%s" tag on %s %s by %s' % (self.tradetag.name, self.grouped_day_trades.ticker, self.grouped_day_trades.date, self.tradetag.user)

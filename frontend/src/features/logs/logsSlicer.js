@@ -107,7 +107,11 @@ const logsSlicer = createSlice({
   reducers: {
     changeComments(state, action) {
       state.bufferComments = action.payload
-    }
+    },
+    setGetTagsStatusAndClean(state, action){
+      state.getTagsStatus = action.payload
+      state.tags = []
+    },
   },
   extraReducers:{
     [getLogs.pending]: (state, action) => {
@@ -174,7 +178,6 @@ const logsSlicer = createSlice({
     },
     [postTags.fulfilled]: (state, action) => {
       state.postTagsStatus = 'succeeded'
-      console.log(action.payload)
       state.tags = [...state.tags, action.payload]
     },
     [postTags.rejected]: (state, action) => {
@@ -199,4 +202,4 @@ const logsSlicer = createSlice({
 
 export default logsSlicer.reducer
 
-export const { changeComments } = logsSlicer.actions;
+export const { changeComments, setGetTagsStatusAndClean } = logsSlicer.actions;

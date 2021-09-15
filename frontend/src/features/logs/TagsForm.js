@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Autocomplete, { createFilterOptions } from '@material-ui/lab/Autocomplete';
-import { getTags, postTags, putTags, deleteTags } from './logsSlicer';
+import { getTags, postTags, putTags, deleteTags, setGetTagsStatusAndClean } from './logsSlicer';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -24,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
 export default function TagsForm({ticker, date, type}){
   const classes = useStyles();
   const dispatch = useDispatch();
-  const {tags} = useSelector(state => state.logs)
+  const {tags, getTagsStatus} = useSelector(state => state.logs)
   const erTags = tags.filter(tag => tag.type_display == 'Error' && tag.selected)
   const asTags = tags.filter(tag => tag.type_display == 'Assertion' && tag.selected)
   const neTags = tags.filter(tag => tag.type_display == 'Neutral' && tag.selected)
@@ -61,8 +61,13 @@ export default function TagsForm({ticker, date, type}){
 
   useEffect(() => {
     if(ticker != undefined && date != undefined){
-      dispatch(getTags({ticker, date}))
+      if(getTagsStatus=='idle'){
+        dispatch(getTags({ticker, date}))
+      }
     };
+    // return function cleanup() {
+    //   dispatch(setGetTagsStatusAndClean('idle'))
+    // };
   },[])
 
 

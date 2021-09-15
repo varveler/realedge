@@ -24,6 +24,9 @@ class DayTradesGroupedByDayByTicker(models.Model):
     date = models.DateField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return "Gped trades on %s at %s by %s" % (self.ticker, self.date, self.user)
+
     # def group_trades(self, trades):
     #     days = []
     #     format = '%Y-%m-%d'
