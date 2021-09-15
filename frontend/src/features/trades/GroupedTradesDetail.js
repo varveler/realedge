@@ -174,8 +174,8 @@ export default function TradeDetail(){
         <Grid item xs={1}>
         </Grid>
         <Grid item xs={10}>
-          { /* uuids.length >= 1 ? <TradeChartWrapper uuids={uuids} timeFrame={'1Min'}/> : null }
-          {uuids.length >= 1 ? <TradeChartWrapper uuids={uuids} timeFrame={'1Day'}/> : null /**/}
+          {uuids.length >= 1 ? <TradeChartWrapper uuids={uuids} timeFrame={'1Min'}/> : null }
+          {uuids.length >= 1 ? <TradeChartWrapper uuids={uuids} timeFrame={'1Day'}/> : null }
           <TradesDetailsTables groupedTradesDetails={groupedDetails} trades={groupedDetails.trades} orders={orders} />
           <TagsForm ticker={groupedDetails.ticker} date={groupedDetails.date}/>
           <CommentsForm ticker={groupedDetails.ticker} date={groupedDetails.date} />
