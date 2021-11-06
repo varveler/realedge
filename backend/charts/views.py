@@ -6,7 +6,8 @@ from .mutils import (get_all_data,
                     combine_data_filled_orders,
                     apply_vwap_pandas,
                     apply_intraday_vwap_pandas,
-                    combine_data_with_news)
+                    combine_data_with_news,
+                    remove_na)
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.authentication import TokenAuthentication
@@ -34,6 +35,7 @@ def trade_data(request, time_frame):
         data = get_all_data(time_frame, ticker, start, end)
         data = apply_vwap_pandas(data)
         data = apply_intraday_vwap_pandas(data)
+        data = remove_na(data)
         fix_data(data)
         combine_data_filled_orders(data, trades[0], orders)
         news = News.objects.filter(tickers__contains=ticker, publish_date__lte=end, publish_date__gte=start)
@@ -55,6 +57,7 @@ def gapper_data(request, slug, time_frame):
         data = get_all_data(time_frame, gapper.ticker, start, end)
         data = apply_vwap_pandas(data)
         data = apply_intraday_vwap_pandas(data)
+        data = remove_na(data)
         fix_data(data)
         news = News.objects.filter(tickers__contains=ticker, publish_date__lte=end, publish_date__gte=start)
         combine_data_with_news(data, news)

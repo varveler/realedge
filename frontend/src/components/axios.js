@@ -4,6 +4,7 @@ const baseURL = process.env.NEXT_PUBLIC_API_URL;
 const ISSERVER = typeof window === "undefined";
 let axiosInstance;
 
+
 if(!ISSERVER){
 	 axiosInstance = axios.create({
 		baseURL: baseURL,
@@ -35,7 +36,7 @@ if(!ISSERVER){
 			console.log('error.response', error.response)
 			if (
 				error.response.status === 401 &&
-				originalRequest.url === baseURL + 'token/refresh/'
+				originalRequest.url === baseURL + '/token/refresh/'
 			) {
 				window.location.href = '/signin/';
 				return Promise.reject(error);
@@ -53,14 +54,13 @@ if(!ISSERVER){
 
 					// exp date in token is expressed in seconds, while now() returns milliseconds:
 					const now = Math.ceil(Date.now() / 1000);
-					console.log(tokenParts.exp);
 
 					if (tokenParts.exp > now) {
 						return axiosInstance
 							.post('/token/refresh/', { refresh: refreshToken })
 							.then((response) => {
 								sessionStorage.setItem('access_token', response.data.access);
-								localStorage.setItem('refresh_token', response.data.refresh);
+								//localStorage.setItem('refresh_token', response.data.refresh);
 
 								axiosInstance.defaults.headers['Authorization'] =
 									'JWT ' + response.data.access;
@@ -70,7 +70,7 @@ if(!ISSERVER){
 								return axiosInstance(originalRequest);
 							})
 							.catch((err) => {
-								console.log(err);
+								console.log('er1', err);
 							});
 					} else {
 						console.log('Refresh token is expired', tokenParts.exp, now);

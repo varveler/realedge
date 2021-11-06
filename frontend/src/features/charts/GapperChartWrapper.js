@@ -27,7 +27,7 @@ export default function GapperChartWrapper ({slug, timeFrame}){
   //
   //   }
   // },[id])
-
+  if (data == undefined) return <p>Unable to load {timeFrame} chart.</p>
   if ( data.length == 0 ) {
     return (
       <div style={{height: '200px', marginTop:'150px'}}>

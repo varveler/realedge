@@ -90,7 +90,7 @@ export default function ByDayByTrade () {
       var renderedTrades = ordererByDayTrades[date].map(trade => {
         var path = `/${trade.slug}`
         return(
-        <TableRow key={trade.uuid}>
+        <TableRow key={trade.slug}>
           <TableCell onClick={ (e) => handleRoute(e, path)} className={classes.cellLink}>
             <a>{trade.ticker}</a>
           </TableCell>

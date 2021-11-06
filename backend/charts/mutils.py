@@ -177,3 +177,8 @@ def combine_data_with_news(data, news):
     for candle in data:
         if candle['date'] in dates:
             candle['news'] = news_dict[candle['date']]
+
+def remove_na(data):
+    df = pd.DataFrame(data)
+    df = df.fillna('')
+    return df.to_dict('records')
