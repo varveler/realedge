@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Autocomplete, { createFilterOptions } from '@material-ui/lab/Autocomplete';
@@ -129,6 +129,21 @@ export default function TagsForm({ticker, date, type}){
     return option.name;
   }
 
+  const GreenAutocomplete = withStyles({
+    tag: {
+      backgroundColor: '#57f2cb'
+    }
+  })(Autocomplete);
+
+  const RedAutocomplete = withStyles({
+    tag: {
+      backgroundColor: '#fc8d9a'
+    }
+  })(Autocomplete);
+
+
+
+
   return (
     <div className={classes.containerTags}>
       <Grid container
@@ -137,7 +152,7 @@ export default function TagsForm({ticker, date, type}){
             alignItems="center"
             spacing={5}>
         <Grid item xs={4}>
-          <Autocomplete
+          <GreenAutocomplete
             value={asTags}
             onChange={(event, newValue) => {handleChange(event, newValue, 'AS') }}
             filterOptions={(options, params) => filterAuto(options, params, 'AS', 'Assertion')}
@@ -181,7 +196,7 @@ export default function TagsForm({ticker, date, type}){
           />
         </Grid>
         <Grid item xs={4}>
-          <Autocomplete
+          <RedAutocomplete
             value={erTags}
             onChange={(event, newValue) => {handleChange(event, newValue, 'ER') }}
             filterOptions={(options, params) => filterAuto(options, params, 'ER', 'Error')}

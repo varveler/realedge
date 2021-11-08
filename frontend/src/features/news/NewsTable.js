@@ -43,6 +43,10 @@ const useStyles = makeStyles((theme) => ({
     textAlign:'center',
     whiteSpace: 'nowrap'
   },
+  cellTitle: {
+    textAlign:'left',
+    whiteSpace: 'nowrap'
+  },
   tradesDetailsTitle:{
     fontSize: '20px'
   },
@@ -52,10 +56,18 @@ const useStyles = makeStyles((theme) => ({
   infoDate:{
     color: 'gray',
     marginLeft: '7px'
+  },
+  infoTitle:{
+    color: 'gray',
+    fontSize: '1rem',
+    paddingBottom:'10px'
+  },
+  table:{
+    paddingTop:'10px'
   }
 }));
 
-export default function TradesDetails({news}){
+export default function TradesDetails({news, _from, to, ticker}){
   const classes = useStyles()
   const userIsLogedIn = useSelector(selectUserIsLogedIn)
   const formatTime = timeFormat("%Y %m %d %H:%M")
@@ -63,23 +75,20 @@ export default function TradesDetails({news}){
     <Fragment>
       <div className={classes.mainTradesContainer}>
           <TableContainer className={classes.tradesTableContainer}>
+          <Typography className={classes.infoTitle} align='center' component='p'>
+            { _from ? `${ticker} news from
+              ${_from.substr(4,2)}/${_from.substr(6,2)}/${_from.substr(0,4)}
+              to
+              ${to.substr(4,2)}/${to.substr(6,2)}/${to.substr(0,4)}`
+            : null}
+          </Typography>
             <Table className={classes.table} size="small" aria-label="table">
-              <TableHead>
-                <TableRow>
-                  <TableCell size={"small"} className={classes.cellheaderTradeTitle}> Date </TableCell>
-                  <TableCell size={"small"} className={classes.cellheaderTradeTitle}> News </TableCell>
-                  <TableCell size={"small"} className={classes.cellheaderTradeTitle}> Source </TableCell>
-                  {userIsLogedIn ?
-                  <TableCell size={"small"} className={classes.cellheaderTradeTitle}> Internal Source </TableCell>
-                  :null}
-                </TableRow>
-              </TableHead>
               <TableBody>
                 {news && news.length >= 1 && news.map(n => (
               <TableRow key={n.uuid}>
                 <TableCell size={"small"} className={classes.cellTrade}> {dateTimeFromStrToFormatedStr(n.publish_date)} <span className={classes.infoDate}>{n.natural_time}</span>  </TableCell>
-                <TableCell size={"small"} className={classes.cellTrade}> <a className={classes.cellLink} href={n.url } target='_blank'> {n.title} </a> </TableCell>
-                <TableCell size={"small"} className={classes.cellTrade}> {n.source} </TableCell>
+                <TableCell size={"small"} className={classes.cellTitle}> <a className={classes.cellLink} href={n.url } target='_blank'> {n.short_title} </a> </TableCell>
+                <TableCell size={"small"} className={classes.cellTitle}> {n.source} </TableCell>
                 {userIsLogedIn ?
                 <TableCell size={"small"} className={classes.cellTrade}> {n.internal_source} </TableCell>
                 : null}

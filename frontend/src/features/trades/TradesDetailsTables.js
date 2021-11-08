@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
     borderBottom: '1px solid gray'
   },
   tradesTableContainer: {
-    marginLeft:'30px'
+    marginLeft:'0px'
   },
   mainTradesContainer:{
     marginTop: '20px'
@@ -34,15 +34,16 @@ const useStyles = makeStyles((theme) => ({
     textAlign:'center'
   },
   cellheaderTradeTitle: {
-    fontSize: '18px',
+    fontSize: '14px',
     textAlign:'center'
   },
   cellTrade: {
-    fontSize: '16px',
+    fontSize: '14px',
     textAlign:'center'
   },
   tradesDetailsTitle:{
-    fontSize: '20px'
+    fontSize: '1rem',
+    color: 'gray'
   },
 }));
 
@@ -51,36 +52,6 @@ export default function TradesDetails({groupedTradesDetails, trades, orders}){
 
   return(
     <Fragment>
-    {groupedTradesDetails ?
-      <div className={classes.groupedTradesDetailContainer}>
-      <TableContainer key={groupedTradesDetails.date} className={classes.tableContainer}>
-        <Table className={classes.table} size="small" aria-label="meal table">
-          <TableHead>
-            <TableRow>
-              <TableCell size={"small"} className={classes.cellheaderTitleGroupedDetails}> Ticker </TableCell>
-              <TableCell size={"small"} className={classes.cellheaderTitleGroupedDetails}> Side </TableCell>
-              <TableCell size={"small"} className={classes.cellheaderTitleGroupedDetails}> PNL </TableCell>
-              <TableCell size={"small"} className={classes.cellheaderTitleGroupedDetails}> Cal. Com. </TableCell>
-              <TableCell size={"small"} className={classes.cellheaderTitleGroupedDetails}> NET </TableCell>
-              <TableCell size={"small"} className={classes.cellheaderTitleGroupedDetails}> Trades </TableCell>
-              <TableCell size={"small"} className={classes.cellheaderTitleGroupedDetails}> Shares Traded </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-          <TableRow key={groupedTradesDetails.uuid}>
-            <TableCell className={classes.cellGroupedDetails}> {groupedTradesDetails.ticker} </TableCell>
-            <TableCell className={classes.cellGroupedDetails}> {groupedTradesDetails.side} </TableCell>
-            <TableCell className={classes.cellGroupedDetails}> {groupedTradesDetails.pnl} </TableCell>
-            <TableCell className={classes.cellGroupedDetails}> {groupedTradesDetails.calculated_comissions} </TableCell>
-            <TableCell className={classes.cellGroupedDetails}> {groupedTradesDetails.net} </TableCell>
-            <TableCell className={classes.cellGroupedDetails}> {groupedTradesDetails.trades_count} </TableCell>
-            <TableCell className={classes.cellGroupedDetails}> {groupedTradesDetails.shares_traded} </TableCell>
-          </TableRow>
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </div>
-    : null}
     <div className={classes.mainTradesContainer}>
       <Typography align={'center'} className={classes.tradesDetailsTitle}> {trades && trades.length == 1 ? 'Trade Details' : 'Trades Details' } </Typography>
         <TableContainer className={classes.tradesTableContainer}>

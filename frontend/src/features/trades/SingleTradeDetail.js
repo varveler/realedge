@@ -135,11 +135,19 @@ export default function TradeDetail(){
         <Grid item xs={8}>
             <Grid container spacing={1}>
               <Grid item xs={3}>
+                <Grid
+                  item
+                  container
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="baseline"
+                >
                 {tradeSelected.pnl > 0 ?
                   <Typography className={classes.profit} component='h1'>{tradeSelected.pnl}<span className={classes.infoTitle}>{' '}profit</span></Typography>
                 : <Typography className={classes.loss} component='h1'>{tradeSelected.pnl}<span className={classes.infoTitle}>{' '}loss</span></Typography>
                 }
-                <Typography className={classes.info} component='p'><span className={classes.infoTitle}>on{' '}</span>{tradeSelected.ticker} <span className={classes.infoTitle}>{' '}{tradeSelected.natural_time}</span></Typography>
+                  <Typography className={classes.info} component='p'><span className={classes.infoTitle}>on{' '}</span>{tradeSelected.ticker} <span className={classes.infoTitle}>{' '}{tradeSelected.natural_time}</span></Typography>
+                </Grid>
               </Grid>
               <Grid item xs={9}>
                 {gapper ? <TopTableGapperDetail gapper={gapper}/> : null }

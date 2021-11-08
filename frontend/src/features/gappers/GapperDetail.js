@@ -20,6 +20,7 @@ import {fetchNews} from '../news/newsSlicer'
 import { timeFormat } from "d3-time-format";
 import {fromToDates} from '../../components/helpers'
 import TopTableGapperDetail from './TopTableGapperDetail'
+import Box from '@material-ui/core/Box';
 
 //const useStyles = makeStyles((theme) => ({})
 
@@ -40,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
   percentage: {
     fontSize: '1.5rem',
     color: 'green',
-    marginTop: '10px'
+    marginLeft: '7px'
   },
   cell: {
     textAlign: 'center'
@@ -61,8 +62,7 @@ const useStyles = makeStyles((theme) => ({
   },
   infoNoNews:{
     color: 'gray',
-    fontSize: '1rem',
-    marginTop: '30px'
+    fontSize: '1rem'
   }
 }))
 
@@ -80,7 +80,6 @@ export default function GapperDetail(){
   const fetchChartStatus = useSelector(state => state.charts.status)
   const {news, newsStatus} = useSelector(state => state.news)
   const {_from, to} = useSelector(state => state.charts)
-  console.log(id, _from, to)
   // useEffect(() => {
   //   return function cleanup() {
   //     dispatch(setFetchChartStatus('idle'))
@@ -111,10 +110,17 @@ export default function GapperDetail(){
             <Grid item xs={8}>
                   <Grid container spacing={1}>
                     <Grid item xs={3}>
-                      <Typography className={classes.ticker} component='h1'>{selectedGapper.ticker}</Typography>
+                    <Grid
+                      item
+                      direction="row"
+                      justifyContent="flex-start"
+                      alignItems="baseline"
+                    >
+                        <Typography className={classes.ticker} component='h1'>{selectedGapper.ticker}</Typography> {' '}
+                        <Typography className={ classes.percentage} component='p'> {selectedGapper.gap_percentage_display}<span className={classes.infoTitle}>{' '}gap up</span></Typography>
+                      </Grid>
                       <Typography className={classes.info} component='p'>{selectedGapper.company_name}</Typography>
                       { selectedGapper.industry ? <Typography className={classes.info} component='p'><span className={classes.infoTitle}>Industry:</span> {selectedGapper.industry}</Typography>:null}
-                      <Typography className={ classes.percentage} component='p'> {selectedGapper.gap_percentage_display}<span className={classes.infoTitle}>{' '}gap</span></Typography>
                     </Grid>
                     <Grid item xs={9}>
                       <TopTableGapperDetail gapper={selectedGapper} />
@@ -128,9 +134,28 @@ export default function GapperDetail(){
             <Grid item xs={2}>
             </Grid>
             <Grid item xs={8}>
-                {selectedGapper ? <GapperChartWrapper slug={id} timeFrame={'1Min'} /> : <p>no gapper slected</p> }
-                {news && news.length >= 1 ? <NewsTable news={news} /> : <Typography className={classes.infoNoNews} align={'center'} component='p'>No news found</Typography> }
-                { selectedGapper ? <GapperChartWrapper slug={id} timeFrame={'1Day'} daily /> : <p>no gapper slected</p>}
+              <Box pt={1}>
+                {news && news.length >= 1 ?
+                      <Box>
+                        <NewsTable _from={_from} to={to} ticker={selectedGapper.ticker} news={news} />
+                      </Box>
+                  : <Box pt={3}>
+                      <Typography className={classes.infoNoNews} align={'center'} component='p'>
+                        { _from ? `No news found for ${selectedGapper.ticker} from
+                          ${_from.substr(4,2)}/${_from.substr(6,2)}/${_from.substr(0,4)}
+                          to
+                          ${to.substr(4,2)}/${to.substr(6,2)}/${to.substr(0,4)}`
+                        : null}
+                      </Typography>
+                    </Box>
+                }
+              </Box>
+              <Box pt={1}>
+                {selectedGapper ? <GapperChartWrapper ticker={selectedGapper.ticker} slug={id} timeFrame={'1Min'} /> : <p>no gapper slected</p> }
+              </Box>
+              <Box pt={1}>
+                {selectedGapper ? <GapperChartWrapper ticker={selectedGapper.ticker} slug={id} timeFrame={'1Day'} daily /> : <p>no gapper slected</p>}
+              </Box>
             </Grid>
             <Grid item xs={2}>
             </Grid>

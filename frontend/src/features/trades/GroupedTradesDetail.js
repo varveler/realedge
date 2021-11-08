@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchGroupedTradesDetails, submitComment, changeComment, fetchOrders, cleanGroupedTradesDetailsFetchStatus, cleanFetchOrdersStatus } from './tradesSlicer';
 import Grid from '@material-ui/core/Grid';
@@ -34,25 +34,30 @@ const useStyles = makeStyles((theme) => ({
   },
   profit:{
     fontSize: '2.5rem',
-    color: 'green'
+    color: '#00af83',
+    marginRight: '5px'
 },
   loss: {
     fontSize: '2.5rem',
-    color: 'red'
+    color: '#fc5a6d',
+    marginRight: '5px'
 },
   ticker: {
     fontSize: '2.5rem'
   },
   infoTitle:{
     color: 'gray',
-    fontSize: '1rem'
+    fontSize: '1rem',
+    marginRight: '5px'
   },
   infoTitleTable:{
     color: 'gray',
     fontSize: '1rem',
     textAlign: 'center'
   },
-
+  info:{
+    marginRight: '5px'
+  },
   percentage: {
     fontSize: '1.5rem',
     color: 'green',
@@ -87,6 +92,7 @@ export default function TradeDetail(){
   const userIsLogedIn = useSelector(selectUserIsLogedIn);
   //const chartData = useSelector(state => state.charts.data)
   //const fetchChartStatus = useSelector(state => state.charts.status)
+  const {from, to} = useSelector(state => state.charts)
   const gapper = useSelector(state => state.gappers.selected)
   const {fetchGroupedTradesDetailsStatus,
         fetchOrdersStatus,
@@ -154,14 +160,40 @@ export default function TradeDetail(){
         </Grid>
         <Grid item xs={8}>
             <Grid container spacing={1}>
-              <Grid item xs={3}>
+              <Grid
+                item
+                container
+                direction="row"
+                justifyContent="space-between"
+                alignItems="baseline"
+              >
                 {groupedDetails.pnl > 0 ?
-                  <Typography className={classes.profit} component='h1'>{groupedDetails.pnl}<span className={classes.infoTitle}>{' '}profit</span></Typography>
-                : <Typography className={classes.loss} component='h1'>{groupedDetails.pnl}<span className={classes.infoTitle}>{' '}loss</span></Typography>
+                  <Fragment>
+                    <Typography className={classes.profit} component='h1'>
+                      {groupedDetails.pnl}
+                    </Typography>
+                    <Typography className={classes.infoTitle}>
+                      profit on
+                    </Typography>
+                  </Fragment>
+                : <Fragment>
+                    <Typography className={classes.loss} component='h1'>
+                      {groupedDetails.pnl}
+                    </Typography>
+                    <Typography className={classes.infoTitle}>
+                      loss on
+                    </Typography>
+                  </Fragment>
                 }
-                <Typography className={classes.info} component='p'><span className={classes.infoTitle}>on{' '}</span>{groupedDetails.ticker} <span className={classes.infoTitle}>{' '}{groupedDetails.natural_time}</span></Typography>
-                <Typography className={classes.info} component='p'><span className={classes.infoTitle}>with{' '}</span>{groupedDetails.trades_count} <span className={classes.infoTitle}>{groupedDetails.trades_count == 1 ? 'trade' : 'trades'}</span></Typography>
-              </Grid>
+                <Typography className={classes.info} component='p'>
+                  {groupedDetails.ticker}
+                </Typography>
+                  <span className={classes.infoTitle}>
+                    with{' '}
+                    {groupedDetails.trades_count}
+                    {groupedDetails.trades_count == 1 ? ' trade' : ' trades'}
+                  </span>
+                </Grid>
               <Grid item xs={9}>
                 {gapper ? <TopTableGapperDetail gapper={gapper}/> : null }
               </Grid>
@@ -171,15 +203,15 @@ export default function TradeDetail(){
       </Grid>
     </Grid>
       <Grid container spacing={1}>
-        <Grid item xs={1}>
+        <Grid item xs={2}>
         </Grid>
-        <Grid item xs={10}>
-          {/* uuids.length >= 1 ? <TradeChartWrapper uuids={uuids} timeFrame={'1Min'}/> : null }
-          {uuids.length >= 1 ? <TradeChartWrapper uuids={uuids} timeFrame={'1Day'}/> : null */}
-          <TradesDetailsTables groupedTradesDetails={groupedDetails} trades={groupedDetails.trades} orders={orders} />
+        <Grid item xs={8}>
           <TagsForm ticker={groupedDetails.ticker} date={groupedDetails.date}/>
           <CommentsForm ticker={groupedDetails.ticker} date={groupedDetails.date} />
-          {/* <NewsTable ticker={slug.split('-')[0]} />
+          <TradesDetailsTables groupedTradesDetails={groupedDetails} trades={groupedDetails.trades} orders={orders} />
+          { uuids.length >= 1 ? <TradeChartWrapper uuids={uuids} ticker={groupedDetails.ticker} timeFrame={'1Min'}/> : null }
+          {uuids.length >= 1 ? <TradeChartWrapper uuids={uuids} ticker={groupedDetails.ticker} timeFrame={'1Day'}/> : null }
+          <NewsTable _from={from} to={to} ticker={slug.split('-')[0]} />
             {/*<TextField
             className={classes.tradeComents}
             id="outlined-multiline-static"
@@ -195,7 +227,7 @@ export default function TradeDetail(){
             Save
           </Button> /*/}
         </Grid>
-        <Grid item xs={1}>
+        <Grid item xs={2}>
         </Grid>
       </Grid>
     </div>

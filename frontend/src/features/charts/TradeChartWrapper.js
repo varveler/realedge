@@ -8,7 +8,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Grid from '@material-ui/core/Grid';
 
 
-export default function TradeChartWrapper ({uuids, timeFrame}){
+export default function TradeChartWrapper ({uuids, timeFrame, ticker}){
   const dispatch = useDispatch()
   const data = useSelector(state => state.charts.data[timeFrame])
   const {status} = useSelector(state => state.charts)
@@ -63,7 +63,7 @@ export default function TradeChartWrapper ({uuids, timeFrame}){
       }
     )
     return (
-        <Chart type={'svg'} data={bars} timeFrame={timeFrame} intraday />
+        <Chart type={'svg'} data={bars} timeFrame={timeFrame} intraday ticker={ticker} />
     )
   }else{
     const bars = data.map(
@@ -73,7 +73,7 @@ export default function TradeChartWrapper ({uuids, timeFrame}){
       }
     )
     return (
-        <Chart type={'svg'} timeFrame={'Day'} data={bars} />
+        <Chart type={'svg'} timeFrame={'Day'} data={bars} ticker={ticker}/>
     )
   }
 

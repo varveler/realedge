@@ -13,6 +13,9 @@ const useStyles = makeStyles((theme) => ({
   },
   tradeComents: {
     marginTop: '25px'
+  },
+  button:{
+    margin: '5px'
   }
 }))
 
@@ -43,9 +46,7 @@ export default function CommentsForm({ticker, date}){
   return (
     <div className={classes.containerComments}>
       <Grid container spacing={1}>
-        <Grid item xs={1}>
-        </Grid>
-        <Grid item xs={10}>
+        <Grid item xs={12} justify="space-between">
           <TextField
             className={classes.tradeComents}
             id="outlined-multiline-static"
@@ -57,15 +58,14 @@ export default function CommentsForm({ticker, date}){
             value={bufferComments || ''}
             onChange={event => dispatch(changeComments(event.target.value))}
           />
-          <Button onClick={(event) => {event.preventDefault; handleSubmit(uuid, bufferComments, ticker, date )}}
+          <Button className={classes.button}
+                  onClick={(event) => {event.preventDefault; handleSubmit(uuid, bufferComments, ticker, date )}}
                   variant="contained"
                   color="primary"
                   disabled={bufferComments == comments}
           >
             Save
           </Button>
-        </Grid>
-        <Grid item xs={1}>
         </Grid>
       </Grid>
     </div>
