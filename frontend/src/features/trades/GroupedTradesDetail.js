@@ -161,7 +161,6 @@ export default function TradeDetail(){
         <Grid item xs={8}>
             <Grid container spacing={1}>
               <Grid
-                xs={3}
                 item
                 container
                 direction="row"
@@ -194,9 +193,7 @@ export default function TradeDetail(){
                   {groupedDetails.trades_count}
                   {groupedDetails.trades_count == 1 ? ' trade' : ' trades'}
                 </span>
-                <Grid item xs={9}>
-                  {gapper ? <TopTableGapperDetail gapper={gapper}/> : null }
-                </Grid>
+                {gapper ? <TopTableGapperDetail gapper={gapper}/> : null }
               </Grid>
             </Grid>
       </Grid>
