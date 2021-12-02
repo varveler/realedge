@@ -23,7 +23,7 @@ export const fetchGappers = createAsyncThunk('gappers/fetchGappers', async (user
   )});
 
 export const fetchGapper = createAsyncThunk('gappers/fetchGapper', async (id) => {
-  console.log('id is ', id)
+  //console.log('id is ', id)
   if(id != undefined){
     return(
       axiosInstance
@@ -36,7 +36,7 @@ export const fetchGapper = createAsyncThunk('gappers/fetchGapper', async (id) =>
 
 export const fetchMoreGappers = createAsyncThunk('gappers/fetchMoreGappers', async (data) => {
   const {oldestDate, userIsLogedIn} = data;
-  console.log('oldest thunk', oldestDate)
+  //console.log('oldest thunk', oldestDate)
   var endpoint = 'data';
   if(userIsLogedIn){ endpoint = 'complete-data' }
   return (
@@ -74,6 +74,7 @@ const gapperSlice = createSlice({
         const oldest = state.dates.reduce((c, n) =>
             Date.parse(n) < Date.parse(c) ? n : c
         );
+        //console.log('oldest', oldest)
         state.oldestDate = oldest;
       }
     }

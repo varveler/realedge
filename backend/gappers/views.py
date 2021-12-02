@@ -24,7 +24,7 @@ def homepage(request):
 def public_gappers(request):
     if request.method == 'GET':
         param = request.GET.get('oldest', None)
-        EXTRA_DAYS = 9
+        EXTRA_DAYS = 15
         if param:
             oldest = convert_str_to_dateobj(param)
             extra = oldest - datetime.timedelta(days=EXTRA_DAYS)
@@ -41,7 +41,7 @@ def public_gappers(request):
 def loged_in_gappers(request):
     if request.method == 'GET':
         param = request.GET.get('oldest', None)
-        EXTRA_DAYS = 9
+        EXTRA_DAYS = 15
         if param:
             oldest = convert_str_to_dateobj(param)
             extra = oldest - datetime.timedelta(days=EXTRA_DAYS)
@@ -55,7 +55,6 @@ def loged_in_gappers(request):
 
 @api_view(['GET', ])
 def gapper_detail(request, _id):
-    print(_id)
     ticker = _id.split('-')[0]
     date = _id.split('-')[1]
     gapper = UpGapper.objects.filter(ticker=ticker, date__year=date[0:4], date__month=date[4:6], date__day=date[6:8])
