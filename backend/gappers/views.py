@@ -26,12 +26,12 @@ def public_gappers(request):
         param = request.GET.get('oldest', None)
         EXTRA_DAYS = 15
         gappers = None
-        now = timezone.now().date()
-        while not gappers:
+        while not gappers: #bug fix when there is not gappers on EXTRA_DAYS
             if param:
                 oldest = convert_str_to_dateobj(param)
                 extra = oldest - datetime.timedelta(days=EXTRA_DAYS)
             else:
+                now = timezone.now().date()
                 extra = now - datetime.timedelta(days=EXTRA_DAYS)
             gappers = UpGapper.objects.filter(date__gte=extra, gap_percentage__gte=0.2)
             EXTRA_DAYS =+ 1
@@ -45,13 +45,16 @@ def loged_in_gappers(request):
     if request.method == 'GET':
         param = request.GET.get('oldest', None)
         EXTRA_DAYS = 15
-        if param:
-            oldest = convert_str_to_dateobj(param)
-            extra = oldest - datetime.timedelta(days=EXTRA_DAYS)
-        else:
-            now = timezone.now().date()
-            extra = now - datetime.timedelta(days=EXTRA_DAYS)
-        gappers = UpGapper.objects.filter(date__gte=extra)
+        gappers = None
+        while not gappers:
+            if param:
+                oldest = convert_str_to_dateobj(param)
+                extra = oldest - datetime.timedelta(days=EXTRA_DAYS)
+            else:
+                now = timezone.now().date()
+                extra = now - datetime.timedelta(days=EXTRA_DAYS)
+            gappers = UpGapper.objects.filter(date__gte=extra)
+            EXTRA_DAYS =+ 1
         serializer = GapperSerializer(gappers, many=True, )
         return JsonResponse(serializer.data, safe=False)
 
