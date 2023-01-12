@@ -3,7 +3,7 @@ services:
   hydro:
     build:
       context: ./backend
-      dockerfile: Dockerfile-hydro
+      dockerfile: Dockerfile-test
     entrypoint: ["/tini", "--"]
     volumes:
       - ./backend/:/backend/
@@ -15,6 +15,7 @@ services:
     env_file: ./backend/.env
     depends_on:
       - db
+      - selenium-hub
     networks:
       - djangonetwork
     #tty: true

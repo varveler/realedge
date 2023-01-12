@@ -7,7 +7,7 @@ services:
         env_file: ./devops/docker/db/.env
         volumes:
             - db_data:/var/lib/postgresql/
-            - ./docker/backups/dumps/:/dumps/
+            #- ./docker/backups/dumps/:/dumps/
         networks:
             - djangonetwork
     backend:
@@ -120,26 +120,26 @@ services:
             - rabbit
         networks:
             - djangonetwork
-    hub:
-        image: selenium/hub:latest
-        expose:
-          - 4444
+    selenium-hub:
+        image: selenium/hub:4.6.0-20221104
+        container_name: selenium-hub
+        ports:
+            - "4442:4442"
+            - "4443:4443"
+            - "4444:4444"
         networks:
           - djangonetwork
-
     chrome:
-        image: selenium/node-chrome-debug:latest
-        hostname: chrome
+        image: selenium/node-chrome:4.6.0-20221104
+        shm_size: 2gb
         volumes:
-          - /dev/shm:/dev/shm
-        environment:
-          - HUB_PORT_4444_TCP_ADDR=hub
-          - HUB_PORT_4444_TCP_PORT=4444
-          - DBUS_SESSION_BUS_ADDRESS=/dev/null
-        ports:
-          - 5900:5900
+            - /dev/shm:/dev/shm
         depends_on:
-          - hub
+            - selenium-hub
+        environment:
+            - SE_EVENT_BUS_HOST=selenium-hub
+            - SE_EVENT_BUS_PUBLISH_PORT=4442
+            - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
         networks:
           - djangonetwork
 volumes:

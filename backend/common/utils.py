@@ -26,7 +26,7 @@ def get_env_variable(var_name):
 #CHROMEDRIVER_PATH = '/usr/local/bin/chromedriver'
 #CHROMEDRIVER_PATH = '~/chromedriver'
 #CHROMEDRIVER_PATH = '../backend/drivers/chromedriver'
-CHROMEDRIVER_PATH = get_env_variable('CHROMEDRIVER_PATH')
+#CHROMEDRIVER_PATH = get_env_variable('CHROMEDRIVER_PATH')
 
 
 
@@ -47,8 +47,8 @@ def ghost_driver():
     options.add_argument(f'user-agent={user_agent}')
     #driver = webdriver.Chrome(ChromeDriverManager().install())
     #driver = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH, chrome_options=options)
-    driver = webdriver.Remote("http://hub:4444/wd/hub", desired_capabilities=options.to_capabilities())
-
+    #driver = webdriver.Remote("http://hub:4444/wd/hub", desired_capabilities=options.to_capabilities())
+    driver = webdriver.Remote("http://selenium-hub:4444/wd/hub", desired_capabilities=options.to_capabilities())
     #driver = webdriver.Chrome(chrome_options=options)
     '''
     driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {

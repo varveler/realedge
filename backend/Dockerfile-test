@@ -1,0 +1,52 @@
+FROM ubuntu:18.04
+
+RUN apt-get update && apt-get install -y \
+    python3.8 \
+    python3-pip \
+    python3.8-dev \
+    git \
+    nano \
+    wget \
+    build-essential \
+    gdal-bin  \
+    curl  
+
+USER root
+
+ADD https://github.com/krallin/tini/releases/download/v0.14.0/tini /tini
+RUN chmod +x /tini
+
+# If using your own Docker image without jupyter installed:
+#RUN pip install jupyter
+
+ENV JUPYTER_TOKEN=eaEahuHUeaEahuHU
+
+# install google chrome
+RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+RUN sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+RUN apt-get -y update
+RUN apt-get install -y google-chrome-stable
+RUN apt-get install -yqq unzip
+
+# 1) GET INSTALLED CHROME VERSION, cut it, get latest chromedriver version and get it
+RUN chrome_version=$(google-chrome -product-version) && \
+installed_chrome=$(echo ${chrome_version} | sed 's/\.[^.]*$//') && \
+available_chrome_driver_version=$(curl https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${installed_chrome}) && \
+wget -O /tmp/chromedriver.zip "https://chromedriver.storage.googleapis.com/${available_chrome_driver_version}/chromedriver_linux64.zip"
+
+RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
+
+ADD local.requirements.txt /backend/
+RUN pip3 install -r /backend/local.requirements.txt
+
+COPY ./ /backend/
+
+EXPOSE 8888
+ENTRYPOINT ["/tini", "--"]
+WORKDIR /backend
+# --no-browser & --port aren't strictly necessary. presented here for clarity
+#CMD ["jupyter-notebook", "--no-browser", "--ip=0.0.0.0", "--port=8888"]
+# if running as root, you need to explicitly allow this:
+#CMD ["python", "manage.py shell_plus --notebook"]
+#CMD ["jupyter-notebook", "--allow-root", "--no-browser",  "--ip=0.0.0.0", "--port=8888"]
+#CMD ["sleep", "infinity"]

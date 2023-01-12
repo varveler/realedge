@@ -395,11 +395,12 @@ def parse_gappers():
         stocks = UpGapper.objects.filter(date__day=today.day, date__month=today.month, date__year=today.year)
         print('parsing yquery statstics')
         parse_stock_statistics_yquery(stocks)
-        print('hiting news api')
-        for s in stocks:
-            stockNewsApi_get_resent_news(s.ticker, s.id)
+        #print('hiting news api')
+        #for s in stocks:
+        #    stockNewsApi_get_resent_news(s.ticker, s.id)
         print('scraping news finviz')
         for s in stocks:
+            print(s.ticker)
             scrape_finviz_news(driver, s.ticker, s.id)
             wait_random_seconds()
     finally:
