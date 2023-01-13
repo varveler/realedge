@@ -13,9 +13,6 @@ from gappers.models import UpGapper
 from news.utils import str_to_dt_stockNewsAPI, str_to_epoch_stockNewsAPI
 
 
-
-
-
 @task(name='stockNewsApi_get_resent_news')
 def stockNewsApi_get_resent_news(ticker, up_gapper_id=None):
     TOKEN_API_stockNewsApi = get_env_variable('TOKEN_API_stockNewsApi')
@@ -63,6 +60,13 @@ def scrape_finviz_news(driver, ticker, up_gapper_id=None):
     except:
         print('Waited and "news-table" id was not found for %s' % ticker)
         no_news_found = True
+    try:
+        wait = WebDriverWait(driver, timeout=20)
+        x_path_first_news_link='//*[@id="news-table"]/tbody/tr[1]/td[2]/div/div[1]/a'
+        wait.until(EC.presence_of_element_located((By.XPATH, x_path_first_news_link)))
+    except:
+        print('Waited for news and not found for %s' % ticker)
+        no_news_found = True
     html_source = driver.page_source
     soup = BeautifulSoup(html_source, "html.parser")
     if no_news_found:
@@ -80,7 +84,7 @@ def scrape_finviz_news(driver, ticker, up_gapper_id=None):
             news_item = Row()
             if cells:
                 str_date = cells[0].text.strip()
-                if '-' not in str_date:
+                if '-' not in str_date: #does not have date only hour
                     prev_news_day_obj = news_itemsss.pop()
                     prev_news_day = prev_news_day_obj.date.split(' ')[0]
                     str_date = prev_news_day + ' ' + str_date
@@ -93,7 +97,7 @@ def scrape_finviz_news(driver, ticker, up_gapper_id=None):
                     title = cells[1].a.text,
                     publish_date = date,
                     defaults = {
-                        'source' : cells[1].find_all('span')[0].text,
+                        'source' : cells[1].find_all('span')[0].text.strip(),
                         'url' : cells[1].a.get('href')
                     }
                 )
