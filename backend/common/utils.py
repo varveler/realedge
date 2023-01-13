@@ -25,7 +25,7 @@ def get_env_variable(var_name):
 
 #CHROMEDRIVER_PATH = '/usr/local/bin/chromedriver'
 #CHROMEDRIVER_PATH = '~/chromedriver'
-#CHROMEDRIVER_PATH = '../backend/drivers/chromedriver'
+#CHROMEDRIVER_PATH = '/mnt/c/Drivers'
 #CHROMEDRIVER_PATH = get_env_variable('CHROMEDRIVER_PATH')
 
 

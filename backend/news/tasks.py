@@ -61,7 +61,7 @@ def scrape_finviz_news(driver, ticker, up_gapper_id=None):
         print('Waited and "news-table" id was not found for %s' % ticker)
         no_news_found = True
     try:
-        wait = WebDriverWait(driver, timeout=20)
+        wait = WebDriverWait(driver, 20)
         x_path_first_news_link='//*[@id="news-table"]/tbody/tr[1]/td[2]/div/div[1]/a'
         wait.until(EC.presence_of_element_located((By.XPATH, x_path_first_news_link)))
     except:
@@ -82,6 +82,9 @@ def scrape_finviz_news(driver, ticker, up_gapper_id=None):
         for i, row in enumerate(news_rows):
             cells = row.find_all("td")
             news_item = Row()
+            print(' #  #  #  #  #  #  #  #  #  #  #  #  #  #  # #')
+            print(cells)
+            print(' #  #  #  #  #  #  #  #  #  #  #  #  #  #  # #')
             if cells:
                 str_date = cells[0].text.strip()
                 if '-' not in str_date: #does not have date only hour
