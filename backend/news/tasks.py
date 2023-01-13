@@ -61,6 +61,15 @@ def scrape_finviz_news(driver, ticker, up_gapper_id=None):
     except:
         print('Waited and "news-table" id was not found for %s' % ticker)
         no_news_found = True
+    driver.execute_script("window.scrollBy(0,900)", "")
+    try:
+        wait = WebDriverWait(driver, 15)
+        x_path_link_6th_news_row='//*[@id="news-table"]/tbody/tr[6]/td[2]/div/div[1]/a'
+        wait.until(EC.presence_of_element_located((By.XPATH, x_path_link_6th_news_row)))
+    except:
+        print(' #  #  #  #  #  #  #  #  #  #  #  #  #  #  # #')
+        print(f'Waited for row 6')
+        print(' #  #  #  #  #  #  #  #  #  #  #  #  #  #  # #')
     html_source = driver.page_source
     soup = BeautifulSoup(html_source, "html.parser")
     if no_news_found:
@@ -70,23 +79,20 @@ def scrape_finviz_news(driver, ticker, up_gapper_id=None):
     elif 'item(s) found in screener)' in html_source:
         print("'item(s) found in screener)' was found in html",  "No news was found for %s" % ticker)
     else:
-        driver.execute_script("window.scrollBy(0,600)", "")
-        time.sleep(3)
         news_itemsss = []
         table = soup.find(id='news-table')
         news_rows = table.find_all("tr")[:11]
         for i, row in enumerate(news_rows, start=1):
             cells = row.find_all("td")
             news_item = Row()
-            print(' #  #  #  #  #  #  #  #  #  #  #  #  #  #  # #')
-            print(cells)
-            print(' #  #  #  #  #  #  #  #  #  #  #  #  #  #  # #')
             try:
                 wait = WebDriverWait(driver, 5)
                 x_path_first_news_link=f'//*[@id="news-table"]/tbody/tr[{i}]/td[2]/div/div[1]/a'
                 wait.until(EC.presence_of_element_located((By.XPATH, x_path_first_news_link)))
             except:
+                print(' #  #  #  #  #  #  #  #  #  #  #  #  #  #  # #')
                 print(f'Waited for row and not found for iteration {i}')
+                print(' #  #  #  #  #  #  #  #  #  #  #  #  #  #  # #')
                 continue
             if cells:
                 str_date = cells[0].text.strip()
