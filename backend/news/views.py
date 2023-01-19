@@ -53,6 +53,7 @@ def partialnews_list(request, ticker):
             print('news.count()', news.count())
             if news.exists():
                 many = True if news.count() > 1 else False
+                news = news if many else news[0]
                 print('many', many)
                 serializer = NewsSerializer(news, many=many)
                 return Response(serializer.data)
