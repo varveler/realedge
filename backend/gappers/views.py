@@ -24,6 +24,7 @@ def homepage(request):
 def public_gappers(request):
     if request.method == 'GET':
         param = request.GET.get('oldest', None)
+        print('param', param)
         EXTRA_DAYS = 15
         gappers = None
         while not gappers: #bug fix when there is not gappers on EXTRA_DAYS

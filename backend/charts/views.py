@@ -18,7 +18,7 @@ from django.http import JsonResponse
 from pprint import pprint
 #from .data import data
 from rest_framework.permissions import IsAuthenticated
-
+import traceback
 
 # Create your views here.
 @api_view(['GET', ])
@@ -46,19 +46,23 @@ def trade_data(request, time_frame):
 @api_view(['GET', ])
 def gapper_data(request, slug, time_frame):
     if request.method == 'GET':
-        ticker = slug.split('-')[0]
-        date = slug.split('-')[1]
-        gapper = UpGapper.objects.filter(ticker=ticker, date__year=date[0:4], date__month=date[4:6], date__day=date[6:8])
-        if not gapper:
-            print('not gapper')
-            return
-        gapper = gapper[0]
-        start, end = give_gapper_chart_start_and_end_dates(gapper, time_frame)
-        data = get_all_data(time_frame, gapper.ticker, start, end)
-        data = apply_vwap_pandas(data)
-        data = apply_intraday_vwap_pandas(data)
-        data = remove_na(data)
-        fix_data(data)
-        news = News.objects.filter(tickers__contains=ticker, publish_date__lte=end, publish_date__gte=start)
-        combine_data_with_news(data, news)
-        return Response(data)
+        try:
+            ticker = slug.split('-')[0]
+            date = slug.split('-')[1]
+            gapper = UpGapper.objects.filter(ticker=ticker, date__year=date[0:4], date__month=date[4:6], date__day=date[6:8])
+            if not gapper:
+                print('not gapper')
+                return
+            gapper = gapper[0]
+            start, end = give_gapper_chart_start_and_end_dates(gapper, time_frame)
+            data = get_all_data(time_frame, gapper.ticker, start, end)
+            data = apply_vwap_pandas(data)
+            data = apply_intraday_vwap_pandas(data)
+            data = remove_na(data)
+            fix_data(data)
+            news = News.objects.filter(tickers__contains=ticker, publish_date__lte=end, publish_date__gte=start)
+            combine_data_with_news(data, news)
+            return Response(data)
+        except Exception as e:
+            print('Eror is', e)
+            print(traceback.format_exc())
