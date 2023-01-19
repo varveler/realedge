@@ -22,11 +22,7 @@ def get_all_data(timeframe, ticker, start, end, page_token=None, bars=[]):
     url = 'https://data.alpaca.markets/v2/stocks/{ticker}/bars'.format(ticker=ticker)
     query_params = {'timeframe': timeframe, 'start': start, 'end': end, 'page_token': page_token}
     headers = {'APCA-API-KEY-ID': APCA_API_KEY_ID, 'APCA-API-SECRET-KEY': APCA_API_SECRET_KEY}
-    print('headers', headers)
     response = requests.get(url, headers=headers, params=query_params)
-    print('response url', response.url)
-    print('response url', response.status_code)
-    print('response url', response.status_code)
     data = response.json()
     bars = bars + data['bars']
     token = data['next_page_token']
