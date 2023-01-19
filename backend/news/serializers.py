@@ -9,7 +9,7 @@ class NewsSerializer(serializers.ModelSerializer):
     short_title = serializers.SerializerMethodField()
     class Meta:
         model = News
-        fields = [ 'uuid',
+        fields = ( 'uuid',
                    'creation',
                    'update',
                    'internal_source',
@@ -23,7 +23,7 @@ class NewsSerializer(serializers.ModelSerializer):
                    'url',
                    'str_date',
                    'natural_time',
-                   'short_title']
+                   'short_title')
     def get_natural_time(self, obj):
         return naturaltime(obj.publish_date)
 
