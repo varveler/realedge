@@ -52,10 +52,10 @@ def partialnews_list(request, ticker):
             print(news.exists())
             print('news.count()', news.count())
             if news.exists():
-                many = True if news.count() > 1 else False
-                news = news if many else news[0]
-                print('many', many)
-                serializer = NewsSerializer(news, many=many)
+                #many = True if news.count() > 1 else False
+                #news = news if many else news[0]
+                #print('many', many)
+                serializer = NewsSerializer(news, many=True)
                 return Response(serializer.data)
             return Response('No news Found', status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
