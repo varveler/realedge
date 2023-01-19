@@ -48,8 +48,12 @@ def partialnews_list(request, ticker):
                 #internal_source='scraping Finviz',
                 publish_date__lte=end,
                 publish_date__gte=start).distinct('publish_date', 'title')
+            print('news', news)
+            print(news.exists())
+            print('news.count()', news.count())
             if news.exists():
                 many = True if news.count() > 1 else False
+                print('many', many)
                 serializer = NewsSerializer(news, many=many)
                 return Response(serializer.data)
             return Response('No news Found', status=status.HTTP_404_NOT_FOUND)

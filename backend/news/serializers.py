@@ -12,7 +12,7 @@ class NewsSerializer(serializers.ModelSerializer):
         fields = [ 'uuid',
                    'creation',
                    'update',
-                   #'internal_source',
+                   'internal_source',
                    'publish_date',
                    'publish_time_epoc',
                    'source',
