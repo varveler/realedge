@@ -16,6 +16,7 @@ import pandas as pd
 import numpy as np
 from decimal import Decimal
 import logging
+import traceback
 
 
 from gappers.models import UpGapper
@@ -403,12 +404,19 @@ def parse_gappers():
             print(s.ticker)
             scrape_finviz_news(driver, s.ticker, s.id)
             wait_random_seconds()
+    except Exception as e:
+        print('There has been an exception:', e)
+        print('####### T R A C E B A C K #######')
+        print(traceback.format_exc())
+        print('####### T R A C E B A C K #######')
     finally:
         if driver:
             print('closing driver')
             driver.close()
             driver.quit()
             print('closing driver DONE')
+        else:
+            print('No Driver to close')
 
 
 @task(name='test_print')

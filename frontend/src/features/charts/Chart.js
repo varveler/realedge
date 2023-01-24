@@ -7,7 +7,7 @@ import { timeFormat } from "d3-time-format";
 import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
-
+// https://stackoverflow.com/questions/55508836/prevent-page-scrolling-when-mouse-is-over-one-particular-div
 import { ChartCanvas, Chart } from "react-stockcharts";
 import {
 	BarSeries,
@@ -53,6 +53,29 @@ const style = {
 
 
 class CandleStickStockScaleChartWithVolumeBarV3 extends React.Component {
+	constructor(props){
+		super(props)
+		this.enableScroll = this.enableScroll.bind(this)
+		this.disableScroll = this.disableScroll.bind(this)
+		this.preventDefault = this.preventDefault.bind(this)
+	}
+	enableScroll = () => {
+		document.removeEventListener('wheel', this.preventDefault, false)
+	}
+	disableScroll = () => {
+		document.addEventListener('wheel', this.preventDefault, {
+		  passive: false,
+		})
+	}
+	preventDefault(e) {
+		e = e || window.event
+		if (e.preventDefault) {
+		  e.preventDefault()
+		}
+		e.returnValue = false
+	  }
+	
+
 	render() {
 		const { type, data: initialData, width, ratio, classes, intraday, timeFrame, ticker } = this.props;
 		const xScaleProvider = discontinuousTimeScaleProvider
@@ -112,6 +135,10 @@ class CandleStickStockScaleChartWithVolumeBarV3 extends React.Component {
 						xAccessor={xAccessor}
 						displayXAccessor={displayXAccessor}
 						xExtents={xExtents}
+						onMouseEnter={this.disableScroll}
+						onMouseLeave={this.enableScroll}
+
+
 					>
 						<Chart id={1} height={400} yExtents={d => [d.high, d.low]} >
 							<defs>
@@ -141,7 +168,7 @@ class CandleStickStockScaleChartWithVolumeBarV3 extends React.Component {
 										marker={TriangleMarker}
 										markerProps={{
 											width:  20,
-		                	direction: "bottom",
+		                					direction: "bottom",
 											stroke: "#ff2626",
 											fill: "#ff2626"
 										}}
